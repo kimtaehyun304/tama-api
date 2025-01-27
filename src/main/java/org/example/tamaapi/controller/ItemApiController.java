@@ -16,7 +16,6 @@ import org.example.tamaapi.repository.ItemRepository;
 import org.example.tamaapi.repository.ItemStockRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,7 +39,7 @@ public class ItemApiController {
     private final ColorItemQueryRepository colorItemQueryRepository;
     private final CategoryRepository categoryRepository;
 
-    @GetMapping("/api/colorItems/{colorItemId}")
+    @GetMapping("/api/color-items/{colorItemId}")
     public ColorItemDetailDto colorItemDetail(@PathVariable Long colorItemId) {
         ColorItem colorItem = colorItemRepository.findWithItemAndStocksByColorItemId(colorItemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 colorItem을 찾을 수 없습니다"));
@@ -50,7 +48,7 @@ public class ItemApiController {
         return new ColorItemDetailDto(colorItem, itemImage, relatedColorItems);
     }
 
-    @GetMapping("/api/itemStocks")
+    @GetMapping("/api/item-stocks")
     public List<ShoppingBagDto> shoppingBag(@RequestParam(value = "id") List<Long> itemStockIds) {
         List<ItemStock> itemStocks = itemStockRepository.findAllWithColorItemAndItemByIdIn(itemStockIds);
         return itemStocks.stream().map(ShoppingBagDto::new).toList();
