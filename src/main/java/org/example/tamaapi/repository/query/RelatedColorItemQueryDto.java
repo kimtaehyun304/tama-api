@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.example.tamaapi.domain.ColorItem;
 
 @Getter
+//categoryItem에서 사용
 public class RelatedColorItemQueryDto {
 
     @JsonIgnore

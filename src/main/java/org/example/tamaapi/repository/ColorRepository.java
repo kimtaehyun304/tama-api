@@ -14,4 +14,9 @@ public interface ColorRepository extends JpaRepository<Color, Long> {
 
     List<Color> findAllByParentIsNull();
 
+
+    //자식이 없는 것도 가져와야함 -> left join
+    @Query("select c from Color c left join fetch c.children where c.id in :colorIds")
+    List<Color> findWithChildrenByIdIn(List<Long> colorIds);
+
 }
