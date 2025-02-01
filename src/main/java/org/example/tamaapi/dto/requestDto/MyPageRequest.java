@@ -2,12 +2,11 @@ package org.example.tamaapi.dto.requestDto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
 
 @Getter
-public class PaginationRequest {
+public class MyPageRequest {
 
     //현재 페이지
     @Positive
@@ -24,7 +23,7 @@ public class PaginationRequest {
 
     Sort.Direction direction ;
 
-    public PaginationRequest(int page, int size, String property, Sort.Direction direction) {
+    public MyPageRequest(int page, int size, String property, Sort.Direction direction) {
         this.page = page;
         this.size = size;
 

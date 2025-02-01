@@ -33,4 +33,5 @@ public class CategoryItemFilterRequest {
 
     //기본값 false -> 품절 포함x
     Boolean isContainSoldOut;
+
 }

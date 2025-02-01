@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.*;
 import org.example.tamaapi.dto.requestDto.CategoryItemFilterRequest;
-import org.example.tamaapi.dto.requestDto.PaginationRequest;
-import org.example.tamaapi.dto.responseDto.PageCustom;
+import org.example.tamaapi.dto.requestDto.MyPageRequest;
+import org.example.tamaapi.dto.responseDto.MyPage;
 import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;
 import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
@@ -56,9 +56,9 @@ public class ItemApiController {
         return itemStocks.stream().map(ShoppingBagDto::new).toList();
     }
 
-
+    /*
     //페이징은 페치조인 불가
-    public PageCustom<CategoryItemResponse> simpleCategoryItem(@RequestParam Long categoryId, @Valid PaginationRequest paginationRequest, BindingResult bindingResult) {
+    public MyPage<CategoryItemResponse> simpleCategoryItem(@RequestParam Long categoryId, @Valid MyPageRequest paginationRequest, BindingResult bindingResult) {
         //상위 카테고리인지 확인
         Category category = categoryRepository.findWithChildrenById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
@@ -77,7 +77,7 @@ public class ItemApiController {
         Page<CategoryItemResponse> categoryItems = items.map(CategoryItemResponse::new);
 
         //페이징 -> 페이징 커스텀 변환
-        PageCustom<CategoryItemResponse> customCategoryItems = new PageCustom<>(categoryItems.getContent(), categoryItems.getPageable(), categoryItems.getTotalPages());
+        MyPage<CategoryItemResponse> customCategoryItems = new MyPage<>(categoryItems.getContent(), categoryItems.getPageable(), categoryItems.getTotalPages());
 
         //자식 조회
         List<Long> itemIds = customCategoryItems.getContent().stream().map(CategoryItemResponse::getItemId).toList();
@@ -91,7 +91,7 @@ public class ItemApiController {
         return customCategoryItems;
     }
 
-    /*
+
     @GetMapping("/api/items")
     public PageCustom<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid PaginationRequest paginationRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
         //상위 카테고리인지 확인
@@ -172,7 +172,7 @@ public class ItemApiController {
     */
 
     @GetMapping("/api/items")
-    public int categoryItem(@RequestParam Long categoryId, @Valid PaginationRequest paginationRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
+    public int categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest pageRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
         //상위 카테고리인지 확인
         Category category = categoryRepository.findWithChildrenById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
@@ -184,7 +184,7 @@ public class ItemApiController {
         else
             categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
 
-        PageRequest pageRequest = PageRequest.of(paginationRequest.getPage()-1, paginationRequest.getSize(), Sort.by(paginationRequest.getDirection(), paginationRequest.getProperty()));
+        //PageRequest pageRequest = PageRequest.of(paginationRequest.getPage()-1, paginationRequest.getSize(), Sort.by(paginationRequest.getDirection(), paginationRequest.getProperty()));
 
         System.out.println("categoryItemFilterRequest = " + categoryItemFilterRequest.toString());
 
@@ -212,15 +212,21 @@ public class ItemApiController {
 
          */
 
-        Page<Item> items = itemQueryRepository.findAllByFilterAndItemIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
-                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut(), pageRequest);
+        List<Item> items = itemQueryRepository.findAllByFilterAndCategoryIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
+                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut(), pageRequest.getPage(), pageRequest.getSize());
 
+        int rowCount = itemQueryRepository.countAllByFilterAndCategoryIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
+                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut(), pageRequest.getPage(), pageRequest.getSize());
+
+        //System.out.println("rowCount = " + rowCount);
+
+        MyPage<Item> customCategoryItems = new MyPage<>(items, pageRequest.getPage(), pageRequest.getSize(), rowCount);
 
         //페이징 -> 페이징 커스텀 변환
         //PageCustom<ItemQueryDto> customCategoryItems = new PageCustom<>(items.getContent(), items.getPageable(), items.getTotalPages());
 
 
-        return items.getTotalPages();
+        return customCategoryItems.getMyPageable().getPageCount();
     }
 
     @GetMapping("/test")
