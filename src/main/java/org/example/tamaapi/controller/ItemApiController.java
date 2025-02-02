@@ -172,7 +172,7 @@ public class ItemApiController {
     */
 
     @GetMapping("/api/items")
-    public int categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest pageRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
+    public List<String> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
         //상위 카테고리인지 확인
         Category category = categoryRepository.findWithChildrenById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
@@ -184,7 +184,7 @@ public class ItemApiController {
         else
             categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
 
-        //PageRequest pageRequest = PageRequest.of(paginationRequest.getPage()-1, paginationRequest.getSize(), Sort.by(paginationRequest.getDirection(), paginationRequest.getProperty()));
+
 
         System.out.println("categoryItemFilterRequest = " + categoryItemFilterRequest.toString());
 
@@ -196,41 +196,25 @@ public class ItemApiController {
             colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
         }
 
-        /*
-        List<Long> colorIds;
+        List<Long> itemIds = itemQueryRepository.findItemIdsByFilterAndCategoryIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
+                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut());
 
-        if(categoryItemFilterRequest.getColorIds() == null)
-            colorIds = null;
-        else {
-            colorIds = new ArrayList<>();
-            List<Color> colors = colorRepository.findWithChildrenByIdIn(categoryItemFilterRequest.getColorIds());
-            for (Color color : colors) {
-                colorIds.add(color.getId());
-                colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
-            }
-        }
+        PageRequest pageRequest = PageRequest.of(myPageRequest.getPage()-1, myPageRequest.getSize(), Sort.by(myPageRequest.getDirection(), myPageRequest.getProperty()));
+        Page<Item> items = itemRepository.findAllByIdIn(itemIds, pageRequest);
 
-         */
-
-        List<Item> items = itemQueryRepository.findAllByFilterAndCategoryIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
-                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut(), pageRequest.getPage(), pageRequest.getSize());
-
-        int rowCount = itemQueryRepository.countAllByFilterAndCategoryIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
-                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut(), pageRequest.getPage(), pageRequest.getSize());
-
-        //System.out.println("rowCount = " + rowCount);
-
-        MyPage<Item> customCategoryItems = new MyPage<>(items, pageRequest.getPage(), pageRequest.getSize(), rowCount);
+        MyPage<Item> customCategoryItems = new MyPage<>(items.getContent(), items.getPageable(), items.getTotalPages());
 
         //페이징 -> 페이징 커스텀 변환
         //PageCustom<ItemQueryDto> customCategoryItems = new PageCustom<>(items.getContent(), items.getPageable(), items.getTotalPages());
 
 
-        return customCategoryItems.getMyPageable().getPageCount();
+        return customCategoryItems.getContent().stream().map(c-> c.getName()).toList();
     }
 
     @GetMapping("/test")
-    public void test(){
+    public int test(){
+        List<Item> test = itemRepository.test();
+        return test.size();
     }
 
 

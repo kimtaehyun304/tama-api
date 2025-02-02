@@ -25,7 +25,7 @@ public class ItemQueryRepository {
     Optional<ItemMinMaxQueryDto> findMinMaxPriceByCategoryIdIn(List<Long> categoryIds);
     */
 
-    public Optional<ItemMinMaxQueryDto> findMinMaxPriceByCategoryIdIn(List<Long> categoryIds){
+    public Optional<ItemMinMaxQueryDto> findMinMaxPriceByCategoryIdIn(List<Long> categoryIds) {
         String jpql = "select new org.example.tamaapi.repository.query.ItemMinMaxQueryDto(" +
                 "MIN(COALESCE(i.discountedPrice, i.price)), " +
                 "MAX(COALESCE(i.discountedPrice, i.price))) " +
@@ -34,85 +34,83 @@ public class ItemQueryRepository {
         return Optional.ofNullable(itemMinMaxQueryDto);
     }
 
-    //페이징용 부모
-    public TypedQuery<Item> filter(
-            List<Long> categoryIds, Integer minPrice, Integer maxPrice,
-            List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut, int page, int size) {
-        /*
+    //카테고리 아이템 검색 필터 공통 (특정 페이지, rowCount 공통 부분)
+     /*
         StringBuilder jpql = new StringBuilder(
                 "SELECT new org.example.tamaapi.repository.query.ItemQueryDto(i, c, SUM(s.stock)) FROM Item i JOIN i.colorItems c JOIN c.stocks s"
         );
         */
 
-        StringBuilder jpql = new StringBuilder(
-                "SELECT i FROM Item i JOIN i.colorItems c JOIN c.stocks s"
-        );
+    //Item 중복 자동 제거됨
+    public List<Long> findItemIdsByFilterAndCategoryIdIn(List<Long> categoryIds, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+
+        String jpql = "SELECT i FROM Item i JOIN i.colorItems c JOIN c.stocks s";
         boolean isFirstCondition = true;
 
         if (categoryIds != null && !categoryIds.isEmpty()) {
             if (isFirstCondition) {
-                jpql.append(" WHERE");
+                jpql += " WHERE";
                 isFirstCondition = false;
             } else {
-                jpql.append(" AND");
+                jpql += " AND";
             }
-            jpql.append(" i.category.id IN :categoryIds");
+            jpql += " i.category.id IN :categoryIds";
         }
 
         if (minPrice != null) {
             if (isFirstCondition) {
-                jpql.append(" WHERE");
+                jpql += " WHERE";
                 isFirstCondition = false;
             } else {
-                jpql.append(" AND");
+                jpql += " AND";
             }
-            jpql.append(" i.price >= :minPrice");
+            jpql += " i.price >= :minPrice";
         }
 
         if (maxPrice != null) {
             if (isFirstCondition) {
-                jpql.append(" WHERE");
+                jpql += " WHERE";
                 isFirstCondition = false;
             } else {
-                jpql.append(" AND");
+                jpql += " AND";
             }
-            jpql.append(" i.price <= :maxPrice");
+            jpql += " i.price <= :maxPrice";
         }
 
         if (colorIds != null && !colorIds.isEmpty()) {
             if (isFirstCondition) {
-                jpql.append(" WHERE");
+                jpql += " WHERE";
                 isFirstCondition = false;
             } else {
-                jpql.append(" AND");
+                jpql += " AND";
             }
-            jpql.append(" c.color.id IN :colorIds");
+            jpql += " c.color.id IN :colorIds";
         }
 
         if (genders != null && !genders.isEmpty()) {
             if (isFirstCondition) {
-                jpql.append(" WHERE");
+                jpql += " WHERE";
                 isFirstCondition = false;
             } else {
-                jpql.append(" AND");
+                jpql += " AND";
             }
-            jpql.append(" i.gender IN :genders");
+            jpql += " i.gender IN :genders";
         }
 
         if (isContainSoldOut == null || Boolean.FALSE.equals(isContainSoldOut)) {
             if (isFirstCondition) {
-                jpql.append(" WHERE");
+                jpql += " WHERE";
                 isFirstCondition = false;
             } else {
-                jpql.append(" AND");
+                jpql += " AND";
             }
-            jpql.append(" s.stock > 0");
+            jpql += " s.stock > 0";
         }
 
         // 그룹화 추가
-        jpql.append(" GROUP BY i.id, c.id");
+        jpql += " GROUP BY i.id, c.id";
 
-        TypedQuery<Item> query = em.createQuery(jpql.toString(), Item.class);
+        TypedQuery<Item> query = em.createQuery(jpql, Item.class);
 
         if (categoryIds != null && !categoryIds.isEmpty()) {
             query.setParameter("categoryIds", categoryIds);
@@ -129,9 +127,10 @@ public class ItemQueryRepository {
         if (genders != null && !genders.isEmpty()) {
             query.setParameter("genders", genders);
         }
-        return query;
-    }
 
+        return query.getResultList().stream().map(Item::getId).toList();
+    }
+/*
     public List<Item> findAllByFilterAndCategoryIdIn(
             List<Long> categoryIds, Integer minPrice, Integer maxPrice,
             List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut, int page, int size) {
@@ -139,13 +138,13 @@ public class ItemQueryRepository {
         TypedQuery<Item> query = filter(categoryIds, minPrice, maxPrice, colorIds, genders, isContainSoldOut, page, size);
 
         // 페이징 처리
-        query.setFirstResult((page-1)*size);
+        query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
         return query.getResultList();
     }
 
-
+    //rowCount 조회, sql count로 바꿔야함
     public int countAllByFilterAndCategoryIdIn(
             List<Long> categoryIds, Integer minPrice, Integer maxPrice,
             List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut, int page, int size) {
@@ -154,5 +153,5 @@ public class ItemQueryRepository {
 
         return query.getResultList().size();
     }
-
+*/
 }

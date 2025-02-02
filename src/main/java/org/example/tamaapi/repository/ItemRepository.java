@@ -17,9 +17,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select i from Item i join i.colorItems c join c.stocks s where i.category.id = :categoryId group by i.id, c.id having sum(s.stock) > 0")
     Page<Item> findAllBySumGreaterThan(Long categoryId, Pageable pageable);
 
-    Page<Item> findAllByCategoryIdIn(List<Long> categoryIds, Pageable pageable);
+    //Page<Item> findAllByCategoryIdIn(List<Long> categoryIds, Pageable pageable);
 
-    @Query("select i from Item i join fetch i.colorItems c join fetch c.stocks s")
+    Page<Item> findAllByIdIn(List<Long> itemIds, Pageable pageable);
+
+    @Query("select i from Item i join  i.colorItems c join  c.stocks s")
     List<Item> test();
 
 

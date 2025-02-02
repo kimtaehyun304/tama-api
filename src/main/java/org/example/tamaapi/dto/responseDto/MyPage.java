@@ -2,6 +2,7 @@ package org.example.tamaapi.dto.responseDto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,17 +14,17 @@ public class MyPage<T> {
     @JsonProperty("page")
     private MyPageable myPageable;
 
-    /*data jpa page 객체용
-    public PageCustom(List<T> content, Pageable pageable, long totalPages) {
+    //data jpa page 객체용
+    public MyPage(List<T> content, Pageable pageable, long totalPages) {
         this.content = content;
-        page = new PageableCustom(pageable, totalPages);
+        myPageable = new MyPageable(pageable, totalPages);
     }
-     */
 
+    /*
     public MyPage(List<T> content, int page, int size, int rowCount) {
         this.content = content;
         myPageable = new MyPageable(page,size,rowCount);
-    }
+    }*/
 
 
 }
