@@ -7,6 +7,7 @@ import org.example.tamaapi.dto.requestDto.CategoryItemFilterRequest;
 import org.example.tamaapi.dto.requestDto.MyPageRequest;
 import org.example.tamaapi.dto.responseDto.MyPage;
 import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;
+import org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemResponse;
 import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
 import org.example.tamaapi.repository.*;
@@ -16,16 +17,16 @@ import org.example.tamaapi.repository.ItemRepository;
 import org.example.tamaapi.repository.ItemStockRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -172,43 +173,46 @@ public class ItemApiController {
     */
 
     @GetMapping("/api/items")
-    public List<String> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
+    public MyPage<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest, @Valid CategoryItemFilterRequest itemFilter) {
         //상위 카테고리인지 확인
         Category category = categoryRepository.findWithChildrenById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
         List<Long> categoryIds = new ArrayList<>();
 
-        //상위 카테고리면 자식을 다 보여줌 = 전체
+        //상위 카테고리일경우 하위를 함께 보여줌
         if(category.getChildren().isEmpty())
             categoryIds.add(categoryId);
         else
             categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
 
-
-
-        System.out.println("categoryItemFilterRequest = " + categoryItemFilterRequest.toString());
-
-        //부모 색상과 자식 색상을 모두 보여줌
-        List<Color> colors = colorRepository.findWithChildrenByIdIn(categoryItemFilterRequest.getColorIds());
+        //상위 색상일경우 하위를 함께 보여줌
+        List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
         List<Long> colorIds = new ArrayList<>();
         for (Color color : colors) {
             colorIds.add(color.getId());
             colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
         }
 
-        List<Long> itemIds = itemQueryRepository.findItemIdsByFilterAndCategoryIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), colorIds
-                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut());
+        List<RelatedColorItemResponse> RelatedColorItemResponses = colorItemQueryRepository.findAllByCategoryIdInAndFilter(categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice(), colorIds
+                , itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
 
-        PageRequest pageRequest = PageRequest.of(myPageRequest.getPage()-1, myPageRequest.getSize(), Sort.by(myPageRequest.getDirection(), myPageRequest.getProperty()));
+        //페이징 쿼리 IN 절에 쓸 Set
+        Set<Long> itemIds = RelatedColorItemResponses.stream().map(RelatedColorItemResponse::getItemId).collect(Collectors.toSet());
+
+        //페이징 쿼리
+        PageRequest pageRequest = PageRequest.of(myPageRequest.getPage()-1, myPageRequest.getSize(), myPageRequest.getSort());
+        //PageRequest pageRequest = PageRequest.of(pageable.getPageNumber()-1, pageable.getPageSize(), pageable.getSort());
         Page<Item> items = itemRepository.findAllByIdIn(itemIds, pageRequest);
 
-        MyPage<Item> customCategoryItems = new MyPage<>(items.getContent(), items.getPageable(), items.getTotalPages());
+        //커스텀 페이징 변환
+        MyPage<CategoryItemResponse> categoryItems = new MyPage<>(items.getContent().stream().map(CategoryItemResponse::new).toList(), items.getPageable(), items.getTotalPages());
 
-        //페이징 -> 페이징 커스텀 변환
-        //PageCustom<ItemQueryDto> customCategoryItems = new PageCustom<>(items.getContent(), items.getPageable(), items.getTotalPages());
+        //key:itemId. item에 colorItem 넣음
+        Map<Long, List<RelatedColorItemResponse>> colorItemMap = RelatedColorItemResponses.stream()
+                .collect(Collectors.groupingBy(RelatedColorItemResponse::getItemId));
+        categoryItems.getContent().forEach(ci -> ci.setRelatedColorItems(colorItemMap.get(ci.getItemId())));
 
-
-        return customCategoryItems.getContent().stream().map(c-> c.getName()).toList();
+        return categoryItems;
     }
 
     @GetMapping("/test")

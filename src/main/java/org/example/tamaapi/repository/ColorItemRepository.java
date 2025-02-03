@@ -19,7 +19,7 @@ public interface ColorItemRepository extends JpaRepository<ColorItem, Long> {
     List<ColorItem> findAllByItemId(Long itemId);
 
 
-    @Query("select c from ColorItem c join c.stocks s where c.item.id in :itemsIds")
-    List<ColorItem> findAllWithItemStock(List<Long> itemsIds);
+    @Query("select c from ColorItem c join fetch c.stocks s where c.item.id in :itemsIds")
+    List<ColorItem> findAllWithStockByItemIdIn(List<Long> itemsIds);
 
 }

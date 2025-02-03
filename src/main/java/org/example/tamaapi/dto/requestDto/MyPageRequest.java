@@ -4,6 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.MultiValueMap;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 public class MyPageRequest {
@@ -18,24 +23,32 @@ public class MyPageRequest {
     @NotNull
     int size;
 
-    //sort
-    String property;
+    Sort sort;
 
-    Sort.Direction direction ;
-
-    public MyPageRequest(int page, int size, String property, Sort.Direction direction) {
+    public MyPageRequest(int page, int size, List<String> sort) {
         this.page = page;
         this.size = size;
-
-        if(property == null || property.isEmpty())
-            this.property = "createdAt";
-        else
-            this.property = property;
-
-        if(direction == null)
-            this.direction = Sort.Direction.DESC;
-        else
-            this.direction = direction;
-
+        this.sort = parseSort(sort);
     }
+
+    private Sort parseSort(List<String> sort) {
+
+        if (sort == null || sort.isEmpty()) {
+            return Sort.by(Sort.Direction.DESC, "createdAt", "id");
+        }
+
+        List<Sort.Order> orders = sort.stream()
+                .map(param -> {
+                            String[] parts = param.split("-");
+                            String property = parts[0].trim();
+                            Sort.Direction direction = (parts.length > 1) ? Sort.Direction.fromString(parts[1].trim()) : Sort.Direction.ASC;
+                            return new Sort.Order(direction, property, );
+                        }
+                ).collect(Collectors.toList());
+        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
+
+        return Sort.by(orders);
+    }
+
+
 }

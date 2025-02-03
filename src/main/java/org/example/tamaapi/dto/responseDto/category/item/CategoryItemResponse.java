@@ -22,7 +22,7 @@ public class CategoryItemResponse {
 
     Integer discountedPrice;
 
-    List<RelatedColorItemQueryDto> relatedColorItems;
+    List<RelatedColorItemResponse> relatedColorItems;
 
 
     public CategoryItemResponse(Item item) {
@@ -31,7 +31,6 @@ public class CategoryItemResponse {
         price = item.getPrice();
         discountedPrice = item.getDiscountedPrice();
     }
-
 
     public CategoryItemResponse(Item item, ColorItem colorItem, Long totalStock) {
         itemId = item.getId();

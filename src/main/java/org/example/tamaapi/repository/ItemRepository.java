@@ -9,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
@@ -18,10 +20,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Page<Item> findAllBySumGreaterThan(Long categoryId, Pageable pageable);
 
     //Page<Item> findAllByCategoryIdIn(List<Long> categoryIds, Pageable pageable);
+    @Query("select i from Item i where i.id in :itemIds order by ")
+    Page<Item> findAllByIdIn(Set<Long> itemIds, Pageable pageable);
 
-    Page<Item> findAllByIdIn(List<Long> itemIds, Pageable pageable);
-
-    @Query("select i from Item i join  i.colorItems c join  c.stocks s")
+    @Query("select i from Item i join i.colorItems c join c.stocks s")
     List<Item> test();
 
 

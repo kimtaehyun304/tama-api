@@ -16,11 +16,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 @Aspect
 public class AspectConfig {
 
-    //MethodArgumentNotValidException 처리
-    //AOP 없이 MethodArgumentNotValidException 공통예외 처리가능하나 에러메시지 가독성 별로 -> bindingResult로 에러메시지 가공
+    //bindingResult 대신 전역예외처리 썼음
     //* org.example.tamaapi.controller.* 안됨
     //throw new MethodArgumentNotValidException() 안됨. return ResponseEntity 안됨
-    @Before("execution(* org.example.tamaapi.controller..*(.., @jakarta.validation.Valid (*), ..)))")
+    //@Before("execution(* org.example.tamaapi.controller..*(.., @jakarta.validation.Valid (*), ..)))")
     public void validationAspect(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         StringBuilder message = new StringBuilder();

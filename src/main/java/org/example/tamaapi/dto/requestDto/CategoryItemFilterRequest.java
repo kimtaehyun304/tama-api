@@ -12,6 +12,7 @@ import org.example.tamaapi.domain.Gender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor
@@ -33,5 +34,7 @@ public class CategoryItemFilterRequest {
 
     //기본값 false -> 품절 포함x
     Boolean isContainSoldOut;
+
+    List<MySort> sorts;
 
 }
