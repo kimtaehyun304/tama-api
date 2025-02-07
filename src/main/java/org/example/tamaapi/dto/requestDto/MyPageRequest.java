@@ -23,32 +23,15 @@ public class MyPageRequest {
     @NotNull
     int size;
 
-    Sort sort;
+    //동적 정렬 안되서 못씀
+    //Sort sort;
 
-    public MyPageRequest(int page, int size, List<String> sort) {
+    public MyPageRequest(int page, int size) {
         this.page = page;
         this.size = size;
-        this.sort = parseSort(sort);
     }
 
-    private Sort parseSort(List<String> sort) {
 
-        if (sort == null || sort.isEmpty()) {
-            return Sort.by(Sort.Direction.DESC, "createdAt", "id");
-        }
-
-        List<Sort.Order> orders = sort.stream()
-                .map(param -> {
-                            String[] parts = param.split("-");
-                            String property = parts[0].trim();
-                            Sort.Direction direction = (parts.length > 1) ? Sort.Direction.fromString(parts[1].trim()) : Sort.Direction.ASC;
-                            return new Sort.Order(direction, property, );
-                        }
-                ).collect(Collectors.toList());
-        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
-
-        return Sort.by(orders);
-    }
 
 
 }

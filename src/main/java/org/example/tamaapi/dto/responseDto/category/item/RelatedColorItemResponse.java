@@ -4,24 +4,29 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import org.example.tamaapi.domain.ColorItem;
 
+import java.time.LocalDateTime;
+
 @Getter
 //categoryItem에서 사용
 public class RelatedColorItemResponse {
 
     @JsonIgnore
-    Long itemId;
+    private Long itemId;
 
-    Long colorItemId;
+    private Long colorItemId;
 
-    String color;
+    private String color;
 
-    String hexCode;
+    private String hexCode;
 
     //대표 이미지
-    String imageSrc;
+    private String imageSrc;
 
     //모든 사이즈 재고 합계
-    int totalStock;
+    private int totalStock;
+
+    //@JsonIgnore
+    //private LocalDateTime createdAt;
 
     public RelatedColorItemResponse(ColorItem colorItem, Long totalStock) {
         itemId = colorItem.getItem().getId();
@@ -30,6 +35,7 @@ public class RelatedColorItemResponse {
         hexCode = colorItem.getColor().getHexCode();
         imageSrc = colorItem.getImageSrc();
         this.totalStock = (int) totalStock.longValue();
+        //createdAt = colorItem.getCreatedAt();
     }
 
 }

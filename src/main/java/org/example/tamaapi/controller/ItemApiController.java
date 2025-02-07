@@ -1,15 +1,18 @@
 package org.example.tamaapi.controller;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.*;
 import org.example.tamaapi.dto.requestDto.CategoryItemFilterRequest;
 import org.example.tamaapi.dto.requestDto.MyPageRequest;
+import org.example.tamaapi.dto.requestDto.MySort;
 import org.example.tamaapi.dto.responseDto.MyPage;
 import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;
 import org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemResponse;
 import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
+import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.query.*;
@@ -21,10 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,8 +42,9 @@ public class ItemApiController {
     private final CategoryRepository categoryRepository;
     private final ItemQueryRepository itemQueryRepository;
     private final ColorRepository colorRepository;
+    private final SortValidator sortValidator;
 
-    @GetMapping("/api/color-items/{colorItemId}")
+    @GetMapping("/api/colorItems/{colorItemId}")
     public ColorItemDetailDto colorItemDetail(@PathVariable Long colorItemId) {
         ColorItem colorItem = colorItemRepository.findWithItemAndStocksByColorItemId(colorItemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 colorItem을 찾을 수 없습니다"));
@@ -51,129 +53,18 @@ public class ItemApiController {
         return new ColorItemDetailDto(colorItem, itemImage, relatedColorItems);
     }
 
-    @GetMapping("/api/item-stocks")
+    @GetMapping("/api/itemStocks")
     public List<ShoppingBagDto> shoppingBag(@RequestParam(value = "id") List<Long> itemStockIds) {
         List<ItemStock> itemStocks = itemStockRepository.findAllWithColorItemAndItemByIdIn(itemStockIds);
         return itemStocks.stream().map(ShoppingBagDto::new).toList();
     }
 
-    /*
-    //페이징은 페치조인 불가
-    public MyPage<CategoryItemResponse> simpleCategoryItem(@RequestParam Long categoryId, @Valid MyPageRequest paginationRequest, BindingResult bindingResult) {
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리는 자식을 다 보여줌 = 전체
-        if(category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-        PageRequest pageRequest = PageRequest.of(paginationRequest.getPage()-1, paginationRequest.getSize(), Sort.by(paginationRequest.getDirection(), paginationRequest.getProperty()));
-
-        //페이징이라 부모만 조회
-        Page<Item> items = itemRepository.findAllByCategoryIdIn(categoryIds, pageRequest);
-        Page<CategoryItemResponse> categoryItems = items.map(CategoryItemResponse::new);
-
-        //페이징 -> 페이징 커스텀 변환
-        MyPage<CategoryItemResponse> customCategoryItems = new MyPage<>(categoryItems.getContent(), categoryItems.getPageable(), categoryItems.getTotalPages());
-
-        //자식 조회
-        List<Long> itemIds = customCategoryItems.getContent().stream().map(CategoryItemResponse::getItemId).toList();
-        List<RelatedColorItemQueryDto> relatedColorItemQueryDtos = colorItemQueryRepository.findAllByItemIdIn(itemIds);
-
-        //부모에 자식 넣음
-        Map<Long, List<RelatedColorItemQueryDto>> colorItemMap = relatedColorItemQueryDtos.stream()
-                .collect(Collectors.groupingBy(RelatedColorItemQueryDto::getItemId));
-        customCategoryItems.getContent().forEach(ci -> ci.setRelatedColorItems(colorItemMap.get(ci.getItemId())));
-
-        return customCategoryItems;
-    }
-
-
+    //sort는 if문 검증이라 분리
     @GetMapping("/api/items")
-    public PageCustom<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid PaginationRequest paginationRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리는 자식을 다 보여줌 = 전체
-        if(category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-        PageRequest pageRequest = PageRequest.of(paginationRequest.getPage()-1, paginationRequest.getSize(), Sort.by(paginationRequest.getDirection(), paginationRequest.getProperty()));
-
-        //페이징이라 부모만 조회
-        Page<Item> items = itemRepository.findAllByCategoryIdIn(categoryIds, pageRequest);
-        Page<CategoryItemResponse> categoryItems = items.map(CategoryItemResponse::new);
-
-        //페이징 -> 페이징 커스텀 변환
-        PageCustom<CategoryItemResponse> customCategoryItems = new PageCustom<>(categoryItems.getContent(), categoryItems.getPageable(), categoryItems.getTotalPages());
-
-        //자식 조회
-        List<Long> itemIds = customCategoryItems.getContent().stream().map(CategoryItemResponse::getItemId).toList();
-
-        //상위 카테고리인지 확인
-        Color color = colorRepository.findWithChildrenByIdIn(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리는 자식을 다 보여줌 = 전체
-        if(category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-
-        List<RelatedColorItemQueryDto> relatedColorItemQueryDtos = colorItemQueryRepository.findAllByFilterAndItemIdIn
-                (itemIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), categoryItemFilterRequest.getColorIds()
-                        , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut());
-
-        //부모에 자식 넣음
-        Map<Long, List<RelatedColorItemQueryDto>> colorItemMap = relatedColorItemQueryDtos.stream()
-                .collect(Collectors.groupingBy(RelatedColorItemQueryDto::getItemId));
-        customCategoryItems.getContent().forEach(ci -> ci.setRelatedColorItems(colorItemMap.get(ci.getItemId())));
-
-        return customCategoryItems;
-    }
-
-
-    @GetMapping("/api/items")
-    public PageCustom<ItemQueryDto> categoryItem(@RequestParam Long categoryId, @Valid PaginationRequest paginationRequest, CategoryItemFilterRequest categoryItemFilterRequest, BindingResult bindingResult) {
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리는 자식을 다 보여줌 = 전체
-        if(category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-        PageRequest pageRequest = PageRequest.of(paginationRequest.getPage()-1, paginationRequest.getSize(), Sort.by(paginationRequest.getDirection(), paginationRequest.getProperty()));
-
-
-       // Page<Item> items = itemRepository.findAllByCategoryIdIn(categoryIds, pageRequest);
-        Page<ItemQueryDto> items = itemQueryRepository.findAllByFilterAndItemIdIn(categoryIds, categoryItemFilterRequest.getMinPrice(), categoryItemFilterRequest.getMaxPrice(), categoryItemFilterRequest.getColorIds()
-                , categoryItemFilterRequest.getGenders(), categoryItemFilterRequest.getIsContainSoldOut(), pageRequest);
-
-
-        //페이징 -> 페이징 커스텀 변환
-        PageCustom<ItemQueryDto> customCategoryItems = new PageCustom<>(items.getContent(), items.getPageable(), items.getTotalPages());
-
-
-        return customCategoryItems;
-    }
-    */
-
-    @GetMapping("/api/items")
-    public MyPage<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest, @Valid CategoryItemFilterRequest itemFilter) {
+    public MyPage<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest
+            , @Validated @RequestParam MySort sort, BindingResult bindingResult
+            , @Valid CategoryItemFilterRequest itemFilter) {
+        sortValidator.validate(sort, bindingResult);
         //상위 카테고리인지 확인
         Category category = categoryRepository.findWithChildrenById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
@@ -186,33 +77,63 @@ public class ItemApiController {
             categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
 
         //상위 색상일경우 하위를 함께 보여줌
-        List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
         List<Long> colorIds = new ArrayList<>();
-        for (Color color : colors) {
-            colorIds.add(color.getId());
-            colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
+        if(itemFilter != null){
+            List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
+            for (Color color : colors) {
+                colorIds.add(color.getId());
+                colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
+            }
         }
 
-        List<RelatedColorItemResponse> RelatedColorItemResponses = colorItemQueryRepository.findAllByCategoryIdInAndFilter(categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice(), colorIds
+        //다용도
+        List<Item> items = itemQueryRepository.findItemsByCategoryIdInAndFilter(categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice(), colorIds
                 , itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
-
-        //페이징 쿼리 IN 절에 쓸 Set
-        Set<Long> itemIds = RelatedColorItemResponses.stream().map(RelatedColorItemResponse::getItemId).collect(Collectors.toSet());
-
-        //페이징 쿼리
-        PageRequest pageRequest = PageRequest.of(myPageRequest.getPage()-1, myPageRequest.getSize(), myPageRequest.getSort());
-        //PageRequest pageRequest = PageRequest.of(pageable.getPageNumber()-1, pageable.getPageSize(), pageable.getSort());
-        Page<Item> items = itemRepository.findAllByIdIn(itemIds, pageRequest);
+        //페이징
+        List<Long> itemIds = items.stream().map(Item::getId).toList();
+        List<CategoryItemResponse> categoryItems = itemQueryRepository.findAllByItemIdIn(itemIds, sort, myPageRequest);
 
         //커스텀 페이징 변환
-        MyPage<CategoryItemResponse> categoryItems = new MyPage<>(items.getContent().stream().map(CategoryItemResponse::new).toList(), items.getPageable(), items.getTotalPages());
+        int rowCount = items.size();
+        MyPage<CategoryItemResponse> myCategoryItems = new MyPage<>(categoryItems, myPageRequest, rowCount);
 
-        //key:itemId. item에 colorItem 넣음
-        Map<Long, List<RelatedColorItemResponse>> colorItemMap = RelatedColorItemResponses.stream()
-                .collect(Collectors.groupingBy(RelatedColorItemResponse::getItemId));
-        categoryItems.getContent().forEach(ci -> ci.setRelatedColorItems(colorItemMap.get(ci.getItemId())));
+        List<RelatedColorItemResponse> colorItems = itemQueryRepository.findColorItemsByCategoryIdInAndFilter(itemIds, colorIds, itemFilter.getIsContainSoldOut());
 
-        return categoryItems;
+        //key:itemId. List<CategoryItemResponse>에 List<RelatedColorItemResponse> 삽입
+        Map<Long, List<RelatedColorItemResponse>> colorItemMap = colorItems.stream().collect(Collectors.groupingBy(RelatedColorItemResponse::getItemId));
+        myCategoryItems.getContent().forEach(ci -> ci.setRelatedColorItems(colorItemMap.get(ci.getItemId())));
+
+        return myCategoryItems;
+    }
+
+    @GetMapping("/api/items/minMaxPrice")
+    public ItemMinMaxQueryDto categoryItemMinMaxPrice(@RequestParam Long categoryId, @Valid CategoryItemFilterRequest itemFilter) {
+
+        //상위 카테고리인지 확인
+        Category category = categoryRepository.findWithChildrenById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
+        List<Long> categoryIds = new ArrayList<>();
+
+        //상위 카테고리일경우 하위를 함께 보여줌
+        if(category.getChildren().isEmpty())
+            categoryIds.add(categoryId);
+        else
+            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
+
+        //상위 색상일경우 하위를 함께 보여줌
+        List<Long> colorIds = new ArrayList<>();
+        if(itemFilter != null){
+            List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
+            for (Color color : colors) {
+                colorIds.add(color.getId());
+                colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
+            }
+        }
+
+        ItemMinMaxQueryDto itemMinMaxQueryDto = itemQueryRepository.findMinMaxPriceByCategoryIdInAndFilter(categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice(), colorIds
+                , itemFilter.getGenders(), itemFilter.getIsContainSoldOut()).orElseThrow(() -> new IllegalArgumentException("해당 아이템 최소가격 최대가격을 찾을 수 없습니다"));
+
+        return itemMinMaxQueryDto;
     }
 
     @GetMapping("/test")
@@ -220,25 +141,6 @@ public class ItemApiController {
         List<Item> test = itemRepository.test();
         return test.size();
     }
-
-
-
-    @GetMapping("/api/items/min-max-price")
-    public ItemMinMaxQueryDto categoryItemMinMaxPrice(@RequestParam Long categoryId) {
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리는 자식을 다 보여줌 = 전체
-        if(category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-        return itemQueryRepository.findMinMaxPriceByCategoryIdIn(categoryIds).orElseThrow(() -> new IllegalArgumentException("해당 아이템 최소가격 최대가격을 찾을 수 없습니다"));
-    }
-
 
     // 임시로 모든 아이템 로직으로 사용
     @GetMapping("/api/items/best")

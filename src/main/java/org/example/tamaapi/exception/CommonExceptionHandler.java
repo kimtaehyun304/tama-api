@@ -5,6 +5,7 @@ import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,17 +22,16 @@ import java.util.Map;
 public class CommonExceptionHandler {
 
     //UnException error
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<SimpleResponse> exception(Exception exception) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SimpleResponse(exception.getMessage()));
-    }
+
 
     //UnException error
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<SimpleResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
         StringBuilder message = new StringBuilder();
-        for (FieldError fieldError : exception.getBindingResult().getFieldErrors())
-            message.append(fieldError.getField()).append("는(은) ").append(fieldError.getDefaultMessage()).append(". ");
+
+        for (FieldError fieldError : exception.getBindingResult().getFieldErrors()){
+                message.append(fieldError.getField()).append("는(은) ").append(fieldError.getDefaultMessage()).append(". ");
+        }
 
         return ResponseEntity.badRequest().body(new SimpleResponse(message.toString()));
     }

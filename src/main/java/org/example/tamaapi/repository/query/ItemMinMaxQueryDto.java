@@ -8,10 +8,10 @@ import org.example.tamaapi.domain.ColorItem;
 //categoryItem에서 사용
 public class ItemMinMaxQueryDto {
 
-    int minPrice;
-    int maxPrice;
+    Integer minPrice;
+    Integer maxPrice;
 
-    public ItemMinMaxQueryDto(int minPrice, int maxPrice) {
+    public ItemMinMaxQueryDto(Integer minPrice, Integer maxPrice) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
     }

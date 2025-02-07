@@ -14,20 +14,22 @@ public class MyPageable {
     //계산된 페이지 수 (db row result / size)
     private long pageCount;
 
+    //전체 상품 수
+    private long rowCount;
 
-    //Page 객체는 0부터 시작 -> 1부터 시작하게 변경
+    //spring data jpa Page 커스텀. 페이지 0부터 시작 -> 1부터 시작 변경
     public MyPageable(Pageable pageable, long totalPages) {
         page = pageable.getPageNumber()+1;
         size = pageable.getPageSize();
         this.pageCount = totalPages;
     }
 
-
-    /* 직접 만든거
-    public MyPageable( int page, int size, int rowCount) {
+    //직접 만든 페이징. 페이지 1부터 시작
+    public MyPageable(int page, int size, int rowCount) {
         this.page = page;
         this.size = size;
         this.pageCount = (int) Math.ceil((double) rowCount/size);
+        this.rowCount = rowCount;
     }
-    */
+
 }
