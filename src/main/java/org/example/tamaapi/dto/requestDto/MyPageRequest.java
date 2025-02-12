@@ -23,7 +23,7 @@ public class MyPageRequest {
     @NotNull
     int size;
 
-    //동적 정렬 안되서 못씀
+    //동적 정렬 안되서 못씀 + 엔티티 명 그대로 쓰는 문제
     //Sort sort;
 
     public MyPageRequest(int page, int size) {

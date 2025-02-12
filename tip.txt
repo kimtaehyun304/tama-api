@@ -1,0 +1,4 @@
+@Column(updatable = false)
+ㄴ값이 바뀌어도 변경감지 안함. 테스트할때 불편해서 껐음
+
+@RequestBody: 기본생성자, getter 사용

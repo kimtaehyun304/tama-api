@@ -18,10 +18,11 @@ public class MyPageable {
     private long rowCount;
 
     //spring data jpa Page 커스텀. 페이지 0부터 시작 -> 1부터 시작 변경
-    public MyPageable(Pageable pageable, long totalPages) {
+    public MyPageable(Pageable pageable, long totalPages, long rowCount) {
         page = pageable.getPageNumber()+1;
         size = pageable.getPageSize();
         this.pageCount = totalPages;
+        this.rowCount = rowCount;
     }
 
     //직접 만든 페이징. 페이지 1부터 시작

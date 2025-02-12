@@ -13,6 +13,4 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long> {
     @Query("select isk from ItemStock isk join fetch isk.colorItem c join fetch c.item i where isk.id in :ids")
     List<ItemStock> findAllWithColorItemAndItemByIdIn(List<Long> ids);
 
-
-
 }

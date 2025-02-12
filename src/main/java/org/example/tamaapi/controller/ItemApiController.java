@@ -13,6 +13,7 @@ import org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemRespons
 import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
 import org.example.tamaapi.dto.validator.SortValidator;
+import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.query.*;
@@ -62,9 +63,13 @@ public class ItemApiController {
     //sort는 if문 검증이라 분리
     @GetMapping("/api/items")
     public MyPage<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest
-            , @Validated @RequestParam MySort sort, BindingResult bindingResult
-            , @Valid CategoryItemFilterRequest itemFilter) {
-        sortValidator.validate(sort, bindingResult);
+            , @RequestParam MySort sort, @Valid CategoryItemFilterRequest itemFilter) {
+
+        if(itemFilter.getMinPrice()!= null && itemFilter.getMaxPrice() != null && itemFilter.getMinPrice() > itemFilter.getMaxPrice())
+                throw new MyBadRequestException("최소값을 최대값보다 크게 입력했습니다.");
+
+        sortValidator.validate(sort);
+
         //상위 카테고리인지 확인
         Category category = categoryRepository.findWithChildrenById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));

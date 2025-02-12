@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Getter
-public class MyPage<T> {
+public class MyPageReview<T> {
+
+    private Double avgRating;
 
     private List<T> content;
 
@@ -16,13 +18,14 @@ public class MyPage<T> {
     private MyPageable myPageable;
 
     //spring data jpa Page 커스텀
-    public MyPage(List<T> content, Pageable pageable, long totalPages, long totalElements) {
+    public MyPageReview(Double avgRating, List<T> content, Pageable pageable, long totalPages, long totalElements) {
+        this.avgRating = avgRating;
         this.content = content;
         myPageable = new MyPageable(pageable, totalPages, totalElements);
     }
 
     //직접 만든 페이징.
-    public MyPage(List<T> content, MyPageRequest myPageRequest, int rowCount) {
+    public MyPageReview(List<T> content, MyPageRequest myPageRequest, int rowCount) {
         this.content = content;
         myPageable = new MyPageable(myPageRequest.getPage(), myPageRequest.getSize(), rowCount);
     }

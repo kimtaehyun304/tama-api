@@ -32,21 +32,14 @@ public class WebConfig implements WebMvcConfigurer {
     private class StringToMySortConverter implements Converter<String, MySort> {
 
         //MyBadRequestException 발생하면 MethodArgumentNotValidException가 먼저 실행됨. 에러 메시지 전달 불가
+        //검증은 SortValidator에서 함
         @Override
         public MySort convert(String source) {
-            //검증은 SortValidator에서 함
             String[] parts = source.split(",");
-            /*
-            String[] parts = new String[0];
-            if(StringUtils.hasText(source))
-                parts = source.split(",");
-             */
             MySort mySort = new MySort(null, null);
             switch (parts.length){
-                //case 0 -> mySort = new MySort(null, null);
                 case 1 -> mySort = new MySort(parts[0], null);
                 case 2 -> mySort = new MySort(parts[0], parts[1]);
-                //default ->  mySort = new MySort(null,null);
             }
             return mySort;
         }

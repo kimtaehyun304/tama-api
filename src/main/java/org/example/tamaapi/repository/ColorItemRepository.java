@@ -13,7 +13,7 @@ public interface ColorItemRepository extends JpaRepository<ColorItem, Long> {
 
     //아이템 상세
     @Query("select c from ColorItem c join fetch c.item join fetch c.stocks where c.id = :colorItemId")
-    Optional<ColorItem> findWithItemAndStocksByColorItemId(@Param("colorItemId") Long colorItemId);
+    Optional<ColorItem> findWithItemAndStocksByColorItemId(Long colorItemId);
 
     //아이템 연관상품
     List<ColorItem> findAllByItemId(Long itemId);
