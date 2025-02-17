@@ -2,8 +2,8 @@ package org.example.tamaapi.dto.responseDto;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ItemStock;
-import org.example.tamaapi.dto.responseDto.item.ItemStockDto;
+import org.example.tamaapi.domain.ColorItemSizeStock;
+import org.example.tamaapi.dto.responseDto.item.ColorItemSizeStockDto;
 
 @Getter
 @ToString
@@ -23,7 +23,7 @@ public class ShoppingBagDto {
 
     String image;
 
-    ItemStockDto stock;
+    ColorItemSizeStockDto sizeStocks;
 
     /*
     public ShoppingBagDto(ColorItem colorItem) {
@@ -34,13 +34,13 @@ public class ShoppingBagDto {
     }
      */
 
-    public ShoppingBagDto(ItemStock itemStock) {
-        colorItemId = itemStock.getColorItem().getId();
-        price = itemStock.getColorItem().getItem().getPrice();
-        discountedPrice = itemStock.getColorItem().getItem().getDiscountedPrice();
-        color = itemStock.getColorItem().getColor().getName();
-        name = itemStock.getColorItem().getItem().getName();
-        image = itemStock.getColorItem().getImageSrc();
-        stock = new ItemStockDto(itemStock);
+    public ShoppingBagDto(ColorItemSizeStock colorItemSizeStock) {
+        colorItemId = colorItemSizeStock.getColorItem().getId();
+        price = colorItemSizeStock.getColorItem().getItem().getPrice();
+        discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
+        color = colorItemSizeStock.getColorItem().getColor().getName();
+        name = colorItemSizeStock.getColorItem().getItem().getName();
+        image = colorItemSizeStock.getColorItem().getImageSrc();
+        sizeStocks = new ColorItemSizeStockDto(colorItemSizeStock);
     }
 }

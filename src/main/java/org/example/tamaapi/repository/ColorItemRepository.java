@@ -12,14 +12,11 @@ import java.util.Optional;
 public interface ColorItemRepository extends JpaRepository<ColorItem, Long> {
 
     //아이템 상세
-    @Query("select c from ColorItem c join fetch c.item join fetch c.stocks where c.id = :colorItemId")
+    @Query("select c from ColorItem c join fetch c.item join fetch c.colorItemSizeStocks where c.id = :colorItemId")
     Optional<ColorItem> findWithItemAndStocksByColorItemId(Long colorItemId);
 
     //아이템 연관상품
     List<ColorItem> findAllByItemId(Long itemId);
-
-
-    @Query("select c from ColorItem c join fetch c.stocks s where c.item.id in :itemsIds")
-    List<ColorItem> findAllWithStockByItemIdIn(List<Long> itemsIds);
+    
 
 }

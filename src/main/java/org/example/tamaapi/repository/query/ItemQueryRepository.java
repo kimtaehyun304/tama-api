@@ -27,7 +27,7 @@ public class ItemQueryRepository {
     //--카테고리 아이템 로직 시작
     //페이징 where in 절에 쓸 itemIds, rowCount & 페이징 자식 컬렉션에 쓸 colorItemIds(지연 로딩)
     public List<Item> findItemsByCategoryIdInAndFilter(List<Long> categoryIds, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-        String jpql = "SELECT i FROM Item i JOIN i.colorItems ci JOIN ci.stocks s JOIN ci.color WHERE i.category.id IN :categoryIds";
+        String jpql = "SELECT i FROM Item i JOIN i.colorItems ci JOIN ci.colorItemSizeStocks s JOIN ci.color WHERE i.category.id IN :categoryIds";
 
         // WHERE
         if (minPrice != null) jpql += " AND COALESCE(i.discountedPrice, i.price) >= :minPrice";
@@ -75,7 +75,7 @@ public class ItemQueryRepository {
     public List<RelatedColorItemResponse> findColorItemsByCategoryIdInAndFilter(List<Long> itemIds, List<Long> colorIds, Boolean isContainSoldOut) {
 
         String jpql = "SELECT new org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemResponse(ci, SUM(s.stock)) FROM ColorItem ci " +
-                "join fetch ci.color c JOIN ci.item i JOIN ci.stocks s WHERE i.id IN :itemIds";
+                "join fetch ci.color c JOIN ci.item i JOIN ci.colorItemSizeStocks s WHERE i.id IN :itemIds";
 
         // WHERE. 가격,성별은 IN itemIds
         if (colorIds != null && !colorIds.isEmpty()) jpql += " AND ci.color.id IN :colorIds";
@@ -96,7 +96,7 @@ public class ItemQueryRepository {
     public Optional<ItemMinMaxQueryDto> findMinMaxPriceByCategoryIdInAndFilter(List<Long> categoryIds, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
 
         String jpql = "SELECT new org.example.tamaapi.repository.query.ItemMinMaxQueryDto(MIN(COALESCE(i.discountedPrice, i.price)), MAX(COALESCE(i.discountedPrice, i.price))) FROM ColorItem ci " +
-                "JOIN ci.item i JOIN ci.stocks s WHERE i.category.id IN :categoryIds";
+                "JOIN ci.item i JOIN ci.colorItemSizeStocks s WHERE i.category.id IN :categoryIds";
 
         // WHERE
         if (minPrice != null) jpql += " AND COALESCE(i.discountedPrice, i.price) >= :minPrice";

@@ -31,7 +31,7 @@ public class ColorItem extends BaseEntity {
 
     @OneToMany(mappedBy = "colorItem")
     @BatchSize(size = 1000)
-    List<ItemStock> stocks = new ArrayList<>();
+    List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
 
     @Builder
     public ColorItem(Item item, Color color, String imageSrc) {

@@ -6,7 +6,7 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ItemStock {
+public class ColorItemSizeStock {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class ItemStock {
     int stock;
 
     @Builder
-    public ItemStock(ColorItem colorItem, String size, int stock) {
+    public ColorItemSizeStock(ColorItem colorItem, String size, int stock) {
         this.colorItem = colorItem;
         this.size = size;
         this.stock = stock;;

@@ -17,7 +17,7 @@ import java.util.Set;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("select i from Item i join i.colorItems c join c.stocks s")
+    @Query("select i from Item i join i.colorItems c join c.colorItemSizeStocks s")
     List<Item> test();
 
 }

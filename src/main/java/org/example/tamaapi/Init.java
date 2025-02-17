@@ -4,20 +4,16 @@ package org.example.tamaapi;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.RandomStringGenerator;
 import org.example.tamaapi.domain.*;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.ItemRepository;
-import org.example.tamaapi.repository.ItemStockRepository;
+import org.example.tamaapi.repository.ColorItemSizeStockRepository;
 import org.example.tamaapi.service.ReviewService;
-import org.example.tamaapi.util.RandomNumberGenerator;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +40,7 @@ public class Init {
 
         private final ItemRepository itemRepository;
         private final ColorItemRepository colorItemRepository;
-        private final ItemStockRepository itemStockRepository;
+        private final ColorItemSizeStockRepository colorItemSizeStockRepository;
         private final CategoryRepository categoryRepository;
         private final ItemImageRepository itemImageRepository;
         private final MemberRepository memberRepository;
@@ -235,14 +231,14 @@ public class Init {
 
         public void initReview() {
             Review r1 = reviewRepository.save(Review.builder().member(memberRepository.findByEmail("test@tama.com").get())
-                    .itemStock(itemStockRepository.findById(1L).get())
+                    .colorItemSizeStock(colorItemSizeStockRepository.findById(1L).get())
                     .rating(2)
                     .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());
             reviewRepository.save(r1);
             reviewService.updateCreatedAt(r1.getId());
 
             reviewRepository.save(Review.builder().member(memberRepository.findByEmail("test2@tama.com").get())
-                    .itemStock(itemStockRepository.findById(2L).get())
+                    .colorItemSizeStock(colorItemSizeStockRepository.findById(2L).get())
                     .rating(4)
                     .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
         }
@@ -300,12 +296,12 @@ public class Init {
                 }
 
                 for (SizeStockRequest sizeStock : colorItemRequest.getSizeStocks()) {
-                    ItemStock itemStock = ItemStock.builder()
+                    ColorItemSizeStock colorItemSizeStock = ColorItemSizeStock.builder()
                             .colorItem(colorItem)
                             .size(sizeStock.getSize())
                             .stock(sizeStock.getStock())
                             .build();
-                    itemStockRepository.save(itemStock);
+                    colorItemSizeStockRepository.save(colorItemSizeStock);
                 }
             }
         }

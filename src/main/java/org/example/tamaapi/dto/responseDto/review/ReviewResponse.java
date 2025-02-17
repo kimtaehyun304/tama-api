@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.example.tamaapi.domain.Review;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 
 @Getter
@@ -22,7 +21,7 @@ public class ReviewResponse {
 
     public ReviewResponse(Review review){
         member = new ReviewMemberResponse(review.getMember());
-        option = review.getItemStock().getColorItem().getColor().getName() + "/"+ review.getItemStock().getSize();
+        option = review.getColorItemSizeStock().getColorItem().getColor().getName() + "/"+ review.getColorItemSizeStock().getSize();
         rating = review.getRating();
         comment = review.getComment();
         createdAt = review.getCreatedAt().toLocalDate();

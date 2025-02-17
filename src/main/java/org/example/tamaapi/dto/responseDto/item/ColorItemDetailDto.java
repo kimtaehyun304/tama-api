@@ -26,7 +26,7 @@ public class ColorItemDetailDto {
 
     List<String> images = new ArrayList<>();
 
-    List<ItemStockDto> stocks = new ArrayList<>();
+    List<ColorItemSizeStockDto> sizeStocks = new ArrayList<>();
 
     List<RelatedColorItemDto> relatedColorItems = new ArrayList<>();
 
@@ -37,7 +37,7 @@ public class ColorItemDetailDto {
         discountedPrice = colorItem.getItem().getDiscountedPrice();
         color = colorItem.getColor().getName();
         common = new ItemDto(colorItem.getItem());
-        stocks.addAll(colorItem.getStocks().stream().map(ItemStockDto::new).toList());
+        sizeStocks.addAll(colorItem.getColorItemSizeStocks().stream().map(ColorItemSizeStockDto::new).toList());
         this.images.add(colorItem.getImageSrc());
         this.images.addAll(itemImages.stream().map(ItemImage::getSrc).toList());
         relatedColorItems.addAll(colorItems.stream().map(RelatedColorItemDto::new).toList());

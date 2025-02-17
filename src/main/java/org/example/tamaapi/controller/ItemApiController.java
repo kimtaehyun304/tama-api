@@ -1,6 +1,5 @@
 package org.example.tamaapi.controller;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.*;
@@ -18,14 +17,7 @@ import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.query.*;
 import org.example.tamaapi.repository.ItemRepository;
-import org.example.tamaapi.repository.ItemStockRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
+import org.example.tamaapi.repository.ColorItemSizeStockRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -37,9 +29,8 @@ public class ItemApiController {
 
     private final ColorItemRepository colorItemRepository;
     private final ItemImageRepository itemImageRepository;
-    private final ItemStockRepository itemStockRepository;
+    private final ColorItemSizeStockRepository colorItemSizeStockRepository;
     private final ItemRepository itemRepository;
-    private final ColorItemQueryRepository colorItemQueryRepository;
     private final CategoryRepository categoryRepository;
     private final ItemQueryRepository itemQueryRepository;
     private final ColorRepository colorRepository;
@@ -54,10 +45,10 @@ public class ItemApiController {
         return new ColorItemDetailDto(colorItem, itemImage, relatedColorItems);
     }
 
-    @GetMapping("/api/itemStocks")
+    @GetMapping("/api/colorItemSizeStock")
     public List<ShoppingBagDto> shoppingBag(@RequestParam(value = "id") List<Long> itemStockIds) {
-        List<ItemStock> itemStocks = itemStockRepository.findAllWithColorItemAndItemByIdIn(itemStockIds);
-        return itemStocks.stream().map(ShoppingBagDto::new).toList();
+        List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(itemStockIds);
+        return colorItemSizeStocks.stream().map(ShoppingBagDto::new).toList();
     }
 
     //sort는 if문 검증이라 분리

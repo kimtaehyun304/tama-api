@@ -5,13 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.tamaapi.util.RandomNumberGenerator;
-import org.hibernate.annotations.BatchSize;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -25,7 +18,7 @@ public class Review extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_stock_id", nullable = false)
-    private ItemStock itemStock;
+    private ColorItemSizeStock colorItemSizeStock;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -37,8 +30,8 @@ public class Review extends BaseEntity {
     private String comment;
 
     @Builder
-    public Review(ItemStock itemStock, Member member, int rating, String comment) {
-        this.itemStock = itemStock;
+    public Review(ColorItemSizeStock colorItemSizeStock, Member member, int rating, String comment) {
+        this.colorItemSizeStock = colorItemSizeStock;
         this.member = member;
         this.rating = rating;
         this.comment = comment;
