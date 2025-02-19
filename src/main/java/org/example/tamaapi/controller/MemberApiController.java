@@ -33,7 +33,7 @@ public class MemberApiController {
     private final TokenProvider tokenProvider;
 
     @PostMapping("/api/member/new")
-    public ResponseEntity<Object> signUp(@Valid @RequestBody SignUpMemberRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> signUp(@Valid @RequestBody SignUpMemberRequest request) {
         String authString = (String) cacheService.get(MyCacheType.AUTHSTRING.getName(), request.getEmail());
 
         if (authString == null || authString.isEmpty())
@@ -49,7 +49,7 @@ public class MemberApiController {
     }
 
     @PostMapping("/api/member/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request) {
 
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("가입하지 않은 이메일"));
 

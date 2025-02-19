@@ -2,7 +2,7 @@ package org.example.tamaapi.dto.responseDto;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ColorItemSizeStock;
+import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.dto.responseDto.item.ColorItemSizeStockDto;
 
 @Getter
@@ -23,7 +23,7 @@ public class ShoppingBagDto {
 
     String image;
 
-    ColorItemSizeStockDto sizeStocks;
+    ColorItemSizeStockDto sizeStock;
 
     /*
     public ShoppingBagDto(ColorItem colorItem) {
@@ -41,6 +41,6 @@ public class ShoppingBagDto {
         color = colorItemSizeStock.getColorItem().getColor().getName();
         name = colorItemSizeStock.getColorItem().getItem().getName();
         image = colorItemSizeStock.getColorItem().getImageSrc();
-        sizeStocks = new ColorItemSizeStockDto(colorItemSizeStock);
+        sizeStock = new ColorItemSizeStockDto(colorItemSizeStock);
     }
 }

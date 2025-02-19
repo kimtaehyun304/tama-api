@@ -1,4 +1,4 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.item;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,17 +17,17 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String name;
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    Category parent;
+    private Category parent;
 
     @OneToMany(mappedBy = "parent")
-    List<Category> children = new ArrayList<>();
+    private List<Category> children = new ArrayList<>();
 
     @Builder
     public Category(String name, Category parent) {

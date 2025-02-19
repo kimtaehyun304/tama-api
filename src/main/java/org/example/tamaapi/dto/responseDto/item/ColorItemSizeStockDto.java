@@ -2,7 +2,7 @@ package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ColorItemSizeStock;
+import org.example.tamaapi.domain.item.ColorItemSizeStock;
 
 
 @Getter

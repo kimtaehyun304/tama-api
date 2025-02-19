@@ -1,7 +1,8 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.item;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.tamaapi.domain.BaseEntity;
 import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
@@ -15,23 +16,23 @@ public class ColorItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "color_item_id")
-    Long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
-    Item item;
+    private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "color_id", nullable = false)
-    Color color;
+    private Color color;
 
     //대표 이미지
     @Column(nullable = false)
-    String imageSrc;
+    private String imageSrc;
 
     @OneToMany(mappedBy = "colorItem")
     @BatchSize(size = 1000)
-    List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
+    private List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
 
     @Builder
     public ColorItem(Item item, Color color, String imageSrc) {

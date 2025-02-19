@@ -1,9 +1,7 @@
 package org.example.tamaapi.dto.responseDto.category;
 
 import lombok.Getter;
-import org.example.tamaapi.domain.Category;
-
-import java.util.List;
+import org.example.tamaapi.domain.item.Category;
 
 @Getter
 public class ChildCategoryResponse {

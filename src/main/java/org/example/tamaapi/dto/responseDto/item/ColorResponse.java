@@ -1,12 +1,7 @@
 package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.Getter;
-import org.example.tamaapi.domain.Category;
-import org.example.tamaapi.domain.Color;
-import org.example.tamaapi.dto.responseDto.category.ChildCategoryResponse;
-import org.example.tamaapi.util.ColorUtil;
-
-import java.util.List;
+import org.example.tamaapi.domain.item.Color;
 
 @Getter
 public class ColorResponse {

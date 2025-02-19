@@ -2,8 +2,8 @@ package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ColorItem;
-import org.example.tamaapi.domain.ItemImage;
+import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.domain.item.ItemImage;
 
 import java.util.ArrayList;
 import java.util.List;

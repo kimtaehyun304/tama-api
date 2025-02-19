@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,21 +17,27 @@ public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String email;
+    private String email;
 
     @Column(nullable = false)
-    String password;
+    private String password;
 
-    String nickname;
+    private String nickname;
 
-    Gender gender;
+    private Gender gender;
 
-    Integer height;
+    private Integer height;
 
-    Integer weight;
+    private Integer weight;
+
+    @OneToMany(mappedBy = "member")
+    List<MemberAddress> memberAddresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    List<Order> orders = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String nickname, Gender gender, Integer height, Integer weight) {

@@ -2,7 +2,7 @@ package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.*;
 import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.Item;
+import org.example.tamaapi.domain.item.Item;
 
 import java.time.LocalDate;
 

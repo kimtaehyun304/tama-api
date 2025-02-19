@@ -1,7 +1,7 @@
 package org.example.tamaapi.dto.responseDto.review;
 
 import lombok.Getter;
-import org.example.tamaapi.domain.Review;
+import org.example.tamaapi.domain.item.Review;
 
 import java.time.LocalDate;
 

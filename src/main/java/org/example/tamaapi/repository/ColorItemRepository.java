@@ -1,10 +1,8 @@
 package org.example.tamaapi.repository;
 
-import org.example.tamaapi.domain.ColorItem;
-import org.example.tamaapi.repository.query.RelatedColorItemQueryDto;
+import org.example.tamaapi.domain.item.ColorItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;

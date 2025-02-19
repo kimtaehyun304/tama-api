@@ -2,7 +2,7 @@ package org.example.tamaapi.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.*;
+import org.example.tamaapi.domain.item.Review;
 import org.example.tamaapi.dto.requestDto.MyPageRequest;
 import org.example.tamaapi.dto.requestDto.MySort;
 import org.example.tamaapi.dto.responseDto.MyPageReview;

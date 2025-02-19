@@ -1,7 +1,7 @@
 package org.example.tamaapi.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.Category;
+import org.example.tamaapi.domain.item.Category;
 import org.example.tamaapi.dto.responseDto.category.CategoryResponse;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.CategoryRepository;

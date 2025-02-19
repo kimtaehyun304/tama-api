@@ -1,7 +1,6 @@
 package org.example.tamaapi.repository;
 
-import org.example.tamaapi.domain.Category;
-import org.example.tamaapi.domain.Color;
+import org.example.tamaapi.domain.item.Color;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

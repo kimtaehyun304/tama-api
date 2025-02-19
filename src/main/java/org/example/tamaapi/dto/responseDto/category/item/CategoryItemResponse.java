@@ -3,9 +3,8 @@ package org.example.tamaapi.dto.responseDto.category.item;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.tamaapi.domain.*;
-import org.example.tamaapi.repository.query.ItemMinMaxQueryDto;
-import org.example.tamaapi.repository.query.RelatedColorItemQueryDto;
+import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.domain.item.Item;
 
 import java.util.List;
 

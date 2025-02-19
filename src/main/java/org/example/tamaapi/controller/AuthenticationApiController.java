@@ -31,7 +31,7 @@ public class AuthenticationApiController {
     private final EmailService emailService;
 
     @PostMapping("/api/auth/access-token")
-    public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest, BindingResult bindingResult) {
+    public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
         String accessToken = (String) cacheService.get(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
 
         if (accessToken == null || accessToken.isEmpty())
@@ -42,7 +42,7 @@ public class AuthenticationApiController {
     }
 
     @PostMapping("/api/auth/email")
-    public ResponseEntity<Object> email(@Valid @RequestBody EmailRequest emailRequest, BindingResult bindingResult) {
+    public ResponseEntity<Object> email(@Valid @RequestBody EmailRequest emailRequest) {
         memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {throw new IllegalArgumentException("이미 가입된 이메일입니다");});
         String authString = RandomStringGenerator.generateRandomString(6);
         cacheService.save(MyCacheType.AUTHSTRING.getName(), emailRequest.getEmail(), authString);

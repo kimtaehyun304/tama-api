@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.Item;
+import org.example.tamaapi.domain.item.Item;
 import org.example.tamaapi.dto.requestDto.MyPageRequest;
 import org.example.tamaapi.dto.requestDto.MySort;
 import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;

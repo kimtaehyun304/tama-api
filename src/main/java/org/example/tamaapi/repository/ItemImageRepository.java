@@ -1,7 +1,6 @@
 package org.example.tamaapi.repository;
 
-import org.example.tamaapi.domain.Item;
-import org.example.tamaapi.domain.ItemImage;
+import org.example.tamaapi.domain.item.ItemImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 

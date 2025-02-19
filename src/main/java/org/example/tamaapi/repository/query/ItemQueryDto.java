@@ -2,12 +2,11 @@ package org.example.tamaapi.repository.query;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import org.example.tamaapi.domain.ColorItem;
-import org.example.tamaapi.domain.Item;
+import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.domain.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 //categoryItem에서 사용

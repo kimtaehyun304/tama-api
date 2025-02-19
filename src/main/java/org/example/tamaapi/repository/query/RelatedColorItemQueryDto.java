@@ -2,7 +2,7 @@ package org.example.tamaapi.repository.query;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import org.example.tamaapi.domain.ColorItem;
+import org.example.tamaapi.domain.item.ColorItem;
 
 @Getter
 //categoryItem에서 사용

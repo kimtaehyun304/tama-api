@@ -1,7 +1,11 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.item;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.tamaapi.domain.BaseEntity;
+import org.example.tamaapi.domain.Gender;
+import org.example.tamaapi.domain.item.Category;
+import org.example.tamaapi.domain.item.ColorItem;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;
@@ -16,48 +20,48 @@ public class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    Integer price;
+    private  Integer price;
 
     @Column(nullable = false)
-    Integer discountedPrice;
+    private Integer discountedPrice;
 
     @Column(nullable = false)
-    Gender gender;
+    private Gender gender;
 
     @Column(nullable = false)
-    String yearSeason;
+    private String yearSeason;
 
     @Column(nullable = false)
-    String name;
+    private String name;
 
     @Column(nullable = false)
-    String description;
+    private  String description;
 
     @Column(nullable = false)
-    LocalDate dateOfManufacture;
+    private LocalDate dateOfManufacture;
 
     @Column(nullable = false)
-    String countryOfManufacture;
+    private  String countryOfManufacture;
 
     @Column(nullable = false)
-    String manufacturer;
+    private String manufacturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    Category category;
+    private Category category;
 
     @Column(nullable = false)
-    String textile;
+    private String textile;
 
     @Column(nullable = false)
-    String precaution;
+    private String precaution;
 
     @OneToMany(mappedBy = "item")
     @BatchSize(size = 1000)
-    List<ColorItem> colorItems = new ArrayList<>();
+    private List<ColorItem> colorItems = new ArrayList<>();
 
     @Builder
     public Item(Integer price, Integer discountedPrice, Gender gender, String yearSeason, String name, String description, LocalDate dateOfManufacture, String countryOfManufacture, String manufacturer, Category category, String textile, String precaution) {

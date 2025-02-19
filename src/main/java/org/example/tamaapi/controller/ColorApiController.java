@@ -1,16 +1,13 @@
 package org.example.tamaapi.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.Category;
-import org.example.tamaapi.domain.Color;
-import org.example.tamaapi.dto.responseDto.category.CategoryResponse;
+import org.example.tamaapi.domain.item.Color;
 import org.example.tamaapi.dto.responseDto.item.ColorResponse;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.service.CacheService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;

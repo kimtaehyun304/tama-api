@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.*;
+import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.ItemRepository;
