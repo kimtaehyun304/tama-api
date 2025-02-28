@@ -4,20 +4,27 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.Order;
 import org.example.tamaapi.dto.requestDto.LoginRequest;
-import org.example.tamaapi.dto.requestDto.SignUpMemberRequest;
+import org.example.tamaapi.dto.requestDto.member.SignUpMemberRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
+import org.example.tamaapi.dto.responseDto.member.MemberResponse;
+import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.ColorItemRepository;
 import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.MemberRepository;
+import org.example.tamaapi.repository.OrderRepository;
 import org.example.tamaapi.service.CacheService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.validation.BindingResult;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
 
 import static org.example.tamaapi.jwt.TokenProvider.ACCESS_TOKEN_DURATION;
 
@@ -31,6 +38,7 @@ public class MemberApiController {
     private final CacheService cacheService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenProvider tokenProvider;
+    private final OrderRepository orderRepository;
 
     @PostMapping("/api/member/new")
     public ResponseEntity<Object> signUp(@Valid @RequestBody SignUpMemberRequest request) {
@@ -59,5 +67,29 @@ public class MemberApiController {
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
+
+    //포트원 결제 내역에 저장할 멤버 정보
+    @GetMapping("/api/member/payment-setup")
+    public ResponseEntity<MemberResponse> member(Principal principal) {
+        if (principal == null || !StringUtils.hasText(principal.getName()))
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        Long memberId = Long.parseLong(principal.getName());
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정"));
+        return ResponseEntity.status(HttpStatus.OK).body(new MemberResponse(member));
+    }
+
+    @GetMapping("/api/member/orders")
+    public ResponseEntity<MemberResponse> orders(Principal principal) {
+        if (principal == null || !StringUtils.hasText(principal.getName()))
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        Long memberId = Long.parseLong(principal.getName());
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("가입하지 않은 계정"));
+        List<Order> orders = orderRepository.findAllWithMemberAndDeliveryByMemberId(memberId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new MemberResponse(member));
+    }
+
 
 }

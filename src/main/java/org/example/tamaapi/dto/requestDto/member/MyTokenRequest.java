@@ -1,4 +1,4 @@
-package org.example.tamaapi.dto.requestDto;
+package org.example.tamaapi.dto.requestDto.member;
 
 
 import jakarta.validation.constraints.NotNull;

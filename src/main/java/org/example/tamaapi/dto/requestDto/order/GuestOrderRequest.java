@@ -1,23 +1,31 @@
-package org.example.tamaapi.dto.requestDto;
+package org.example.tamaapi.dto.requestDto.order;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import org.checkerframework.checker.units.qual.N;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class MemberOrderRequest {
+public class GuestOrderRequest {
 
     @NotNull
     private String paymentId;
 
-    //받는 고객
+    //--주문 고객---
+    @NotNull
+    private String senderNickname;
+
+    @NotNull
+    private String senderEmail;
+
+    @NotNull
+    private String senderPhone;
+
+    //---받는 고객---
     @NotNull
     private String receiverNickname;
-
 
     @NotNull
     private String receiverPhone;
@@ -39,5 +47,4 @@ public class MemberOrderRequest {
 
     @NotEmpty
     private List<OrderItemRequest> orderItems = new ArrayList<>();
-
 }

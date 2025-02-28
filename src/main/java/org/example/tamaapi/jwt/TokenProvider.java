@@ -1,12 +1,10 @@
 package org.example.tamaapi.jwt;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.exception.MyExpiredJwtException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -52,8 +50,12 @@ public class TokenProvider {
                     .setSigningKey(jwtProperties.getSecretKey())
                     .parseClaimsJws(token);
             return true;
-        }catch (Exception e) {
-            return false;
+        } catch (MalformedJwtException e) {
+            throw new IllegalArgumentException("토큰이 첨부되지 않았습니다");
+        } catch (ExpiredJwtException e) {
+            throw new MyExpiredJwtException("토큰 유효기간이 만료되었습니다.");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
     }
 
@@ -64,11 +66,6 @@ public class TokenProvider {
         org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(securityUser, token, authorities);
-    }
-
-    public Long getUserId(String token) {
-        Claims claims = getClaims(token);
-        return claims.get("id", Long.class);
     }
 
 

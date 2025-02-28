@@ -1,22 +1,24 @@
 package org.example.tamaapi.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "guest", uniqueConstraints = {
-        @UniqueConstraint(name = "nickname_email_phone_unique",columnNames = {"nickname", "email", "phone"})
-})
+@Embeddable
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Guest {
 
-    @Id
-    @Column(name = "guest_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String nickname;
-    private String email;
+
     private String phone;
 
+    private String email;
+
+    public Guest(String nickname, String phone, String email) {
+        this.nickname = nickname;
+        this.phone = phone;
+        this.email = email;
+    }
 }

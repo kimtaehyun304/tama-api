@@ -8,18 +8,21 @@ import org.example.tamaapi.exception.MyBadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+
+import java.security.Principal;
 
 @Component
 @Aspect
 public class AspectConfig {
 
-    //bindingResult 대신 전역예외처리 썼음
-    //* org.example.tamaapi.controller.* 안됨
-    //throw new MethodArgumentNotValidException() 안됨. return ResponseEntity 안됨
-    //@Before("execution(* org.example.tamaapi.controller..*(.., @jakarta.validation.Valid (*), ..)))")
+    /*
+    //이거말고 공통예외처리 사용
+    //org.example.tamaapi.controller.* 안됨. throw new MethodArgumentNotValidException() 안됨. return ResponseEntity 안됨
+    @Before("execution(* org.example.tamaapi.controller..*(.., @jakarta.validation.Valid (*), ..)))")
     public void validationAspect(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         StringBuilder message = new StringBuilder();
@@ -35,4 +38,26 @@ public class AspectConfig {
             }
         }
     }
+    */
+
+    //@Before("execution(* org.example.tamaapi.controller..*(.., java.security.Principal, ..))")
+    public void validateAccessToken(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+        Principal principal = null; // Principal 객체 저장
+
+        for (Object arg : args) {
+            if (arg instanceof Principal p) { // Principal 찾기
+                principal = p;
+                break;
+            }
+        }
+
+        // Principal 검증
+        if (principal == null || !StringUtils.hasText(principal.getName())) {
+            throw new MyBadRequestException("액세스 토큰이 비었습니다.");
+        }
+    }
+
+
+
 }

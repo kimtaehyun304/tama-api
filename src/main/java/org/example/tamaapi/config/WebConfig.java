@@ -8,6 +8,7 @@ import org.example.tamaapi.exception.MyBadRequestException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ public class WebConfig implements WebMvcConfigurer {
             MySort mySort = new MySort(null, null);
             switch (parts.length){
                 case 1 -> mySort = new MySort(parts[0], null);
-                case 2 -> mySort = new MySort(parts[0], parts[1]);
+                case 2 -> mySort = new MySort(parts[0], Sort.Direction.fromString(parts[1]));
             }
             return mySort;
         }

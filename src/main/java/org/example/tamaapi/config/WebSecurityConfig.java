@@ -43,7 +43,7 @@ public class WebSecurityConfig {
         http.logout(AbstractHttpConfigurer::disable);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 헤더를 확인할 커스텀 필터 추가
+        // 헤더를 확인할 커스텀 필터 추가.
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.oauth2Login(oauth2 -> {

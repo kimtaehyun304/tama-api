@@ -23,6 +23,9 @@ public class Member extends BaseEntity {
     private String email;
 
     @Column(nullable = false)
+    private String phone;
+
+    @Column(nullable = false)
     private String password;
 
     private String nickname;
@@ -40,8 +43,9 @@ public class Member extends BaseEntity {
     List<Order> orders = new ArrayList<>();
 
     @Builder
-    public Member(String email, String password, String nickname, Gender gender, Integer height, Integer weight) {
+    public Member(String email, String phone, String password, String nickname, Gender gender, Integer height, Integer weight) {
         this.email = email;
+        this.phone = phone;
         this.password = password;
         this.nickname = nickname;
         this.gender = gender;

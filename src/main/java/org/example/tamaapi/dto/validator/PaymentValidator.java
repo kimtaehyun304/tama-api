@@ -2,18 +2,12 @@ package org.example.tamaapi.dto.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.dto.requestDto.MySort;
-import org.example.tamaapi.dto.requestDto.OrderItemRequest;
-import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.exception.MyBadRequestException;
+import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
 import org.example.tamaapi.repository.ColorItemSizeStockRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
 import java.util.HashMap;

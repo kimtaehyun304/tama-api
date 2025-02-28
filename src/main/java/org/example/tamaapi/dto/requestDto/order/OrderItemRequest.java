@@ -1,4 +1,4 @@
-package org.example.tamaapi.dto.requestDto;
+package org.example.tamaapi.dto.requestDto.order;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

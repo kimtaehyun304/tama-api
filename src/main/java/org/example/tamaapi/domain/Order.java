@@ -30,16 +30,23 @@ public class Order extends BaseEntity {
     private Delivery delivery;
 
     //비로그인 주문
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "guest_id")
+    @Embedded
     private Guest guest;
+
+
+    //@ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "guest_id")
+    //private Guest guest;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    //insert 여러번 나가서 jdbcTemplate 쓰는게 날 듯
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    //cascade insert 여러번 나가서 jdbcTemplate 사용
+    @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    //포트원 결제 번호 (문자열)
+    private String paymentId;
 
     //==연관관계 메서드==//
     public void addMember(Member member) {
@@ -53,8 +60,9 @@ public class Order extends BaseEntity {
     }
 
     //==생성 메서드==//
-    public static Order createOrder(Member member, Delivery delivery, List<OrderItem> orderItems) {
+    public static Order createMemberOrder(String paymentId, Member member, Delivery delivery, List<OrderItem> orderItems) {
         Order order = new Order();
+        order.setPaymentId(paymentId);
         order.addMember(member);
         order.setDelivery(delivery);
         for (OrderItem orderItem : orderItems) {
@@ -64,6 +72,17 @@ public class Order extends BaseEntity {
         return order;
     }
 
+    public static Order createGuestOrder(String paymentId, Guest guest, Delivery delivery, List<OrderItem> orderItems) {
+        Order order = new Order();
+        order.setPaymentId(paymentId);
+        order.setGuest(guest);
+        order.setDelivery(delivery);
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        return order;
+    }
 
 }
 

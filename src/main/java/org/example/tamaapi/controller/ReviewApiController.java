@@ -39,10 +39,10 @@ public class ReviewApiController {
                 .orElseThrow(() -> new IllegalArgumentException("해당 colorItem을 찾을 수 없습니다")).getItem().getId();
 
         Double avgRating = reviewRepository.findAvgRatingByItemId(itemId).orElse(0.0);
-        Sort.Direction direction = TypeConverter.convertStringToDirection(sort.getDirection());
+        //Sort.Direction direction = TypeConverter.convertStringToDirection(sort.getDirection());
 
         PageRequest pageRequest = PageRequest.of(myPageRequest.getPage()-1, myPageRequest.getSize()
-                , Sort.by(new Sort.Order(direction, sort.getProperty()), new Sort.Order(Sort.Direction.DESC, "id")));
+                , Sort.by(new Sort.Order(sort.getDirection(), sort.getProperty()), new Sort.Order(Sort.Direction.DESC, "id")));
         Page<Review> reviews = reviewRepository.findAllWithMemberWithItemStockWithColorItemByItemId(itemId, pageRequest);
 
         List<ReviewResponse> reviewResponses = reviews.stream().map(ReviewResponse::new).toList();

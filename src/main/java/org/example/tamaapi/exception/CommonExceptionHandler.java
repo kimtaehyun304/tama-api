@@ -68,4 +68,9 @@ public class CommonExceptionHandler {
     }
 
 
+    @ExceptionHandler(MyExpiredJwtException.class)
+    public ResponseEntity<SimpleResponse> MyExpiredJwtException() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("중복된 데이터입니다"));
+    }
+
 }

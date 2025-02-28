@@ -222,11 +222,10 @@ public class Init {
 
         public void initMember() {
             String password = bCryptPasswordEncoder.encode("test");
-            Member member = Member.builder().email("test@tama.com").password(password).nickname("김유정").height(160).weight(50).build();
+            Member member = Member.builder().email("test@tama.com").phone("01011112222").password(password).nickname("김유정").height(160).weight(50).build();
             memberRepository.save(member);
 
-            String password2 = bCryptPasswordEncoder.encode("test");
-            Member member2 = Member.builder().email("test2@tama.com").password(password).nickname("박유빈").height(170).weight(60).build();
+            Member member2 = Member.builder().email("test2@tama.com").phone("01022223333").password(password).nickname("박유빈").height(170).weight(60).build();
             memberRepository.save(member2);
         }
 
@@ -305,6 +304,10 @@ public class Init {
                     colorItemSizeStockRepository.save(colorItemSizeStock);
                 }
             }
+        }
+
+        public void initOrder() {
+
         }
 
     }

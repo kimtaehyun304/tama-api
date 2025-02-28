@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Getter
+//Custom Page 객체라서 "My"Page 입니다. 멤버 마이페이지랑 혼동 주의
 public class MyPage<T> {
 
     private List<T> content;
