@@ -1,11 +1,12 @@
 package org.example.tamaapi.domain;
 
 public enum OrderStatus {
-    ORDER, READY, DELIVERY, COMPLETE, CANCEL, REFUND
+    PAYMENT, CHECK, DELIVERY, COMPLETE, CANCEL, REFUND
 
-    //ORDER 결제 완료
-    //READY 택배사 전달
+    //PAYMENT 결제 완료
+    //CHECK 상품 준비중
     //DELIVERY 배송 중
-    //COMPLETE 배달 완료
-    //주문 취소
+    //COMPLETE 배송 완료
+    //CANCEL 주문 취소
+    //REFUND 환불
 }

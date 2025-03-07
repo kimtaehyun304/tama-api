@@ -3,6 +3,7 @@ package org.example.tamaapi.config;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.config.oauth2.OAuth2FailureHandler;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.config.oauth2.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import org.example.tamaapi.config.oauth2.OAuth2SuccessHandler;
@@ -28,8 +29,18 @@ public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final OAuth2UserCustomService oAuth2UserCustomService;
+    private final TokenAuthenticationFilter tokenAuthenticationFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository;
+
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -44,26 +55,28 @@ public class WebSecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // 헤더를 확인할 커스텀 필터 추가.
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.oauth2Login(oauth2 -> {
                     oauth2
                             .authorizationEndpoint(
                                     authEndPoint ->
                                             authEndPoint.authorizationRequestRepository(
-                                                    oAuth2AuthorizationRequestBasedOnCookieRepository()))
+                                                    oAuth2AuthorizationRequestBasedOnCookieRepository))
                             .userInfoEndpoint(
                                     userInfoEndpointConfig ->
                                             userInfoEndpointConfig.userService(
                                                     oAuth2UserCustomService));
                     // 인증 성공 시 실행할 핸들러
-                    oauth2.successHandler(oAuth2SuccessHandler());
+                    oauth2.successHandler(oAuth2SuccessHandler);
+                    oauth2.failureHandler(oAuth2FailureHandler);
                 }
         );
 
         return http.build();
     }
 
+    /*
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(tokenProvider);
@@ -85,4 +98,6 @@ public class WebSecurityConfig {
     public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
         return new OAuth2AuthorizationRequestBasedOnCookieRepository();
     }
+
+     */
 }

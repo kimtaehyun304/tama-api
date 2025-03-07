@@ -11,5 +11,5 @@ import org.example.tamaapi.domain.Gender;
 public class EmailRequest {
 
     @NotNull @Email
-    String email;
+    private String email;
 }

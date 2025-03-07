@@ -10,6 +10,6 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor
 @ToString
 public class MySort {
-    String property;
-    Sort.Direction direction;
+    private String property;
+    private Sort.Direction direction;
 }

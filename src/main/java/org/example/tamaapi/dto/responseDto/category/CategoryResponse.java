@@ -7,11 +7,11 @@ import java.util.List;
 
 @Getter
 public class CategoryResponse {
-    Long id;
+    private Long id;
 
-    String name;
+    private String name;
 
-    List<ChildCategoryResponse> children;
+    private List<ChildCategoryResponse> children;
 
     public CategoryResponse(Category category) {
         id = category.getId();

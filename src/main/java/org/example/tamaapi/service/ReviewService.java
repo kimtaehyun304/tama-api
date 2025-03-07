@@ -2,7 +2,7 @@ package org.example.tamaapi.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.Review;
-import org.example.tamaapi.repository.ReviewRepository;
+import org.example.tamaapi.repository.item.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

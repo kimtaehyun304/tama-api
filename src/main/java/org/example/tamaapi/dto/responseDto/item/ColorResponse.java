@@ -5,11 +5,12 @@ import org.example.tamaapi.domain.item.Color;
 
 @Getter
 public class ColorResponse {
-    Long id;
 
-    String name;
+    private Long id;
 
-    String hexCode;
+    private String name;
+
+    private String hexCode;
     public ColorResponse(Color color) {
         id = color.getId();
         name = color.getName();

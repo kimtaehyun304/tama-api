@@ -6,7 +6,8 @@ import org.example.tamaapi.domain.Member;
 
 @Getter
 @AllArgsConstructor
-public class MemberOrderResponse {
+//포트원 결제 기록에 첨부할 정보. 결제 페이지에서 사용
+public class MemberPaymentSetUpResponse {
 
     private Long id;
 
@@ -16,7 +17,7 @@ public class MemberOrderResponse {
 
     private String phone;
 
-    public MemberOrderResponse(Member member) {
+    public MemberPaymentSetUpResponse(Member member) {
         this.id = member.getId();
         this.nickname = member.getNickname();
         this.email = member.getEmail();

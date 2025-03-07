@@ -64,13 +64,13 @@ public class CommonExceptionHandler {
 
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity<SimpleResponse> SQLIntegrityConstraintViolationException() {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("중복된 데이터입니다"));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("저장 실패"));
     }
 
 
     @ExceptionHandler(MyExpiredJwtException.class)
-    public ResponseEntity<SimpleResponse> MyExpiredJwtException() {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("중복된 데이터입니다"));
+    public ResponseEntity<SimpleResponse> MyExpiredJwtException(MyExpiredJwtException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
     }
 
 }

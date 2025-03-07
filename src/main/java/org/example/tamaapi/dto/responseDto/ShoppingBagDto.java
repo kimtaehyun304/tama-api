@@ -11,19 +11,19 @@ public class ShoppingBagDto {
 
     // 쇼핑백 로컬스토리지 JSON = {itemStockId:1, orderCount: 1}
 
-    Long colorItemId;
+    private Long colorItemId;
 
-    Integer price;
+    private Integer price;
 
-    Integer discountedPrice;
+    private Integer discountedPrice;
 
-    String color;
+    private String color;
 
-    String name;
+    private  String name;
 
-    String image;
+    private String image;
 
-    ColorItemSizeStockDto sizeStock;
+    private ColorItemSizeStockDto sizeStock;
 
     /*
     public ShoppingBagDto(ColorItem colorItem) {

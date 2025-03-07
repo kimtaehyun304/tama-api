@@ -7,6 +7,6 @@ import lombok.Getter;
 // 대표 이미지 이외 저장
 public class ItemImageDto {
 
-    String src;
+    private String src;
 
 }

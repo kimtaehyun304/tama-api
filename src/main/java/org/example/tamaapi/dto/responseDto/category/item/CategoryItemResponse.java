@@ -13,15 +13,15 @@ import java.util.List;
 public class CategoryItemResponse {
 
     @JsonIgnore
-    Long itemId;
+    private Long itemId;
 
-    String name;
+    private String name;
 
-    Integer price;
+    private Integer price;
 
-    Integer discountedPrice;
+    private Integer discountedPrice;
 
-    List<RelatedColorItemResponse> relatedColorItems;
+    private List<RelatedColorItemResponse> relatedColorItems;
 
 
     public CategoryItemResponse(Item item) {

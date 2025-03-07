@@ -4,20 +4,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.requestDto.CategoryItemFilterRequest;
-import org.example.tamaapi.dto.requestDto.MyPageRequest;
+import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.MySort;
-import org.example.tamaapi.dto.responseDto.MyPage;
+import org.example.tamaapi.dto.responseDto.CustomPage;
 import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;
 import org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemResponse;
 import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
 import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
-import org.example.tamaapi.repository.*;
-import org.example.tamaapi.repository.ItemImageRepository;
+import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.query.*;
-import org.example.tamaapi.repository.ItemRepository;
-import org.example.tamaapi.repository.ColorItemSizeStockRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -53,7 +50,7 @@ public class ItemApiController {
 
     //sort는 if문 검증이라 분리
     @GetMapping("/api/items")
-    public MyPage<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid MyPageRequest myPageRequest
+    public CustomPage<CategoryItemResponse> categoryItem(@RequestParam Long categoryId, @Valid CustomPageRequest customPageRequest
             , @RequestParam MySort sort, @Valid CategoryItemFilterRequest itemFilter) {
 
         if(itemFilter.getMinPrice()!= null && itemFilter.getMaxPrice() != null && itemFilter.getMinPrice() > itemFilter.getMaxPrice())
@@ -87,11 +84,11 @@ public class ItemApiController {
                 , itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
         //페이징
         List<Long> itemIds = items.stream().map(Item::getId).toList();
-        List<CategoryItemResponse> categoryItems = itemQueryRepository.findAllByItemIdIn(itemIds, sort, myPageRequest);
+        List<CategoryItemResponse> categoryItems = itemQueryRepository.findAllByItemIdIn(itemIds, sort, customPageRequest);
 
         //커스텀 페이징 변환
         int rowCount = items.size();
-        MyPage<CategoryItemResponse> myCategoryItems = new MyPage<>(categoryItems, myPageRequest, rowCount);
+        CustomPage<CategoryItemResponse> myCategoryItems = new CustomPage<>(categoryItems, customPageRequest, rowCount);
 
         List<RelatedColorItemResponse> colorItems = itemQueryRepository.findColorItemsByCategoryIdInAndFilter(itemIds, colorIds, itemFilter.getIsContainSoldOut());
 

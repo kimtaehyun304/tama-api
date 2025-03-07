@@ -14,17 +14,22 @@ import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.Member;
 
 @Getter
-@AllArgsConstructor
 public class SignUpMemberRequest {
 
     @NotNull @Email
-    String email;
+    private String email;
 
     @NotNull
-    String password;
+    private String phone;
 
     @NotNull
-    String authString;
+    private String password;
+
+    @NotNull
+    private String authString;
+
+    @NotNull
+    private String nickname;
 
     //Gender gender;
 

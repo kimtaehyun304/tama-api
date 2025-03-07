@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.data.domain.Pageable;
 
 @Getter
-public class MyPageable {
+public class CustomPageable {
     //현재 페이지
     private int page;
 
@@ -18,7 +18,7 @@ public class MyPageable {
     private long rowCount;
 
     //spring data jpa Page 커스텀. 페이지 0부터 시작 -> 1부터 시작 변경
-    public MyPageable(Pageable pageable, long totalPages, long rowCount) {
+    public CustomPageable(Pageable pageable, long totalPages, long rowCount) {
         page = pageable.getPageNumber()+1;
         size = pageable.getPageSize();
         this.pageCount = totalPages;
@@ -26,7 +26,7 @@ public class MyPageable {
     }
 
     //직접 만든 페이징. 페이지 1부터 시작
-    public MyPageable(int page, int size, int rowCount) {
+    public CustomPageable(int page, int size, int rowCount) {
         this.page = page;
         this.size = size;
         this.pageCount = (int) Math.ceil((double) rowCount/size);

@@ -2,8 +2,8 @@ package org.example.tamaapi.dto.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
-import org.example.tamaapi.repository.ColorItemSizeStockRepository;
+import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
+import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -24,7 +24,7 @@ public class PaymentValidator {
     private final ColorItemSizeStockRepository colorItemSizeStockRepository;
 
     //클라이언트 위변조 검증
-    public void validate(String paymentId, List<OrderItemRequest> orderItemRequests) {
+    public void validate(String paymentId, List<SaveOrderItemRequest> saveOrderItemRequests) {
         //결제내역 단건 조회. amount.total 가져오기 위함
         Map<String, Object> paymentResponse = RestClient.create().get()
                 .uri("https://api.portone.io/payments/{paymentId}", paymentId)
@@ -39,7 +39,7 @@ public class PaymentValidator {
 
         int clientTotal = (int) amountMap.get("total");
 
-        List<Long> colorItemSizeStockIds = orderItemRequests.stream().map(OrderItemRequest::getColorItemSizeStockId).toList();
+        List<Long> colorItemSizeStockIds = saveOrderItemRequests.stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
         List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
 
         Map<Long, Integer> idPriceMap = new HashMap<>();
@@ -49,7 +49,7 @@ public class PaymentValidator {
             idPriceMap.put(colorItemSizeStock.getId(), discountedPrice != null ? discountedPrice : price);
         }
 
-        int serverTotal = orderItemRequests.stream().mapToInt(i -> idPriceMap.get(i.getColorItemSizeStockId()) * i.getOrderCount()).sum();
+        int serverTotal = saveOrderItemRequests.stream().mapToInt(i -> idPriceMap.get(i.getColorItemSizeStockId()) * i.getOrderCount()).sum();
 
         if(clientTotal != serverTotal)
             throw new IllegalArgumentException("클라이언트 위변조 검출");

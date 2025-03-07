@@ -9,11 +9,11 @@ import org.example.tamaapi.domain.item.ColorItem;
 public class RelatedColorItemDto {
 
     //ColorItemId
-    Long id;
+    private Long id;
 
-    String color;
+    private String color;
 
-    String imageSrc;
+    private String imageSrc;
 
     public RelatedColorItemDto(ColorItem colorItem) {
         id = colorItem.getId();

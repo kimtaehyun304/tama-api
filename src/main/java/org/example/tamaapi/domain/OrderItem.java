@@ -22,15 +22,16 @@ public class OrderItem {
     @JoinColumn(name = "color_item_size_stock_id")
     private ColorItemSizeStock colorItemSizeStock;
 
-    //할인 쿠폰 적용될 수 있음. 복잡해서 미구현
-    //private int totalPrice;
+    //구매 후 가격 변동 or 할인 쿠폰 고려
+    private int orderPrice;
 
     private int count;
 
     //setOrder는 createOrder에서 연관메서드로 함
     @Builder
-    public OrderItem(ColorItemSizeStock colorItemSizeStock, int count) {
+    public OrderItem(ColorItemSizeStock colorItemSizeStock, int orderPrice, int count) {;
         this.colorItemSizeStock = colorItemSizeStock;
+        this.orderPrice = orderPrice;
         this.count = count;
         colorItemSizeStock.removeStock(count);
     }

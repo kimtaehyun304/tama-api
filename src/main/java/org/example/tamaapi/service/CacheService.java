@@ -21,7 +21,6 @@ public class CacheService {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {
             cache.put(key, value);
-            System.out.println("저장 성공");
         }
     }
 
@@ -30,7 +29,6 @@ public class CacheService {
         if (cache != null) {
             return cache.get(key, Object.class);
         }
-        System.out.println("null 반환");
         return null;
     }
 

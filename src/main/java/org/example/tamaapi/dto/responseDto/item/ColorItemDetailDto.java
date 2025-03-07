@@ -13,22 +13,22 @@ import java.util.List;
 public class ColorItemDetailDto {
 
     //ColorItemId
-    Long id;
+    private Long id;
 
-    Integer price;
+    private Integer price;
 
-    Integer discountedPrice;
+    private Integer discountedPrice;
 
-    String color;
+    private String color;
 
     //공통 정보
-    ItemDto common;
+    private ItemDto common;
 
-    List<String> images = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
 
-    List<ColorItemSizeStockDto> sizeStocks = new ArrayList<>();
+    private List<ColorItemSizeStockDto> sizeStocks = new ArrayList<>();
 
-    List<RelatedColorItemDto> relatedColorItems = new ArrayList<>();
+    private List<RelatedColorItemDto> relatedColorItems = new ArrayList<>();
 
     // 상품 상세
     public ColorItemDetailDto(ColorItem colorItem, List<ItemImage> itemImages, List<ColorItem> colorItems) {

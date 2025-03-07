@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,10 @@ public class Order extends BaseEntity {
 
     //cascade insert 여러번 나가서 jdbcTemplate 사용
     @OneToMany(mappedBy = "order")
+    @BatchSize(size = 1000)
     private List<OrderItem> orderItems = new ArrayList<>();
+
+
 
     //포트원 결제 번호 (문자열)
     private String paymentId;
@@ -68,7 +72,7 @@ public class Order extends BaseEntity {
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
         }
-        order.setStatus(OrderStatus.ORDER);
+        order.setStatus(OrderStatus.PAYMENT);
         return order;
     }
 
@@ -80,8 +84,12 @@ public class Order extends BaseEntity {
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
         }
-        order.setStatus(OrderStatus.ORDER);
+        order.setStatus(OrderStatus.PAYMENT);
         return order;
+    }
+
+    public void cancelOrder(){
+        status = OrderStatus.CANCEL;
     }
 
 }

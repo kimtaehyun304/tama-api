@@ -5,7 +5,7 @@ import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.item.Item;
-import org.example.tamaapi.dto.requestDto.MyPageRequest;
+import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.MySort;
 import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;
 import org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemResponse;
@@ -51,7 +51,7 @@ public class ItemQueryRepository {
     }
 
     //페이징, 정렬
-    public List<CategoryItemResponse> findAllByItemIdIn(List<Long> itemIds, MySort sort, MyPageRequest myPageRequest) {
+    public List<CategoryItemResponse> findAllByItemIdIn(List<Long> itemIds, MySort sort, CustomPageRequest customPageRequest) {
         String jpql = "SELECT new org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse(i) FROM Item i WHERE i.id in :itemIds";
 
         // ORDER BY. 컨트롤러 sort required true -> sort null X
@@ -65,8 +65,8 @@ public class ItemQueryRepository {
         TypedQuery<CategoryItemResponse> query = em.createQuery(jpql, CategoryItemResponse.class);
         query.setParameter("itemIds", itemIds);
 
-        query.setFirstResult((myPageRequest.getPage() - 1) * myPageRequest.getSize());
-        query.setMaxResults(myPageRequest.getSize());
+        query.setFirstResult((customPageRequest.getPage() - 1) * customPageRequest.getSize());
+        query.setMaxResults(customPageRequest.getSize());
         return query.getResultList();
     }
 

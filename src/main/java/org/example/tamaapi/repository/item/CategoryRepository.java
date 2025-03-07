@@ -1,4 +1,4 @@
-package org.example.tamaapi.repository;
+package org.example.tamaapi.repository.item;
 
 import org.example.tamaapi.domain.item.Category;
 import org.springframework.data.jpa.repository.JpaRepository;

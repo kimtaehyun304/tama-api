@@ -2,3 +2,9 @@
 ㄴ값이 바뀌어도 변경감지 안함. 테스트할때 불편해서 껐음
 
 @RequestBody: 기본생성자, getter 사용
+
+@ModelAttribute: @Setter or @AllArgCons
+ㄴ@GetMapping에 주로 사용. POST, PUT, DELETE는 @RequestBody 사용
+
+row 개수가 적다면? → findAllByMemberId + Stream
+row 개수가 많다면? → existsBy로 바로 DB에서 검사

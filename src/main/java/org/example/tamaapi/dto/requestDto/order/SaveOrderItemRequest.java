@@ -1,10 +1,15 @@
 package org.example.tamaapi.dto.requestDto.order;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-public class OrderItemRequest {
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class SaveOrderItemRequest {
 
     //colorItemSizeStockId
     @NotNull

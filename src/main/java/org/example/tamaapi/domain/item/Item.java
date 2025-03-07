@@ -23,7 +23,7 @@ public class Item extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private  Integer price;
+    private Integer price;
 
     @Column(nullable = false)
     private Integer discountedPrice;
@@ -38,7 +38,7 @@ public class Item extends BaseEntity {
     private String name;
 
     @Column(nullable = false)
-    private  String description;
+    private String description;
 
     @Column(nullable = false)
     private LocalDate dateOfManufacture;

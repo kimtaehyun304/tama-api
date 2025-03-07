@@ -1,11 +1,13 @@
 package org.example.tamaapi.dto.requestDto.member;
 
-
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class MyTokenRequest {
+public class UpdateMemberDefaultAddressRequest {
+
     @NotNull
-    private String tempToken;
+    private Long addressId;
+
+
 }

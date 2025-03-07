@@ -9,12 +9,11 @@ import org.example.tamaapi.domain.item.ColorItemSizeStock;
 @ToString
 public class ColorItemSizeStockDto {
 
+    private Long id;
 
-    Long id;
+    private String size;
 
-    String size;
-
-    int stock;
+    private int stock;
 
     public ColorItemSizeStockDto(ColorItemSizeStock colorItemSizeStock) {
         id = colorItemSizeStock.getId();

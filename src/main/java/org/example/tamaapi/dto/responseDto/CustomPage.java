@@ -8,9 +8,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Getter
-public class MyPageReview<T> {
-
-    private Double avgRating;
+//Custom Page 객체라서 "My"Page 입니다. 멤버 마이페이지랑 혼동 주의
+public class CustomPage<T> {
 
     private List<T> content;
 
@@ -18,14 +17,13 @@ public class MyPageReview<T> {
     private CustomPageable myPageable;
 
     //spring data jpa Page 커스텀
-    public MyPageReview(Double avgRating, List<T> content, Pageable pageable, long totalPages, long totalElements) {
-        this.avgRating = avgRating;
+    public CustomPage(List<T> content, Pageable pageable, long totalPages, long totalElements) {
         this.content = content;
         myPageable = new CustomPageable(pageable, totalPages, totalElements);
     }
 
     //직접 만든 페이징.
-    public MyPageReview(List<T> content, CustomPageRequest customPageRequest, int rowCount) {
+    public CustomPage(List<T> content, CustomPageRequest customPageRequest, int rowCount) {
         this.content = content;
         myPageable = new CustomPageable(customPageRequest.getPage(), customPageRequest.getSize(), rowCount);
     }

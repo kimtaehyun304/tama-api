@@ -3,23 +3,29 @@ package org.example.tamaapi.dto.requestDto.order;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@ToString
-//로그 남기는 로직있어서 @ToString 사용
-public class MemberOrderRequest {
+public class SaveGuestOrderRequest {
 
     @NotNull
     private String paymentId;
 
-    //받는 고객
+    //--주문 고객---
+    @NotNull
+    private String senderNickname;
+
+    @NotNull
+    private String senderEmail;
+
+    @NotNull
+    private String senderPhone;
+
+    //---받는 고객---
     @NotNull
     private String receiverNickname;
-
 
     @NotNull
     private String receiverPhone;
@@ -40,6 +46,5 @@ public class MemberOrderRequest {
     private String deliveryMessage;
 
     @NotEmpty
-    private List<OrderItemRequest> orderItems = new ArrayList<>();
-
+    private List<SaveOrderItemRequest> orderItems = new ArrayList<>();
 }

@@ -1,4 +1,4 @@
-package org.example.tamaapi.repository;
+package org.example.tamaapi.repository.order;
 
 import org.example.tamaapi.domain.Delivery;
 import org.example.tamaapi.domain.Order;

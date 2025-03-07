@@ -11,27 +11,27 @@ import java.time.LocalDate;
 @ToString
 public class ItemDto {
 
-    Long id;
+    private Long id;
 
-    Gender gender;
+    private Gender gender;
 
-    String yearSeason;
+    private String yearSeason;
 
-    String name;
+    private String name;
 
-    String description;
+    private String description;
 
-    LocalDate dateOfManufacture;
+    private LocalDate dateOfManufacture;
 
-    String countryOfManufacture;
+    private String countryOfManufacture;
 
-    String manufacturer;
+    private String manufacturer;
 
-    String category;
+    private String category;
 
-    String textile;
+    private String textile;
 
-    String precaution;
+    private String precaution;
 
     public ItemDto(Item item) {
         id = item.getId();

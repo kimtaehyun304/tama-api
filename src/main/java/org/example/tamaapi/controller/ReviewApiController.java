@@ -3,14 +3,14 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.Review;
-import org.example.tamaapi.dto.requestDto.MyPageRequest;
+import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.MySort;
 import org.example.tamaapi.dto.responseDto.MyPageReview;
 import org.example.tamaapi.dto.responseDto.review.ReviewResponse;
 import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
-import org.example.tamaapi.repository.*;
-import org.example.tamaapi.util.TypeConverter;
+import org.example.tamaapi.repository.item.ColorItemRepository;
+import org.example.tamaapi.repository.item.ReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,7 +29,7 @@ public class ReviewApiController {
     private final SortValidator sortValidator;
 
     @GetMapping("/api/reviews")
-    public MyPageReview<ReviewResponse> colorItemDetail(@RequestParam Long colorItemId, @Valid MyPageRequest myPageRequest, @RequestParam MySort sort) {
+    public MyPageReview<ReviewResponse> colorItemDetail(@RequestParam Long colorItemId, @Valid CustomPageRequest customPageRequest, @RequestParam MySort sort) {
 
         if(!sort.getProperty().equals("createdAt"))
             throw new MyBadRequestException("유효한 property가 아닙니다");
@@ -41,7 +41,7 @@ public class ReviewApiController {
         Double avgRating = reviewRepository.findAvgRatingByItemId(itemId).orElse(0.0);
         //Sort.Direction direction = TypeConverter.convertStringToDirection(sort.getDirection());
 
-        PageRequest pageRequest = PageRequest.of(myPageRequest.getPage()-1, myPageRequest.getSize()
+        PageRequest pageRequest = PageRequest.of(customPageRequest.getPage()-1, customPageRequest.getSize()
                 , Sort.by(new Sort.Order(sort.getDirection(), sort.getProperty()), new Sort.Order(Sort.Direction.DESC, "id")));
         Page<Review> reviews = reviewRepository.findAllWithMemberWithItemStockWithColorItemByItemId(itemId, pageRequest);
 
