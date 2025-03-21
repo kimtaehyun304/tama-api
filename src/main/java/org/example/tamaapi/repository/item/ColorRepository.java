@@ -18,4 +18,6 @@ public interface ColorRepository extends JpaRepository<Color, Long> {
     @Query("select c from Color c left join fetch c.children where c.id in :colorIds")
     List<Color> findWithChildrenByIdIn(List<Long> colorIds);
 
+    @Query("select c from Color c left join fetch c.children where c.parent is null")
+    List<Color> findAllWithChildrenByParentIsNull();
 }

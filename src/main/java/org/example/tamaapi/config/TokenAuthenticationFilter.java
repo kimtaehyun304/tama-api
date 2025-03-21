@@ -25,8 +25,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final static String HEADER_AUTHORIZATION = "Authorization";
     private final static String TOKEN_PREFIX = "Bearer";
 
-    //인증이 필요한 곳에만 적용되게 하려면?
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
@@ -38,6 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (tokenProvider.validateToken(token)) {
+
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

@@ -2,9 +2,12 @@ package org.example.tamaapi.dto.responseDto.category.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.dto.UploadFile;
 
 @Getter
+@Setter
 //categoryItem에서 사용
 public class RelatedColorItemResponse {
 
@@ -18,7 +21,7 @@ public class RelatedColorItemResponse {
     private String hexCode;
 
     //대표 이미지
-    private String imageSrc;
+    private UploadFile uploadFile;
 
     //모든 사이즈 재고 합계
     private int totalStock;
@@ -31,7 +34,6 @@ public class RelatedColorItemResponse {
         colorItemId = colorItem.getId();
         color = colorItem.getColor().getName();
         hexCode = colorItem.getColor().getHexCode();
-        imageSrc = colorItem.getImageSrc();
         this.totalStock = (int) totalStock.longValue();
         //createdAt = colorItem.getCreatedAt();
     }

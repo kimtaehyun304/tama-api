@@ -5,6 +5,7 @@ import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +23,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class CommonExceptionHandler {
 
-    //UnException error
-
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<SimpleResponse> IOException(IOException exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SimpleResponse(exception.getMessage()));
+    }
 
     //UnException error
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -71,6 +75,11 @@ public class CommonExceptionHandler {
     @ExceptionHandler(MyExpiredJwtException.class)
     public ResponseEntity<SimpleResponse> MyExpiredJwtException(MyExpiredJwtException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<SimpleResponse> AuthorizationDeniedException(AuthorizationDeniedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new SimpleResponse(exception.getMessage()));
     }
 
 }

@@ -1,7 +1,6 @@
 package org.example.tamaapi.config;
 
 
-
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.oauth2.OAuth2FailureHandler;
 import org.example.tamaapi.jwt.TokenProvider;
@@ -12,12 +11,16 @@ import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -25,6 +28,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity // @PreAuthorize 활성화
 public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
@@ -43,12 +47,18 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public AuthenticationEntryPoint forbiddenEntryPoint() {
+        return new Http403ForbiddenEntryPoint(); // 403 Forbidden 처리
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        //권한 필요한건 @PreAuthorize
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((request) -> {
-                    request.anyRequest().permitAll();
-                });
-
+                            request.anyRequest().permitAll();
+                        }
+                );
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.logout(AbstractHttpConfigurer::disable);
@@ -71,6 +81,11 @@ public class WebSecurityConfig {
                     oauth2.successHandler(oAuth2SuccessHandler);
                     oauth2.failureHandler(oAuth2FailureHandler);
                 }
+        );
+
+        // 인증되지 않은 접근 시 403 오류 처리
+        http.exceptionHandling((exceptionHandling) ->
+                exceptionHandling.authenticationEntryPoint(forbiddenEntryPoint())
         );
 
         return http.build();

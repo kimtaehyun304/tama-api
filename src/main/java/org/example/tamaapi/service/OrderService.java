@@ -39,6 +39,80 @@ public class OrderService {
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;
 
+    public void saveMemberOrder(String paymentId, Long memberId,
+                                String receiverNickname,
+                                String receiverPhone,
+                                String zipCode,
+                                String streetAddress,
+                                String detailAddress,
+                                String message,
+                                List<SaveOrderItemRequest> saveOrderItemRequests) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
+        Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
+        List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
+        Order order = Order.createMemberOrder(paymentId, member, delivery, orderItems);
+        //order 저장후 orderItem 저장해야함
+        orderRepository.save(order);
+        jdbcTemplateRepository.saveOrderItems(orderItems);
+    }
+
+
+    public Long saveGuestOrder(String paymentId,
+                               String senderNickname,
+                               String senderEmail,
+                               String senderPhone,
+                                String receiverNickname,
+                                String receiverPhone,
+                                String zipCode,
+                                String streetAddress,
+                                String detailAddress,
+                                String message,
+                                List<SaveOrderItemRequest> saveOrderItemRequests) {
+
+        Guest guest = new Guest(senderNickname,senderPhone,senderEmail);
+        Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
+        List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
+        Order order = Order.createGuestOrder(paymentId, guest, delivery, orderItems);
+        //order 저장후 orderItem 저장해야함
+        orderRepository.save(order);
+        jdbcTemplateRepository.saveOrderItems(orderItems);
+
+        return order.getId();
+    }
+
+    //saveOrder 공통 로직
+    private List<OrderItem> createOrderItem(String paymentId, List<SaveOrderItemRequest> saveOrderItemRequests){
+        validatePayment(paymentId, saveOrderItemRequests);
+        validatePaymentId(paymentId);
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (SaveOrderItemRequest saveOrderItemRequest : saveOrderItemRequests) {
+            Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
+            //영속성 컨텍스트 재사용
+            ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
+
+            //가격 변동 or 할인 쿠폰 고려
+            Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
+            Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
+            int orderPrice = discountedPrice != null ? discountedPrice : price;
+
+            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+            orderItems.add(orderItem);
+        }
+        return orderItems;
+    }
+
+    //saveOrder 공통 로직
+    private Delivery createDelivery(String receiverNickname,
+                                    String receiverPhone,
+                                    String zipCode,
+                                    String streetAddress,
+                                    String detailAddress,
+                                    String message){
+        return new Delivery(zipCode, streetAddress, detailAddress, message, receiverNickname, receiverPhone);
+    }
+
     //클라이언트 위변조 검증
     private void validatePayment(String paymentId, List<SaveOrderItemRequest> saveOrderItemRequests) {
 
@@ -95,76 +169,7 @@ public class OrderService {
                 .toBodilessEntity();
     }
 
-    public void saveMemberOrder(String paymentId, Long memberId,
-                                String receiverNickname,
-                                String receiverPhone,
-                                String zipCode,
-                                String streetAddress,
-                                String detailAddress,
-                                String message,
-                                List<SaveOrderItemRequest> saveOrderItemRequests) {
-
-        validatePayment(paymentId, saveOrderItemRequests);
-        validatePaymentId(paymentId);
-
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
-        Delivery delivery = new Delivery(zipCode, streetAddress, detailAddress, message, receiverNickname, receiverPhone);
-        List<OrderItem> orderItems = new ArrayList<>();
-
-        for (SaveOrderItemRequest saveOrderItemRequest : saveOrderItemRequests) {
-            Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
-            //영속성 컨텍스트 재사용
-            ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
-
-            //가격 변동 or 할인 쿠폰 고려
-            Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
-            Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
-            int orderPrice = discountedPrice != null ? discountedPrice : price;
-
-            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
-            orderItems.add(orderItem);
-        }
-
-        Order order = Order.createMemberOrder(paymentId, member, delivery, orderItems);
-        //order 저장후 orderItem 저장해야함
-        orderRepository.save(order);
-        jdbcTemplateRepository.saveOrderItems(orderItems);
-    }
-
-    public void saveGuestOrder(String paymentId,
-                               String senderNickname,
-                               String senderEmail,
-                               String senderPhone,
-                                String receiverNickname,
-                                String receiverPhone,
-                                String zipCode,
-                                String streetAddress,
-                                String detailAddress,
-                                String message,
-                                List<SaveOrderItemRequest> saveOrderItemRequests) {
-
-        validatePayment(paymentId, saveOrderItemRequests);
-        validatePaymentId(paymentId);
-
-        Delivery delivery = new Delivery(zipCode, streetAddress, detailAddress, message, receiverNickname, receiverPhone);
-        Guest guest = new Guest(senderNickname,senderPhone,senderEmail);
-        List<OrderItem> orderItems = new ArrayList<>();
-
-        for (SaveOrderItemRequest saveOrderItemRequest : saveOrderItemRequests) {
-            Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
-            //영속성 컨텍스트 재사용
-            ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
-            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).count(saveOrderItemRequest.getOrderCount()).build();
-            orderItems.add(orderItem);
-        }
-
-        Order order = Order.createGuestOrder(paymentId, guest, delivery, orderItems);
-        //order 저장후 orderItem 저장해야함
-        orderRepository.save(order);
-        jdbcTemplateRepository.saveOrderItems(orderItems);
-    }
-
-    public void cancelMemberOrder(Long orderId){
+    public void cancelOrder(Long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
         OrderStatus status = order.getStatus();
         if(!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK))
@@ -172,4 +177,7 @@ public class OrderService {
         order.cancelOrder();
         cancelPortOnePayment(order.getPaymentId());
     }
+
+
+
 }

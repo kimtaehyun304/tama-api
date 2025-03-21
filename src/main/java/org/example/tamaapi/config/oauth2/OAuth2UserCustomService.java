@@ -2,6 +2,7 @@ package org.example.tamaapi.config.oauth2;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.domain.Authority;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.domain.Provider;
 import org.example.tamaapi.repository.MemberRepository;
@@ -53,6 +54,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                     }
                 }, () -> memberRepository.save(Member.builder()
                         .provider(Provider.GOOGLE)
+                        .authority(Authority.MEMBER)
                         .email(email)
                         .nickname(name)
                         .build()));

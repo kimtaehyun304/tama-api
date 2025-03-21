@@ -3,6 +3,7 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
+import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.domain.MemberAddress;
 import org.example.tamaapi.domain.Provider;
@@ -19,13 +20,15 @@ import org.example.tamaapi.dto.responseDto.member.MemberPaymentSetUpResponse;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
-import org.example.tamaapi.repository.item.ItemImageRepository;
+import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +44,7 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 public class MemberApiController {
 
     private final ColorItemRepository colorItemRepository;
-    private final ItemImageRepository itemImageRepository;
+    private final ColorItemImageRepository colorItemImageRepository;
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -92,59 +95,53 @@ public class MemberApiController {
 
     //개인정보
     @GetMapping("/api/member/information")
-    public ResponseEntity<MemberInformationResponse> memberInformation(Principal principal) {
-        if (principal == null || !StringUtils.hasText(principal.getName()))
+    public ResponseEntity<MemberInformationResponse> memberInformation(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if(userDetails == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
-        Long memberId = Long.parseLong(principal.getName());
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-
-        return ResponseEntity.status(HttpStatus.OK).body(new MemberInformationResponse(member));
+        Member member = memberRepository.findById(userDetails.getId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+        MemberInformationResponse memberInformationResponse = new MemberInformationResponse(member);
+        return ResponseEntity.status(HttpStatus.OK).body(memberInformationResponse);
     }
 
     //개인정보
     @PutMapping("/api/member/information")
-    public ResponseEntity<SimpleResponse> updateMemberInformation(Principal principal, @Valid @RequestBody UpdateMemberInformationRequest request) {
-        if (principal == null || !StringUtils.hasText(principal.getName()))
+    public ResponseEntity<SimpleResponse> updateMemberInformation(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UpdateMemberInformationRequest request) {
+        if(userDetails == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
-        Long memberId = Long.parseLong(principal.getName());
-        memberService.updateMemberInformation(memberId, request.getHeight(), request.getWeight());
+        memberService.updateMemberInformation(userDetails.getId(), request.getHeight(), request.getWeight());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("개인정보 업데이트 성공"));
     }
 
     //마이페이지 배송지
     @GetMapping("/api/member/address")
-    public List<MemberAddressesResponse> memberAddress(Principal principal) {
-        if (principal == null || !StringUtils.hasText(principal.getName()))
+    public List<MemberAddressesResponse> memberAddress(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if(userDetails == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
-        Long memberId = Long.parseLong(principal.getName());
-        List<MemberAddress> memberAddresses = memberAddressRepository.findAllByMemberId(memberId);
+        List<MemberAddress> memberAddresses = memberAddressRepository.findAllByMemberId(userDetails.getId());
         return memberAddresses.stream().map(MemberAddressesResponse::new).toList();
     }
 
     //마이페이지 배송지
     @PostMapping("/api/member/address")
-    public ResponseEntity<SimpleResponse> memberAddress(Principal principal, @Valid @RequestBody SaveMemberAddressRequest request) {
-        if (principal == null || !StringUtils.hasText(principal.getName()))
+    public ResponseEntity<SimpleResponse> memberAddress(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody SaveMemberAddressRequest request) {
+        if(userDetails == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
-        Long memberId = Long.parseLong(principal.getName());
-
-
-        memberService.saveMemberAddress(memberId, request.getAddressName(), request.getReceiverNickname(), request.getReceiverPhone(), request.getZipCode(), request.getStreetAddress(), request.getDetailAddress());
+        memberService.saveMemberAddress(userDetails.getId(), request.getAddressName(), request.getReceiverNickname(), request.getReceiverPhone(), request.getZipCode(), request.getStreetAddress(), request.getDetailAddress());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("배송지 저장 성공"));
     }
 
     //마이페이지 배송지
     @PutMapping("/api/member/address/default")
-    public ResponseEntity<SimpleResponse> memberAddress(Principal principal, @Valid @RequestBody UpdateMemberDefaultAddressRequest request) {
-        if (principal == null || !StringUtils.hasText(principal.getName()))
+    public ResponseEntity<SimpleResponse> memberAddress(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UpdateMemberDefaultAddressRequest request) {
+        if(userDetails == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
-        Long memberId = Long.parseLong(principal.getName());
-        memberService.updateMemberDefaultAddress(memberId, request.getAddressId());
+        memberService.updateMemberDefaultAddress(userDetails.getId(), request.getAddressId());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("기본 배송지 변경 성공"));
     }
 

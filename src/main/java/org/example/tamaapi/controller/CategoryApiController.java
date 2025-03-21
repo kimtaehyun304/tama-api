@@ -6,7 +6,7 @@ import org.example.tamaapi.dto.responseDto.category.CategoryResponse;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.item.CategoryRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
-import org.example.tamaapi.repository.item.ItemImageRepository;
+import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +20,7 @@ import java.util.List;
 public class CategoryApiController {
 
     private final ColorItemRepository colorItemRepository;
-    private final ItemImageRepository itemImageRepository;
+    private final ColorItemImageRepository colorItemImageRepository;
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;

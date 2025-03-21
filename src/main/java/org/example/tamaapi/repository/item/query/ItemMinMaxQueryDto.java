@@ -1,4 +1,4 @@
-package org.example.tamaapi.repository.query;
+package org.example.tamaapi.repository.item.query;
 
 import lombok.Getter;
 

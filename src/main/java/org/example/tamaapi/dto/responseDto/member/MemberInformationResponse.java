@@ -39,5 +39,4 @@ public class MemberInformationResponse {
         this.height = member.getHeight();
         this.weight = member.getWeight();
     }
-
 }

@@ -3,8 +3,10 @@ package org.example.tamaapi.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.exception.MyExpiredJwtException;
+import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,11 +17,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
+
 @Service
 @RequiredArgsConstructor
 public class TokenProvider {
 
     private final JwtProperties jwtProperties;
+    private final MemberRepository memberRepository;
 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
@@ -61,11 +66,17 @@ public class TokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
-        org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
+        //String stringMemberId = claims.getSubject();
+        Long memberId = Long.valueOf(claims.getSubject());
+        //Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
-        return new UsernamePasswordAuthenticationToken(securityUser, token, authorities);
+        //member.getAuthority().getAuthority() : ADMIN -> ROLE_ADMIN 변환
+        //Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().getAuthority()));
+        //org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(stringMemberId, ", null);
+        CustomUserDetails securityUser = new CustomUserDetails(memberId, null);
+        //CustomUserDetails securityUser = new CustomUserDetails(memberId, member.getEmail(), member.getPhone(), member.getPassword(), member.getNickname(), member.getGender(), member.getHeight(), member.getWeight(), member.getProvider(), member.getAuthority());
+        return new UsernamePasswordAuthenticationToken(securityUser, token);
     }
 
 

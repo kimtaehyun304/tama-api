@@ -22,10 +22,8 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -41,6 +39,10 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
+
     @OneToMany(mappedBy = "member")
     List<MemberAddress> addresses= new ArrayList<>();
 
@@ -48,7 +50,7 @@ public class Member extends BaseEntity {
     List<Order> orders = new ArrayList<>();
 
     @Builder
-    public Member(String email, String phone, String password, String nickname, Gender gender, Integer height, Integer weight, Provider provider) {
+    public Member(String email, String phone, String password, String nickname, Gender gender, Integer height, Integer weight, Provider provider, Authority authority) {
         this.email = email;
         this.phone = phone;
         this.password = password;
@@ -57,6 +59,7 @@ public class Member extends BaseEntity {
         this.height = height;
         this.weight = weight;
         this.provider = provider;
+        this.authority = authority;
     }
 
 

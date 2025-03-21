@@ -26,6 +26,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 application.yml
+application-prod.yml
 logback-spring.xml
 memo.txt
 

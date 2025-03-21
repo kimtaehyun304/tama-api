@@ -1,11 +1,15 @@
 package org.example.tamaapi.dto.responseDto;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
+import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.responseDto.item.ColorItemSizeStockDto;
 
 @Getter
+@Setter
 @ToString
 public class ShoppingBagDto {
 
@@ -19,9 +23,9 @@ public class ShoppingBagDto {
 
     private String color;
 
-    private  String name;
+    private String name;
 
-    private String image;
+    private UploadFile uploadFile;
 
     private ColorItemSizeStockDto sizeStock;
 
@@ -40,7 +44,6 @@ public class ShoppingBagDto {
         discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
         color = colorItemSizeStock.getColorItem().getColor().getName();
         name = colorItemSizeStock.getColorItem().getItem().getName();
-        image = colorItemSizeStock.getColorItem().getImageSrc();
         sizeStock = new ColorItemSizeStockDto(colorItemSizeStock);
     }
 }

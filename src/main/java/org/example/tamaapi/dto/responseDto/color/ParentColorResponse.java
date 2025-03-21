@@ -1,17 +1,20 @@
-package org.example.tamaapi.dto.responseDto.item;
+package org.example.tamaapi.dto.responseDto.color;
 
 import lombok.Getter;
 import org.example.tamaapi.domain.item.Color;
 
 @Getter
-public class ColorResponse {
+public class ParentColorResponse {
 
     private Long id;
 
     private String name;
 
     private String hexCode;
-    public ColorResponse(Color color) {
+
+
+
+    public ParentColorResponse(Color color) {
         id = color.getId();
         name = color.getName();
         hexCode = color.getHexCode();

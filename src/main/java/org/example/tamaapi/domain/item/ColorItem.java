@@ -27,17 +27,20 @@ public class ColorItem extends BaseEntity {
     private Color color;
 
     //대표 이미지
-    @Column(nullable = false)
-    private String imageSrc;
+    //@Column(nullable = false)
+    //private String imageSrc;
+
+    @OneToMany(mappedBy = "colorItem")
+    @BatchSize(size = 1000)
+    private List<ColorItemImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "colorItem")
     @BatchSize(size = 1000)
     private List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
 
     @Builder
-    public ColorItem(Item item, Color color, String imageSrc) {
+    public ColorItem(Item item, Color color) {
         this.item = item;
         this.color = color;
-        this.imageSrc = imageSrc;
     }
 }

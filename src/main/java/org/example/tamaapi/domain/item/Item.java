@@ -44,7 +44,7 @@ public class Item extends BaseEntity {
     private LocalDate dateOfManufacture;
 
     @Column(nullable = false)
-    private  String countryOfManufacture;
+    private String countryOfManufacture;
 
     @Column(nullable = false)
     private String manufacturer;

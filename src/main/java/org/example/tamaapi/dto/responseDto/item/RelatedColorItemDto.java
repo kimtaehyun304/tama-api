@@ -1,11 +1,14 @@
 package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.dto.UploadFile;
 
 @Getter
 @ToString
+@Setter
 public class RelatedColorItemDto {
 
     //ColorItemId
@@ -13,12 +16,12 @@ public class RelatedColorItemDto {
 
     private String color;
 
-    private String imageSrc;
+    private UploadFile uploadFile;
 
-    public RelatedColorItemDto(ColorItem colorItem) {
+    public RelatedColorItemDto(ColorItem colorItem, UploadFile uploadFile) {
         id = colorItem.getId();
         color = colorItem.getColor().getName();
-        imageSrc = colorItem.getImageSrc();
+        this.uploadFile = uploadFile;
     }
 
 }

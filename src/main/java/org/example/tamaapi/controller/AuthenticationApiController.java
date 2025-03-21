@@ -8,7 +8,7 @@ import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.repository.item.ColorItemRepository;
-import org.example.tamaapi.repository.item.ItemImageRepository;
+import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.EmailService;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationApiController {
 
     private final ColorItemRepository colorItemRepository;
-    private final ItemImageRepository itemImageRepository;
+    private final ColorItemImageRepository colorItemImageRepository;
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final EmailService emailService;

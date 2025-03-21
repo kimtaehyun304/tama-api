@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class OrderResponse {
+public class AdminOrderResponse {
 
     //orderId
     private Long id;
@@ -22,14 +22,17 @@ public class OrderResponse {
 
     private OrderStatus status;
 
+    private String buyerName;
+
     private DeliveryResponse delivery;
 
     private List<OrderItemResponse> orderItems = new ArrayList<>();
 
-    public OrderResponse(Order order) {
+    public AdminOrderResponse(Order order) {
         id = order.getId();
         orderDate = order.getCreatedAt();
         status = order.getStatus();
+        buyerName = order.getMember() != null ? order.getMember().getNickname() : order.getGuest().getNickname();
         delivery = new DeliveryResponse(order.getDelivery());
     }
 }
