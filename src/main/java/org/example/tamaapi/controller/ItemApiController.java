@@ -65,10 +65,9 @@ public class ItemApiController {
         List<ColorItemImage> colorItemImage = colorItemImageRepository.findAllByColorItemId(colorItemId);
 
         List<ColorItem> relatedColorItems = colorItemRepository.findRelatedColorItemByItemId(colorItem.getItem().getId());
-        List<Long> colorItemIds = relatedColorItems.stream().map(ColorItem::getId).toList();
-
+        List<Long> itemIds = relatedColorItems.stream().map(rci -> rci.getItem().getId()).toList();
         //이거 영속성 컨텍스트 충돌 날거 같은데
-        List<ColorItemImage> relatedColorItemDefaultImages = colorItemImageRepository.findAllByColorItemItemIdInAndSequence(colorItemIds, 1);
+        List<ColorItemImage> relatedColorItemDefaultImages = colorItemImageRepository.findAllByColorItemItemIdInAndSequence(itemIds, 1);
         Map<Long, UploadFile> uploadFileMap = relatedColorItemDefaultImages.stream().collect(Collectors.toMap(ci -> ci.getColorItem().getId(), ColorItemImage::getUploadFile));
         List<RelatedColorItemDto> relatedColorItemDtos = relatedColorItems.stream().map(rci -> new RelatedColorItemDto(rci, uploadFileMap.get(rci.getId()))).toList();
 
@@ -186,9 +185,6 @@ public class ItemApiController {
     @Secured("ROLE_ADMIN")
     //이미지 파일인지 검증 필요
     public ResponseEntity<SimpleResponse> saveItems(@Valid @RequestBody SaveItemRequest request) {
-
-
-
         Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
 
         Item item = new Item(request.getPrice(), request.getDiscountedPrice(), request.getGender(), request.getYearSeason(), request.getName(), request.getDescription()

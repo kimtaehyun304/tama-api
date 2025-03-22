@@ -12,6 +12,7 @@ public interface ColorItemImageRepository extends JpaRepository<ColorItemImage, 
 
     List<ColorItemImage> findAllByColorItemIdInAndSequence(List<Long> colorItemIds, Integer sequence);
 
+    //조인 알아서 해줌
     List<ColorItemImage> findAllByColorItemItemIdInAndSequence(List<Long> itemIds, Integer sequence);
 
     Optional<ColorItemImage> findByColorItemIdAndSequence(Long colorItemId, Integer sequence);
