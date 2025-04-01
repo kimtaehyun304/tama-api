@@ -16,6 +16,7 @@ import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
+import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberPaymentSetUpResponse;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
@@ -82,6 +83,7 @@ public class MemberApiController {
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
 
+    /*
     //포트원 결제 내역에 저장할 멤버 정보
     @GetMapping("/api/member/payment-setup")
     public ResponseEntity<MemberPaymentSetUpResponse> member(Principal principal) {
@@ -91,6 +93,17 @@ public class MemberApiController {
         Long memberId = Long.parseLong(principal.getName());
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
         return ResponseEntity.status(HttpStatus.OK).body(new MemberPaymentSetUpResponse(member));
+    }
+    */
+
+    //포트원 결제 내역에 저장할 멤버 정보
+    @GetMapping("/api/member/order-setup")
+    public ResponseEntity<MemberOrderSetUpResponse> member(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if(userDetails == null)
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        Member member = memberRepository.findWithAddressesById(userDetails.getId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+        return ResponseEntity.status(HttpStatus.OK).body(new MemberOrderSetUpResponse(member));
     }
 
     //개인정보
@@ -125,7 +138,6 @@ public class MemberApiController {
         return memberAddresses.stream().map(MemberAddressesResponse::new).toList();
     }
 
-    //마이페이지 배송지
     @PostMapping("/api/member/address")
     public ResponseEntity<SimpleResponse> memberAddress(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody SaveMemberAddressRequest request) {
         if(userDetails == null)

@@ -22,3 +22,37 @@ https://limyohwan.tistory.com/62
 
 @PreAuthorize: AOP가 먼저 실행되도록 보장하지 않음. AOP가 먼저 실행되도록 하려면 @Secured 사용
 
+[파일 업로드 팁]
+application/json -> @RequestBody
+multipart/form-data OR application/x-www-form-urlencoded -> @RequestParam, @ModelAttribute 둘다 가능
+multipart/form-data -> @RequestPart
+
+@RequestBody: List<ItemVo> 가능. ONLY JSON
+
+@ModelAttribute: List<ItemVo> 불가 -> ItemVoWrapper 감싸기. @ModelAttribute 변수명 무관.
+ㄴ API 요청 시 requests[0].colorItemId: 3, requests[0].files: (바이너리) 이렇게 따로 여러번 할당해서 보내야 함
+ㄴ JSON 인식 못해서 people.name = "john" 이렇게 해야 함.
+
+@RequestPart: List<ItemVo> 불가. JSON 안에 파일을 못 넣기 때문.
+ㄴ JSON 과 파일을 분리해도 되면 가능. API 요청시 json part는 콘텐츠 타입(application/json) 지정 필수.
+ㄴ @RequestPart 변수명으로 매핑해서 requests[0] 안됨. 인덱스 없이 requests만 달랑 보내야 함
+
+JSON 안에 파일을 못 넣는 이유: 콘텐츠 타입이 통일되지 않아서.
+ㄴ단, multipart/form-data 처럼 파트마다 다르게 지정하는 건 가능
+
+스웨거 파일 업로드 테스트할 때 컨텐츠 타입 지정 못해서, @ModelAttribute @RequestPart 둘다 "Content type 'application/octet-stream' not supported" 에러 발생
+ㄴ스프링 MultipartJackson2HttpMessageConverter 등록 필요
+
+form-data 디폴트 content-type
+ㄴ html <form> tag: application/x-www-form-urlencoded (변경 가능)
+ㄴ js formData: multipart/form-data
+ㄴ postman: multipart/form-data
+
+@ModelAttribute 바인딩 생성자 우선순위
+ㄴ@NoArgsConstructor > @AllArgsConstructor.  @NoArgsConstructor가 실행되므로 setter 필요
+ㄴ단, @NoArgsConstructor(access = AccessLevel.PROTECTED) < @AllArgsConstructor
+
+CorsFilter는 @Order(Ordered.HIGHEST_PRECEDENCE) 필요X
+ㄴCORS 응답은 서버는 요청을 수행하지만 브라우저가 거절하는거기 때문.
+ㄴ스프링 시큐리티 필터체인이 관리하는 필터가 사용자 정의 필터보다 우선순위가 높음. CORS 필터는 상관없지만 다른 필터만들때 주의
+ㄴ스프링 시큐리티 AOP도 우선순위가 높음

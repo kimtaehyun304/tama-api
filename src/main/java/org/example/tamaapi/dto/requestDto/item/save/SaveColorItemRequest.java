@@ -15,9 +15,6 @@ public class SaveColorItemRequest {
 
     private Long colorId;
 
-    //이미지
-    private List<MultipartFile> files;
-    
     private List<SaveSizeStockRequest> sizeStocks;
 
 }

@@ -2,7 +2,7 @@ package org.example.tamaapi.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.config.PreAuthentication;
+import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CategoryItemFilterRequest;
@@ -12,13 +12,10 @@ import org.example.tamaapi.dto.requestDto.item.save.SaveColorItemRequest;
 import org.example.tamaapi.dto.requestDto.item.save.SaveItemRequest;
 import org.example.tamaapi.dto.requestDto.item.save.SaveSizeStockRequest;
 import org.example.tamaapi.dto.responseDto.CustomPage;
-import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.dto.responseDto.category.item.CategoryBestItemResponse;
-import org.example.tamaapi.dto.responseDto.category.item.CategoryItemResponse;
-import org.example.tamaapi.dto.responseDto.category.item.RelatedColorItemResponse;
 import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
 import org.example.tamaapi.dto.responseDto.item.RelatedColorItemDto;
+import org.example.tamaapi.dto.responseDto.item.SavedColorItemIdResponse;
 import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.item.*;
@@ -26,20 +23,16 @@ import org.example.tamaapi.repository.item.query.*;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.util.FileStore;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.example.tamaapi.util.ErrorMessageUtil.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -94,7 +87,7 @@ public class ItemApiController {
     //카테고리 아이템
     //sort는 if문 검증이라 분리
     @GetMapping("/api/items")
-    public CustomPage<CategoryItemQueryDto> categoryItem(@RequestParam Long categoryId, @Valid CustomPageRequest customPageRequest
+    public CustomPage<CategoryItemQueryDto> categoryItem(@RequestParam(required = false) Long categoryId, @Valid CustomPageRequest customPageRequest
             , @RequestParam MySort sort, @Valid CategoryItemFilterRequest itemFilter) {
 
         if (itemFilter.getMinPrice() != null && itemFilter.getMaxPrice() != null && itemFilter.getMinPrice() > itemFilter.getMaxPrice())
@@ -102,16 +95,15 @@ public class ItemApiController {
 
         sortValidator.validate(sort);
 
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
         List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리일경우 하위를 함께 보여줌
-        if (category.getChildren().isEmpty())
+        if(categoryId != null) {
+            //상위 카테고리인지 확인
+            Category category = categoryRepository.findWithChildrenById(categoryId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
             categoryIds.add(categoryId);
-        else
+            //상위 카테고리일경우 하위를 함께 보여줌
             categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
+        }
 
         //상위 색상일경우 하위를 함께 보여줌
         List<Long> colorIds = new ArrayList<>();
@@ -122,7 +114,7 @@ public class ItemApiController {
         }
 
         return itemQueryRepository.findCategoryItemsByFilter(sort, customPageRequest, categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice()
-                , itemFilter.getColorIds(), itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
+                , colorIds, itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
     }
 
     @GetMapping("/api/items/minMaxPrice")
@@ -180,30 +172,28 @@ public class ItemApiController {
         return new UrlResource("file:"+fileStore.getFullPath(storedFileName));
     }
 
-    @PostMapping("/api/items/new")
+    @PostMapping(value = "/api/items/new", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     @PreAuthentication
     @Secured("ROLE_ADMIN")
     //이미지 파일인지 검증 필요
-    public ResponseEntity<SimpleResponse> saveItems(@Valid @RequestBody SaveItemRequest request) {
-        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
+    public SavedColorItemIdResponse saveItems(@Valid @RequestBody SaveItemRequest saveItemReq) {
+        Category category = categoryRepository.findById(saveItemReq.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
 
-        Item item = new Item(request.getPrice(), request.getDiscountedPrice(), request.getGender(), request.getYearSeason(), request.getName(), request.getDescription()
-                , request.getDateOfManufacture(), request.getCountryOfManufacture(), request.getManufacturer(), category, request.getTextile(), request.getPrecaution());
-
-
-        List<Long> colorIds = request.getColorItems().stream().map(SaveColorItemRequest::getColorId).toList();
+        Item item = new Item(saveItemReq.getPrice(), saveItemReq.getDiscountedPrice(), saveItemReq.getGender(), saveItemReq.getYearSeason(), saveItemReq.getName(), saveItemReq.getDescription()
+                , saveItemReq.getDateOfManufacture(), saveItemReq.getCountryOfManufacture(), saveItemReq.getManufacturer(), category, saveItemReq.getTextile(), saveItemReq.getPrecaution());
 
         //영속성 컨텍스트 업로드
+        List<Long> colorIds = saveItemReq.getColorItems().stream().map(SaveColorItemRequest::getColorId).toList();
         List<Color> colors = colorRepository.findAllById(colorIds);
 
         //colorItems 엔티티 생성
-        List<ColorItem> colorItems = request.getColorItems().stream().map(ci -> new ColorItem(item
+        List<ColorItem> colorItems = saveItemReq.getColorItems().stream().map(ci -> new ColorItem(item
                 , colorRepository.findById(ci.getColorId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_COLOR)))).toList();
 
 
         //colorItemSizeStocks 엔티티 생성
         //key: colorId
-        Map<Long, List<SaveSizeStockRequest>> sizeStockMap = request.getColorItems().stream().collect(Collectors.toMap(
+        Map<Long, List<SaveSizeStockRequest>> sizeStockMap = saveItemReq.getColorItems().stream().collect(Collectors.toMap(
                 SaveColorItemRequest::getColorId,  // colorId를 Key로 사용
                 SaveColorItemRequest::getSizeStocks
         ));
@@ -215,28 +205,8 @@ public class ItemApiController {
                 )
                 .toList();
 
-        //colorItemImages 엔티티 생성
-        Map<Long, List<UploadFile>> uploadFileMap = request.getColorItems().stream()
-                .collect(Collectors.toMap(
-                        SaveColorItemRequest::getColorId,
-                        ci -> {
-                            List<MultipartFile> files = ci.getFiles();
-                            List<UploadFile> uploadFiles = fileStore.storeFiles(files);
-                            return uploadFiles;
-                        }
-                ));
-
-        List<ColorItemImage> colorItemImages = colorItems.stream()
-                .flatMap(ci -> {
-                    List<UploadFile> uploadFiles = uploadFileMap.get(ci.getColor().getId());
-                    return IntStream.range(0, uploadFiles.size())  // 인덱스를 생성
-                            .mapToObj(i -> new ColorItemImage(ci, uploadFiles.get(i), i + 1)); // 1부터 시작하는 순서
-                })
-                .toList();
-
-        itemService.saveItem(item, colorItems, colorItemSizeStocks, colorItemImages);
-
-        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("저장 성공"));
+        List<Long> savedColorItemIds = itemService.saveItem(item, colorItems, colorItemSizeStocks);
+        return new SavedColorItemIdResponse(savedColorItemIds);
     }
 
 

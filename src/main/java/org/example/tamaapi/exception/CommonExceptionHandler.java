@@ -82,4 +82,9 @@ public class CommonExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new SimpleResponse(exception.getMessage()));
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<SimpleResponse> UnauthorizedException(UnauthorizedException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new SimpleResponse(exception.getMessage()));
+    }
+
 }

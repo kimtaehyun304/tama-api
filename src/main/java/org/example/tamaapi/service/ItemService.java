@@ -26,15 +26,18 @@ public class ItemService {
     private final JdbcTemplateRepository jdbcTemplateRepository;
     private final ColorItemRepository colorItemRepository;
 
-    public void saveItem(Item item, List<ColorItem> colorItems, List<ColorItemSizeStock> colorItemSizeStocks, List<ColorItemImage> colorItemImages) {
+    public List<Long> saveItem(Item item, List<ColorItem> colorItems, List<ColorItemSizeStock> colorItemSizeStocks) {
         itemRepository.save(item);
         //PK 채우려고 jdbcTemplate 안씀
         colorItemRepository.saveAll(colorItems);
         jdbcTemplateRepository.saveColorItemSizeStocks(colorItemSizeStocks);
-        jdbcTemplateRepository.saveColorItemImages(colorItemImages);
-
+        return colorItems.stream().map(ColorItem::getId).toList();
     }
 
+
+    public void saveColorItemImages(List<ColorItemImage> colorItemImages) {
+        jdbcTemplateRepository.saveColorItemImages(colorItemImages);
+    }
 
 
 }

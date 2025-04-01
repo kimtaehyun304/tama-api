@@ -3,32 +3,48 @@ package org.example.tamaapi.config;
 
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.oauth2.OAuth2FailureHandler;
+import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.exception.UnauthorizedException;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.config.oauth2.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import org.example.tamaapi.config.oauth2.OAuth2SuccessHandler;
 import org.example.tamaapi.config.oauth2.OAuth2UserCustomService;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.support.MethodMatchers;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Collections;
+import java.util.Set;
+
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_AUTHENTICATED;
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-@EnableMethodSecurity // @PreAuthorize 활성화
+@EnableMethodSecurity(securedEnabled = true) // @PreAuthorize 활성화
 public class WebSecurityConfig {
 
     private final TokenProvider tokenProvider;
@@ -59,6 +75,7 @@ public class WebSecurityConfig {
                             request.anyRequest().permitAll();
                         }
                 );
+
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.logout(AbstractHttpConfigurer::disable);
@@ -90,6 +107,7 @@ public class WebSecurityConfig {
 
         return http.build();
     }
+
 
     /*
     @Bean

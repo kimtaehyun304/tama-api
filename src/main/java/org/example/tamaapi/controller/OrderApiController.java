@@ -4,11 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.config.CustomUserDetails;
-import org.example.tamaapi.config.PreAuthentication;
-import org.example.tamaapi.domain.Authority;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.Order;
-import org.example.tamaapi.domain.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.CancelMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveGuestOrderRequest;
@@ -33,19 +30,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -88,12 +80,12 @@ public class OrderApiController {
 
     //멤버 주문 저장
     @PostMapping("/api/orders/member")
-    public ResponseEntity<Object> saveMemberOrder(@Valid @RequestBody SaveMemberOrderRequest saveMemberOrderRequest, BindingResult bindingResult, Principal principal) {
+    public ResponseEntity<Object> saveMemberOrder(@Valid @RequestBody SaveMemberOrderRequest saveMemberOrderRequest, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         StringBuilder message = new StringBuilder();
 
         //밑에서 주문 취소
-        if (principal == null || !StringUtils.hasText(principal.getName()))
+        if(userDetails == null)
             message.append("액세스 토큰이 비었습니다. ");
 
         //결제는 memberOrderRequest 없어도 가능함. 근데 주문은 memberOrderRequest 없으면 결제 취소해야함
@@ -102,7 +94,7 @@ public class OrderApiController {
                 message.append(fieldError.getField()).append("는(은) ").append(fieldError.getDefaultMessage()).append(". ");
         }
 
-        if (bindingResult.hasFieldErrors() || principal == null || !StringUtils.hasText(principal.getName())) {
+        if (bindingResult.hasFieldErrors() || userDetails == null) {
             if (StringUtils.hasText(saveMemberOrderRequest.getPaymentId())) {
                 orderService.cancelPortOnePayment(saveMemberOrderRequest.getPaymentId());
                 message.append("결제 자동 취소! ");
@@ -114,7 +106,7 @@ public class OrderApiController {
             throw new MyBadRequestException(message.toString());
         }
 
-        Long memberId = Long.parseLong(principal.getName());
+        Long memberId = userDetails.getId();
         orderService.saveMemberOrder(
                 saveMemberOrderRequest.getPaymentId(),
                 memberId,
@@ -132,17 +124,12 @@ public class OrderApiController {
 
     //멤버 주문 취소
     @PutMapping("/api/orders/member/cancel")
-    public ResponseEntity<Object> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, Principal principal) {
+    public ResponseEntity<Object> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        StringBuilder message = new StringBuilder();
+        if(userDetails == null)
+            throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
-        //인증된 사람만 주문 취소가능
-        if (principal == null || !StringUtils.hasText(principal.getName())) {
-            message.append("액세스 토큰이 비었습니다. ");
-            throw new MyBadRequestException(message.toString());
-        }
-
-        orderService.cancelOrder(cancelMemberOrderRequest.getOrderId());
+        orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), userDetails.getId());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
     }
 
@@ -212,21 +199,19 @@ public class OrderApiController {
         try {
             emailService.sendGuestOrderEmail(saveGuestOrderRequest.getSenderEmail(), saveGuestOrderRequest.getSenderNickname(), newOrderId);
         } catch (Exception e) {
-            orderService.cancelOrder(newOrderId);
+            orderService.cancelGuestOrder(newOrderId);
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 완료"));
     }
-
 
     //게스트 주문 취소
     @PutMapping("/api/orders/guest/cancel")
     public ResponseEntity<Object> cancelGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
 
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
-        if (authHeader == null || !authHeader.startsWith("Basic ")) {
+        if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new IllegalArgumentException(INVALID_HEADER);
-        }
 
         String base64Credentials = authHeader.substring(6); // "Basic " 이후의 값 추출
         String decodedCredentials = new String(Base64.getDecoder().decode(base64Credentials), StandardCharsets.UTF_8);
@@ -240,10 +225,11 @@ public class OrderApiController {
         Long orderId = Long.parseLong(values[1]);
 
         Order order = orderRepository.findAllWithOrderItemAndDeliveryByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+        //사용자 검증
         if(!order.getGuest().getNickname().equals(buyerName))
             throw new IllegalArgumentException(NOT_FOUND_ORDER);
 
-        orderService.cancelOrder(orderId);
+        orderService.cancelGuestOrder(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
     }
 
@@ -257,7 +243,7 @@ public class OrderApiController {
     //모든 주문 조회
     @GetMapping("/api/orders")
     @PreAuthentication
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
         PageRequest pageRequest = PageRequest.of(customPageRequest.getPage() - 1, customPageRequest.getSize());
         Page<Order> orders = orderRepository.findAllWithMemberAndDelivery(pageRequest);

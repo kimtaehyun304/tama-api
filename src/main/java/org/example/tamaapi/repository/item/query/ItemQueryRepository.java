@@ -65,21 +65,42 @@ public class ItemQueryRepository {
     //페이징 where in 절에 쓸 itemIds, rowCount
     //페이징 자식 컬렉션에 쓸 colorItemIds(지연 로딩) //이건 뭐지?
     private List<Item> findItemsByCategoryIdInAndFilter(List<Long> categoryIds, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-        String jpql = "SELECT i FROM Item i JOIN i.colorItems ci JOIN ci.colorItemSizeStocks s JOIN ci.color WHERE i.category.id IN :categoryIds";
+        String jpql = "SELECT i FROM Item i JOIN i.colorItems ci JOIN ci.colorItemSizeStocks s JOIN ci.color";
 
-        // WHERE
-        if (minPrice != null) jpql += " AND COALESCE(i.discountedPrice, i.price) >= :minPrice";
-        if (maxPrice != null) jpql += " AND COALESCE(i.discountedPrice, i.price) <= :maxPrice";
-        if (colorIds != null && !colorIds.isEmpty()) jpql += " AND ci.color.id IN :colorIds";
-        if (genders != null && !genders.isEmpty()) jpql += " AND i.gender IN :genders";
-        if (isContainSoldOut == null || Boolean.FALSE.equals(isContainSoldOut)) jpql += " AND s.stock > 0";
+        // WHERE 절 추가 로직
+        boolean hasCondition = false;
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            jpql += (hasCondition ? " AND" : " WHERE") + " i.category.id IN :categoryIds";
+            hasCondition = true;
+        }
+        if (minPrice != null) {
+            jpql += (hasCondition ? " AND" : " WHERE") + " COALESCE(i.discountedPrice, i.price) >= :minPrice";
+            hasCondition = true;
+        }
+        if (maxPrice != null) {
+            jpql += (hasCondition ? " AND" : " WHERE") + " COALESCE(i.discountedPrice, i.price) <= :maxPrice";
+            hasCondition = true;
+        }
+        if (colorIds != null && !colorIds.isEmpty()) {
+            jpql += (hasCondition ? " AND" : " WHERE") + " ci.color.id IN :colorIds";
+            hasCondition = true;
+        }
+        if (genders != null && !genders.isEmpty()) {
+            jpql += (hasCondition ? " AND" : " WHERE") + " i.gender IN :genders";
+            hasCondition = true;
+        }
+        if (isContainSoldOut == null || Boolean.FALSE.equals(isContainSoldOut)) {
+            jpql += (hasCondition ? " AND" : " WHERE") + " s.stock > 0";
+        }
+
 
         // 그룹화 추가 (안 필요하길랙 주석)
         //jpql += " GROUP BY i.id, ci.id";
 
         TypedQuery<Item> query = em.createQuery(jpql, Item.class);
 
-        query.setParameter("categoryIds", categoryIds);
+        if (categoryIds != null && !categoryIds.isEmpty()) query.setParameter("categoryIds", categoryIds);
+        if (colorIds != null && !colorIds.isEmpty()) query.setParameter("colorIds", colorIds);
         if (minPrice != null) query.setParameter("minPrice", minPrice);
         if (maxPrice != null) query.setParameter("maxPrice", maxPrice);
         if (colorIds != null && !colorIds.isEmpty()) query.setParameter("colorIds", colorIds);

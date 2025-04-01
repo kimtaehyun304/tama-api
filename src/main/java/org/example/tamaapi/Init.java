@@ -196,7 +196,8 @@ public class Init {
                     )
             );
 
-            itemService.saveItem(bottomItem, colorItems, colorItemSizeStocks, colorItemImages);
+            itemService.saveItem(bottomItem, colorItems, colorItemSizeStocks);
+            itemService.saveColorItemImages(colorItemImages);
 
             colorItems.clear();
             colorItemSizeStocks.clear();
@@ -248,8 +249,9 @@ public class Init {
                     new ColorItemImage(navyColorItem, new UploadFile("man-navy-pants-detail2.jpg", "man-navy-pants-detail2-uuid.jpg"), 3)
             ));
 
-            // Save the item with color items, size stocks, and images
-            itemService.saveItem(denimPantsItem, colorItems, colorItemSizeStocks, colorItemImages);
+            itemService.saveItem(denimPantsItem, colorItems, colorItemSizeStocks);
+            itemService.saveColorItemImages(colorItemImages);
+
         }
 
         public void initMember() {
@@ -264,7 +266,7 @@ public class Init {
 
         public void initMemberAddress() {
             Member member = memberRepository.findById(1L).get();
-            memberService.saveMemberAddress(member.getId(), "우리집", member.getNickname(), member.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학", "연구소 1층");
+            memberService.saveMemberAddress(member.getId(), "우리집", member.getNickname(), member.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
             memberService.saveMemberAddress(member.getId(), "회사", member.getNickname(), member.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
         }
 

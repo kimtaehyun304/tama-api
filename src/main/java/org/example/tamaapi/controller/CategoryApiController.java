@@ -3,6 +3,7 @@ package org.example.tamaapi.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.Category;
 import org.example.tamaapi.dto.responseDto.category.CategoryResponse;
+import org.example.tamaapi.dto.responseDto.category.ParentCategoryResponse;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.item.CategoryRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
@@ -32,6 +33,13 @@ public class CategoryApiController {
         List<Category> categories = categoryRepository.findAllWithChildrenAllByParentIsNull();
         return categories.stream().map(CategoryResponse::new).toList();
     }
+
+    @GetMapping("/api/category/parent")
+    public List<ParentCategoryResponse> parentCategory() {
+        List<Category> categories = categoryRepository.findAllByParentIsNull();
+        return categories.stream().map(ParentCategoryResponse::new).toList();
+    }
+
 
     @GetMapping("/api/category/{categoryId}")
     public CategoryResponse category(@PathVariable Long categoryId) {

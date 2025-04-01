@@ -50,13 +50,29 @@ public class FileStore {
 
     private String createStoredFileName(String originalFileName){
         String ext = extractExt(originalFileName);
+        String name = extractName(originalFileName);
         String uuid = UUID.randomUUID().toString();
-        return uuid + "." + ext;
+        return name + "-" + uuid + "." + ext;
     }
 
     private String extractExt(String originalFileName){
         int pos = originalFileName.lastIndexOf(".");
         return originalFileName.substring(pos + 1);
+    }
+
+    private String extractName(String originalFileName){
+        int pos = originalFileName.lastIndexOf(".");
+        return originalFileName.substring(0, pos);
+    }
+
+    public void areFilesImage(List<MultipartFile> files) {
+        for (MultipartFile file : files) {
+            // 파일의 MIME 타입이 이미지인지 확인
+            String contentType = file.getContentType();
+            if (!contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("이미지 파일이 아닙니다");
+            }
+        }
     }
 
 

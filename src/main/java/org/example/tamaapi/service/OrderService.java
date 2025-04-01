@@ -169,7 +169,7 @@ public class OrderService {
                 .toBodilessEntity();
     }
 
-    public void cancelOrder(Long orderId){
+    public void cancelGuestOrder(Long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
         OrderStatus status = order.getStatus();
         if(!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK))
@@ -178,6 +178,22 @@ public class OrderService {
         cancelPortOnePayment(order.getPaymentId());
     }
 
+    public void cancelMemberOrder(Long orderId, Long memberId){
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
+
+
+        if(!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId))
+            throw new IllegalArgumentException("주문한 사용자가 아닙니다.");
+
+        OrderStatus status = order.getStatus();
+        if(!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK))
+            throw new IllegalArgumentException("주문 취소 가능 단계가 아닙니다.");
+
+        order.cancelOrder();
+        cancelPortOnePayment(order.getPaymentId());
+    }
 
 
 }

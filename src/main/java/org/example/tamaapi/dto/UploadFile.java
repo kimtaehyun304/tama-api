@@ -13,4 +13,6 @@ public class UploadFile {
     private String originalFileName;
     private String storedFileName;
 
+
+
 }
