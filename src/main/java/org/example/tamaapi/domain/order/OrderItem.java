@@ -1,8 +1,9 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.order;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
+import org.example.tamaapi.domain.item.Review;
 
 @Entity
 @Getter @Setter
@@ -13,6 +14,9 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_item_id")
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "orderItem")
+    private Review review;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")

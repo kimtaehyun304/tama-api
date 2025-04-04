@@ -1,6 +1,7 @@
 package org.example.tamaapi.dto.responseDto.review;
 
 import lombok.Getter;
+import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.item.Review;
 
 import java.time.LocalDate;
@@ -21,7 +22,8 @@ public class ReviewResponse {
 
     public ReviewResponse(Review review){
         member = new ReviewMemberResponse(review.getMember());
-        option = review.getColorItemSizeStock().getColorItem().getColor().getName() + "/"+ review.getColorItemSizeStock().getSize();
+        ColorItemSizeStock colorItemSizeStock = review.getOrderItem().getColorItemSizeStock();
+        option = colorItemSizeStock.getColorItem().getColor().getName() + "/"+ colorItemSizeStock.getSize();
         rating = review.getRating();
         comment = review.getComment();
         createdAt = review.getCreatedAt().toLocalDate();

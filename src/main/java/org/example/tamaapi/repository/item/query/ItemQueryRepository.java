@@ -216,6 +216,8 @@ public class ItemQueryRepository {
 
         //1차캐시 재사용은 findById만 되서 map 씀
         List<ColorItemImage> colorItemImages = colorItemImageRepository.findAllByColorItemIdInAndSequence(colorItemIds, 1);
+
+
         Map<Long, UploadFile> uploadFileMap = colorItemImages.stream().collect(Collectors.toMap(c -> c.getColorItem().getId(), ColorItemImage::getUploadFile));
         categoryBestItemQueryDtos.forEach(cbi -> cbi.setUploadFile(
                 uploadFileMap.get(cbi.getColorItemId())
@@ -238,9 +240,10 @@ public class ItemQueryRepository {
         return categoryBestItemQueryDtos;
     }
 
+    //IDE 에러 인듯. 문제 없음
     private List<CategoryBestItemReviewQueryDto> findAvgRatingsCountInColorItemId(List<Long> colorItemIds) {
-        String jpql = "select new org.example.tamaapi.repository.item.query.CategoryBestItemReviewQueryDto(ci.id, avg(r.rating), count(ci.id)) from Review r" +
-                " join r.colorItemSizeStock isk join isk.colorItem ci where ci.id in :colorItemIds" +
+        String jpql = "select new org.example.tamaapi.repository.item.query.CategoryBestItemReviewQueryDto(ci.id, ROUND(avg(r.rating), 1), count(ci.id)) from Review r" +
+                " join r.orderItem oi join oi.colorItemSizeStock isk join isk.colorItem ci where ci.id in :colorItemIds" +
                 " group by ci.id";
         TypedQuery<CategoryBestItemReviewQueryDto> query = em.createQuery(jpql, CategoryBestItemReviewQueryDto.class);
         query.setParameter("colorItemIds", colorItemIds);

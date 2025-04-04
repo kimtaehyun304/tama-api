@@ -1,12 +1,12 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.order;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.aspectj.weaver.ast.Or;
-import org.hibernate.annotations.BatchSize;
+import org.example.tamaapi.domain.BaseEntity;
+import org.example.tamaapi.domain.Guest;
+import org.example.tamaapi.domain.Member;
 
 import java.util.ArrayList;
 import java.util.List;

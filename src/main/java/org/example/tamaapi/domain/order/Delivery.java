@@ -1,7 +1,8 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.tamaapi.domain.BaseEntity;
 
 //상세 주소를 그때마다 다르게 적을수도 있어서 엔티티로 안했음
 @Entity

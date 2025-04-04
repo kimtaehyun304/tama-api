@@ -163,10 +163,10 @@ public class ItemApiController {
                 categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
         }
 
-        return  itemQueryRepository.findCategoryBestItemByCategoryIdIn(categoryIds, customPageRequest);
+        return itemQueryRepository.findCategoryBestItemByCategoryIdIn(categoryIds, customPageRequest);
     }
 
-
+    //S3 도입 전에 쓰던 거
     @GetMapping("/api/images/items/{storedFileName}")
     public UrlResource itemImage(@PathVariable String storedFileName) throws MalformedURLException {
         return new UrlResource("file:"+fileStore.getFullPath(storedFileName));
@@ -175,7 +175,6 @@ public class ItemApiController {
     @PostMapping(value = "/api/items/new", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     @PreAuthentication
     @Secured("ROLE_ADMIN")
-    //이미지 파일인지 검증 필요
     public SavedColorItemIdResponse saveItems(@Valid @RequestBody SaveItemRequest saveItemReq) {
         Category category = categoryRepository.findById(saveItemReq.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
 

@@ -2,10 +2,7 @@ package org.example.tamaapi.dto.responseDto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.tamaapi.domain.Delivery;
-import org.example.tamaapi.domain.Order;
-
-import java.util.List;
+import org.example.tamaapi.domain.order.Delivery;
 
 @Getter
 @AllArgsConstructor

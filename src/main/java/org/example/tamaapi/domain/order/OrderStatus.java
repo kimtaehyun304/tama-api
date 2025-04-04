@@ -1,4 +1,4 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.order;
 
 public enum OrderStatus {
     PAYMENT, CHECK, DELIVERY, COMPLETE, CANCEL, REFUND

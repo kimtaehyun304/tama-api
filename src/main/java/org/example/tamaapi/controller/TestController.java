@@ -1,15 +1,24 @@
 package org.example.tamaapi.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.dto.CharacterCreateRequest;
 import org.example.tamaapi.dto.CharacterRequest;
+import org.example.tamaapi.dto.responseDto.item.ItemImageDto;
+import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class TestController {
+
+    private final ColorItemImageRepository colorItemImageRepository;
 
     @PostMapping(value = "/api/v1/character")
     public void saveCharacter(@RequestBody CharacterCreateRequest request) {
@@ -47,5 +56,9 @@ public class TestController {
         log.info("성별: {}", gender);
     }
 
+    @GetMapping(value = "/api/find")
+    public List<ItemImageDto> find() {
+        return colorItemImageRepository.findAll().stream().map(ItemImageDto::new).toList();
+    }
 
 }

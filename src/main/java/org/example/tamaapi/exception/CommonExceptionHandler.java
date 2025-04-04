@@ -3,6 +3,7 @@ package org.example.tamaapi.exception;
 import org.apache.coyote.BadRequestException;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
@@ -23,10 +25,17 @@ import java.util.Map;
 @RestControllerAdvice
 public class CommonExceptionHandler {
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<SimpleResponse> DataIntegrityViolationException() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("중복된 데이터는 저장할 수 없습니다"));
+    }
+
+    /* 스프링이 처리 못해서 try-catch 필요
     @ExceptionHandler(IOException.class)
     public ResponseEntity<SimpleResponse> IOException(IOException exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SimpleResponse(exception.getMessage()));
     }
+    */
 
     //UnException error
     @ExceptionHandler(MethodArgumentNotValidException.class)

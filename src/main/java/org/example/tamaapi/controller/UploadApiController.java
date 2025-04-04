@@ -11,6 +11,7 @@ import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.ItemQueryRepository;
 import org.example.tamaapi.service.ItemService;
+import org.example.tamaapi.service.S3Service;
 import org.example.tamaapi.util.FileStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,18 +38,17 @@ public class UploadApiController {
     private final SortValidator sortValidator;
     private final ReviewRepository reviewRepository;
     private final ItemService itemService;
-    private final FileStore fileStore;
+    //private final FileStore fileStore;
+    private final S3Service s3Service;
 
 
     @PostMapping(value = "/api/items/images/new")
     @PreAuthentication
     @Secured("ROLE_ADMIN")
-    //이미지 파일인지 검증 필요
     public ResponseEntity<SimpleResponse> saveItems(@Valid @ModelAttribute SaveColorItemImageWrapperRequest wrapperRequest) {
+        //이미지 파일인지 검증
+        wrapperRequest.getRequests().forEach(req -> s3Service.areFilesImage(req.getFiles()));
 
-        wrapperRequest.getRequests().forEach(req -> fileStore.areFilesImage(req.getFiles()));
-
-        //System.out.println("wrapperRequest = " + wrapperRequest);
         List<Long> colorItemIds = wrapperRequest.getRequests().stream().map(SaveColorItemImageRequest::getColorItemId).toList();
         List<ColorItem> colorItems = colorItemRepository.findAllById(colorItemIds);
 
@@ -58,8 +58,7 @@ public class UploadApiController {
                         SaveColorItemImageRequest::getColorItemId,
                         ci -> {
                             List<MultipartFile> files = ci.getFiles();
-                            List<UploadFile> uploadFiles = fileStore.storeFiles(files);
-                            return uploadFiles;
+                            return s3Service.storeFiles(files);
                         }
                 ));
 

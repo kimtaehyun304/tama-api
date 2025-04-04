@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.config.aspect.PreAuthentication;
-import org.example.tamaapi.domain.Order;
+import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.CancelMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveGuestOrderRequest;

@@ -1,14 +1,12 @@
 package org.example.tamaapi.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.OrderItem;
+import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.domain.item.ColorItem;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.springdoc.webmvc.core.fn.SpringdocRouteBuilder;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;

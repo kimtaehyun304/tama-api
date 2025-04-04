@@ -6,12 +6,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.*;
 import org.example.tamaapi.domain.item.*;
+import org.example.tamaapi.domain.order.Delivery;
+import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.order.SaveGuestOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.item.*;
+import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.service.MemberService;
@@ -31,15 +35,15 @@ public class Init {
 
     private final InitService initService;
 
-    @PostConstruct
+    //@PostConstruct
     public void init() throws InterruptedException {
         initService.initCategory();
         initService.initColor();
         initService.initItem();
         initService.initMember();
-        initService.initReview();
-        initService.initOrder();
         initService.initMemberAddress();
+        initService.initOrder();
+        initService.initReview();
     }
 
     @Component
@@ -47,21 +51,18 @@ public class Init {
     @RequiredArgsConstructor
     static class InitService {
 
-        private final ItemRepository itemRepository;
-        private final ColorItemRepository colorItemRepository;
         private final ColorItemSizeStockRepository colorItemSizeStockRepository;
         private final CategoryRepository categoryRepository;
-        private final ColorItemImageRepository colorItemImageRepository;
         private final MemberRepository memberRepository;
         private final BCryptPasswordEncoder bCryptPasswordEncoder;
         private final ColorRepository colorRepository;
         private final ReviewRepository reviewRepository;
         private final ReviewService reviewService;
-        private final OrderService orderService;
         private final OrderRepository orderRepository;
         private final JdbcTemplateRepository jdbcTemplateRepository;
         private final MemberService memberService;
         private final ItemService itemService;
+        private final OrderItemRepository orderItemRepository;
 
         public void initCategory() {
             Category outer = Category.builder().name("아우터").build();
@@ -273,14 +274,15 @@ public class Init {
         public void initReview() {
             List<Member> members = memberRepository.findAll();
             Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
-                    .colorItemSizeStock(colorItemSizeStockRepository.findById(1L).get())
+                            .orderItem(orderItemRepository.findById(1L).get())
+                    //.colorItemSizeStock(colorItemSizeStockRepository.findById(1L).get())
                     .rating(2)
                     .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());
             reviewRepository.save(r1);
             reviewService.updateCreatedAt(r1.getId());
 
             reviewRepository.save(Review.builder().member(members.get(1))
-                    .colorItemSizeStock(colorItemSizeStockRepository.findById(2L).get())
+                    .orderItem(orderItemRepository.findById(2L).get())
                     .rating(4)
                     .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
         }

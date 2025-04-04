@@ -3,8 +3,8 @@ package org.example.tamaapi.dto.responseDto.order;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.tamaapi.domain.Order;
-import org.example.tamaapi.domain.OrderStatus;
+import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.domain.order.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
