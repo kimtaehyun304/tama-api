@@ -4,9 +4,7 @@ import org.example.tamaapi.dto.requestDto.MySort;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+
 
 @Component
 public class SortValidator {

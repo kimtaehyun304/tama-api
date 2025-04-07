@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.tamaapi.domain.BaseEntity;
 import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.item.Category;
-import org.example.tamaapi.domain.item.ColorItem;
+
 import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;

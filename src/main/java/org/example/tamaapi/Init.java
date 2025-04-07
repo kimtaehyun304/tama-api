@@ -19,7 +19,6 @@ import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.service.MemberService;
-import org.example.tamaapi.service.OrderService;
 import org.example.tamaapi.service.ReviewService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
