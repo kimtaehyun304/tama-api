@@ -20,6 +20,7 @@ import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.service.MemberService;
 import org.example.tamaapi.service.ReviewService;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,16 +34,21 @@ import java.util.*;
 public class Init {
 
     private final InitService initService;
+    private final Environment environment;
 
     @PostConstruct
     public void init() throws InterruptedException {
-        initService.initCategory();
-        initService.initColor();
-        initService.initItem();
-        initService.initMember();
-        initService.initMemberAddress();
-        initService.initOrder();
-        initService.initReview();
+        String[] profiles = environment.getActiveProfiles();
+
+        if (Arrays.asList(profiles).contains("init")) {
+            initService.initCategory();
+            initService.initColor();
+            initService.initItem();
+            initService.initMember();
+            initService.initMemberAddress();
+            initService.initOrder();
+            initService.initReview();
+        }
     }
 
     @Component
@@ -273,7 +279,7 @@ public class Init {
         public void initReview() {
             List<Member> members = memberRepository.findAll();
             Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
-                            .orderItem(orderItemRepository.findById(1L).get())
+                    .orderItem(orderItemRepository.findById(1L).get())
                     //.colorItemSizeStock(colorItemSizeStockRepository.findById(1L).get())
                     .rating(2)
                     .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());

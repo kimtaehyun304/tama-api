@@ -33,8 +33,12 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_AUTHENTICATED;
@@ -65,6 +69,24 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationEntryPoint forbiddenEntryPoint() {
         return new Http403ForbiddenEntryPoint(); // 403 Forbidden 처리
+    }
+
+    //CORS 필터 대신 이거 사용
+    @Bean
+    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+
+        List<String> allowedOrigins = List.of(
+                "http://localhost:3000",
+                "https://dlpoma.store");
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));  // 헤더 허용
+        configuration.setAllowCredentials(true);// 인증 포함 요청 허용
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
