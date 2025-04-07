@@ -1,25 +1,13 @@
 package org.example.tamaapi.service;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.*;
-import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
-import org.example.tamaapi.repository.*;
+import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.MemberAddress;
+import org.example.tamaapi.repository.MemberAddressRepository;
+import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.util.ErrorMessageUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_ADDRESS;
 

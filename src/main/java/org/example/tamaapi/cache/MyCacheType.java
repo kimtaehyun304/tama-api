@@ -8,9 +8,9 @@ public enum MyCacheType {
     TOKEN("token", 60*3, 10000),
     AUTHSTRING("AUTHSTRING", 60*3, 10000);
 
-    private String name;
-    private int expireAfterWrite;
-    private int maximumSize;
+    private final String name;
+    private final int expireAfterWrite;
+    private final int maximumSize;
 
     MyCacheType(String name, int expireAfterWrite, int maximumSize) {
         this.name = name;

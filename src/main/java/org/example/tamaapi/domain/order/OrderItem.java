@@ -33,7 +33,7 @@ public class OrderItem {
 
     //setOrder는 createOrder에서 연관메서드로 함
     @Builder
-    public OrderItem(ColorItemSizeStock colorItemSizeStock, int orderPrice, int count) {;
+    public OrderItem(ColorItemSizeStock colorItemSizeStock, int orderPrice, int count) {
         this.colorItemSizeStock = colorItemSizeStock;
         this.orderPrice = orderPrice;
         this.count = count;

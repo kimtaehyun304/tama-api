@@ -6,16 +6,16 @@ import org.springframework.data.domain.Pageable;
 @Getter
 public class CustomPageable {
     //현재 페이지
-    private int page;
+    private final int page;
 
     //한 페이지에 들어갈 아이템 수. (몇개로 묶을건지)
-    private int size;
+    private final int size;
 
     //계산된 페이지 수 (db row result / size)
-    private long pageCount;
+    private final long pageCount;
 
     //전체 상품 수
-    private long rowCount;
+    private final long rowCount;
 
     //spring data jpa Page 커스텀. 페이지 0부터 시작 -> 1부터 시작 변경
     public CustomPageable(Pageable pageable, long totalPages, long rowCount) {

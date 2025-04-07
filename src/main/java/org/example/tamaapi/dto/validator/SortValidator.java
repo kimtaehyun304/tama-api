@@ -15,7 +15,7 @@ public class SortValidator {
     //컨버터에서 예외 던지니까 에러나서 SortValidator 만듬 -> BindingResult 필요없어서 커스텀 validator 만듬
     public void validate(Object target) {
         MySort sort = (MySort) target;
-        Sort.Direction direction = sort.getDirection();;
+        Sort.Direction direction = sort.getDirection();
 
         if (direction != null){
             if(!direction.equals(Sort.Direction.ASC) && !direction.equals(Sort.Direction.DESC))

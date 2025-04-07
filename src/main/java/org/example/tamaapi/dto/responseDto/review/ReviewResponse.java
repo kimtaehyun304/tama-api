@@ -10,15 +10,15 @@ import java.time.LocalDate;
 @Getter
 public class ReviewResponse {
 
-    private ReviewMemberResponse member;
+    private final ReviewMemberResponse member;
 
-    private String option;
+    private final String option;
 
-    private int rating;
+    private final int rating;
 
-    private String comment;
+    private final String comment;
 
-    private LocalDate createdAt;
+    private final LocalDate createdAt;
 
     public ReviewResponse(Review review){
         member = new ReviewMemberResponse(review.getMember());

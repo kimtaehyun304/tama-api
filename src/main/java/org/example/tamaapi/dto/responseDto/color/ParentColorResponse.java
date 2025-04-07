@@ -6,11 +6,11 @@ import org.example.tamaapi.domain.item.Color;
 @Getter
 public class ParentColorResponse {
 
-    private Long id;
+    private final Long id;
 
-    private String name;
+    private final String name;
 
-    private String hexCode;
+    private final String hexCode;
 
 
 

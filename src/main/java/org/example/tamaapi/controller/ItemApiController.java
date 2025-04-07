@@ -41,12 +41,10 @@ public class ItemApiController {
     private final ColorItemRepository colorItemRepository;
     private final ColorItemImageRepository colorItemImageRepository;
     private final ColorItemSizeStockRepository colorItemSizeStockRepository;
-    private final ItemRepository itemRepository;
     private final CategoryRepository categoryRepository;
     private final ItemQueryRepository itemQueryRepository;
     private final ColorRepository colorRepository;
     private final SortValidator sortValidator;
-    private final ReviewRepository reviewRepository;
     private final ItemService itemService;
     private final FileStore fileStore;
 

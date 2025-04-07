@@ -7,8 +7,6 @@ import org.example.tamaapi.dto.requestDto.member.EmailRequest;
 import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.repository.item.ColorItemRepository;
-import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.EmailService;
@@ -23,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationApiController {
 
-    private final ColorItemRepository colorItemRepository;
-    private final ColorItemImageRepository colorItemImageRepository;
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final EmailService emailService;
@@ -42,7 +38,9 @@ public class AuthenticationApiController {
 
     @PostMapping("/api/auth/email")
     public ResponseEntity<Object> email(@Valid @RequestBody EmailRequest emailRequest) {
-        memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {throw new IllegalArgumentException("이미 가입된 이메일입니다");});
+        memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다");
+        });
         String authString = RandomStringGenerator.generateRandomString(6);
         cacheService.save(MyCacheType.AUTHSTRING.getName(), emailRequest.getEmail(), authString);
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);

@@ -5,9 +5,9 @@ import org.example.tamaapi.domain.item.Category;
 
 @Getter
 public class ChildCategoryResponse {
-    private Long id;
+    private final Long id;
 
-    private String name;
+    private final String name;
 
     public ChildCategoryResponse(Category category) {
         id = category.getId();

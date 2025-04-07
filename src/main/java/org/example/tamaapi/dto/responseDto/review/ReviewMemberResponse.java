@@ -5,9 +5,9 @@ import org.example.tamaapi.domain.Member;
 
 @Getter
 public class ReviewMemberResponse {
-    private String nickname;
-    private Integer height;
-    private Integer weight;
+    private final String nickname;
+    private final Integer height;
+    private final Integer weight;
 
     public ReviewMemberResponse(Member member) {
         this.nickname = member.getNickname();

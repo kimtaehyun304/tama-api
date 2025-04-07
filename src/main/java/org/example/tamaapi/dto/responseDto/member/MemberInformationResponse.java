@@ -6,10 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.Member;
-import org.example.tamaapi.domain.MemberAddress;
-import org.example.tamaapi.domain.Provider;
+import org.example.tamaapi.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,8 @@ public class MemberInformationResponse {
 
     private Integer weight;
 
+    private Authority authority;
+
     public MemberInformationResponse(Member member) {
         this.email = member.getEmail();
         this.phone = member.getPhone();
@@ -38,5 +37,6 @@ public class MemberInformationResponse {
         this.gender = member.getGender();
         this.height = member.getHeight();
         this.weight = member.getWeight();
+        authority = member.getAuthority();
     }
 }

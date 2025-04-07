@@ -10,17 +10,12 @@ import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.CancelMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveGuestOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveMemberOrderRequest;
-
 import org.example.tamaapi.dto.responseDto.CustomPage;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.order.AdminOrderResponse;
 import org.example.tamaapi.dto.responseDto.order.OrderItemResponse;
 import org.example.tamaapi.dto.responseDto.order.OrderResponse;
-import org.example.tamaapi.dto.validator.PaymentValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
-import org.example.tamaapi.repository.*;
-import org.example.tamaapi.repository.item.ColorItemImageRepository;
-import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.EmailService;
@@ -43,20 +38,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.example.tamaapi.util.ErrorMessageUtil.*;
+import static org.example.tamaapi.util.ErrorMessageUtil.INVALID_HEADER;
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_ORDER;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class OrderApiController {
 
-    private final ColorItemSizeStockRepository colorItemSizeStockRepository;
-    private final PaymentValidator paymentValidator;
+
     private final OrderService orderService;
-    private final MemberRepository memberRepository;
+
     private final OrderRepository orderRepository;
     private final EmailService emailService;
-    private final ColorItemImageRepository colorItemImageRepository;
+ 
     private final OrderItemRepository orderItemRepository;
 
     //멤버 주문 조회

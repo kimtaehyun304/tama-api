@@ -7,12 +7,9 @@ import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.item.save.*;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.repository.item.*;
-import org.example.tamaapi.repository.item.query.ItemQueryRepository;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.service.S3Service;
-import org.example.tamaapi.util.FileStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -29,18 +26,8 @@ import java.util.stream.IntStream;
 public class UploadApiController {
 
     private final ColorItemRepository colorItemRepository;
-    private final ColorItemImageRepository colorItemImageRepository;
-    private final ColorItemSizeStockRepository colorItemSizeStockRepository;
-    private final ItemRepository itemRepository;
-    private final CategoryRepository categoryRepository;
-    private final ItemQueryRepository itemQueryRepository;
-    private final ColorRepository colorRepository;
-    private final SortValidator sortValidator;
-    private final ReviewRepository reviewRepository;
     private final ItemService itemService;
-    //private final FileStore fileStore;
     private final S3Service s3Service;
-
 
     @PostMapping(value = "/api/items/images/new")
     @PreAuthentication

@@ -27,7 +27,7 @@ public class ColorItemSizeStock {
     public ColorItemSizeStock(ColorItem colorItem, String size, int stock) {
         this.colorItem = colorItem;
         this.size = size;
-        this.stock = stock;;
+        this.stock = stock;
     }
 
     public void removeStock(int quantity) {

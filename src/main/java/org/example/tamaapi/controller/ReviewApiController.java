@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
-import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.item.Review;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
@@ -16,8 +15,6 @@ import org.example.tamaapi.dto.responseDto.review.ReviewResponse;
 import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.MemberRepository;
-import org.example.tamaapi.repository.item.ColorItemRepository;
-import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.item.ReviewRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.util.ErrorMessageUtil;
@@ -39,9 +36,7 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_ORDER_ITEM;
 public class ReviewApiController {
 
     private final ReviewRepository reviewRepository;
-    private final ColorItemRepository colorItemRepository;
     private final SortValidator sortValidator;
-    private final ColorItemSizeStockRepository colorItemSizeStockRepository;
     private final MemberRepository memberRepository;
     private final OrderItemRepository orderItemRepository;
 

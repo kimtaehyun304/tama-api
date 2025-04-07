@@ -17,24 +17,19 @@ import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
-import org.example.tamaapi.dto.responseDto.member.MemberPaymentSetUpResponse;
+
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
-import org.example.tamaapi.repository.item.ColorItemRepository;
-import org.example.tamaapi.repository.item.ColorItemImageRepository;
+
 import org.example.tamaapi.repository.MemberRepository;
-import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 import static org.example.tamaapi.jwt.TokenProvider.ACCESS_TOKEN_DURATION;
@@ -44,13 +39,10 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 @RequiredArgsConstructor
 public class MemberApiController {
 
-    private final ColorItemRepository colorItemRepository;
-    private final ColorItemImageRepository colorItemImageRepository;
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenProvider tokenProvider;
-    private final OrderRepository orderRepository;
     private final MemberService memberService;
     private final MemberAddressRepository memberAddressRepository;
 

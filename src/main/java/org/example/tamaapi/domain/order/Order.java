@@ -41,7 +41,7 @@ public class Order extends BaseEntity {
     //cascade insert 여러번 나가서 jdbcTemplate 사용
     @OneToMany(mappedBy = "order")
     //@BatchSize(size = 1000)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private final List<OrderItem> orderItems = new ArrayList<>();
 
     //포트원 결제 번호 (문자열)
     private String paymentId;

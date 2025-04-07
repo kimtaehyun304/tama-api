@@ -12,7 +12,7 @@ public class MyPageReview<T> {
 
     private Double avgRating;
 
-    private List<T> content;
+    private final List<T> content;
 
     @JsonProperty("page")
     private CustomPageable myPageable;

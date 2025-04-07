@@ -35,7 +35,7 @@ public class Init {
 
     private final InitService initService;
 
-    //@PostConstruct
+    @PostConstruct
     public void init() throws InterruptedException {
         initService.initCategory();
         initService.initColor();

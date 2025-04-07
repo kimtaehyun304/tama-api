@@ -5,11 +5,11 @@ import lombok.Getter;
 @Getter
 public class CategoryBestItemReviewQueryDto {
 
-    private Long colorItemId;
+    private final Long colorItemId;
 
-    private Double avgRating;
+    private final Double avgRating;
 
-    private Long reviewCount;
+    private final Long reviewCount;
 
     public CategoryBestItemReviewQueryDto(Long colorItemId, Double avgRating, Long reviewCount) {
         this.colorItemId = colorItemId;

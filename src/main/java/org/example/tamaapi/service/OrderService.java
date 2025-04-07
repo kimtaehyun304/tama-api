@@ -2,17 +2,18 @@ package org.example.tamaapi.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.tamaapi.domain.*;
+import org.example.tamaapi.domain.Authority;
+import org.example.tamaapi.domain.Guest;
+import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
-import org.example.tamaapi.repository.*;
+import org.example.tamaapi.repository.JdbcTemplateRepository;
+import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
-import org.example.tamaapi.repository.order.DeliveryRepository;
-import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,9 +36,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ColorItemSizeStockRepository colorItemSizeStockRepository;
-    private final DeliveryRepository deliveryRepository;
     private final JdbcTemplateRepository jdbcTemplateRepository;
 
     @Value("${portOne.secret}")

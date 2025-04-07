@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 public class SavedColorItemIdResponse {
 
-    private List<Long> savedColorItemIds;
+    private final List<Long> savedColorItemIds;
 
     public SavedColorItemIdResponse(List<Long> savedColorItemIds) {
         this.savedColorItemIds = savedColorItemIds;

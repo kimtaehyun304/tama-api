@@ -11,7 +11,7 @@ import java.util.List;
 //Custom Page 객체라서 "My"Page 입니다. 멤버 마이페이지랑 혼동 주의
 public class CustomPage<T> {
 
-    private List<T> content;
+    private final List<T> content;
 
     @JsonProperty("page")
     private CustomPageable myPageable;

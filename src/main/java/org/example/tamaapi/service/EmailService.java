@@ -1,8 +1,6 @@
 package org.example.tamaapi.service;
 
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender javaMailSender;
-    private final MemberRepository memberRepository;
 
     public void sendAuthenticationEmail(String toMailAddr, String authString) {
         String subject = "[TAMA] 회원가입 인증문자 안내";

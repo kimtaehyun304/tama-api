@@ -9,13 +9,13 @@ import java.util.List;
 @Getter
 public class ColorResponse {
 
-    private Long id;
+    private final Long id;
 
-    private String name;
+    private final String name;
 
-    private String hexCode;
+    private final String hexCode;
 
-    private List<ChildColorResponse> children = new ArrayList<>();
+    private final List<ChildColorResponse> children = new ArrayList<>();
 
     public ColorResponse(Color color) {
         id = color.getId();
