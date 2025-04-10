@@ -65,7 +65,6 @@ public class MemberApiController {
 
     @PostMapping("/api/member/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request) {
-
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         if(!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword()))

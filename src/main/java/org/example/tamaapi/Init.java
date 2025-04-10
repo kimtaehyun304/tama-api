@@ -39,8 +39,8 @@ public class Init {
     @PostConstruct
     public void init() throws InterruptedException {
         String[] profiles = environment.getActiveProfiles();
-
-        if (Arrays.asList(profiles).contains("init")) {
+        List<String> profileList = Arrays.asList(profiles);
+        if (profileList.isEmpty() || profileList.contains("init")) {
             initService.initCategory();
             initService.initColor();
             initService.initItem();
@@ -49,6 +49,7 @@ public class Init {
             initService.initOrder();
             initService.initReview();
         }
+
     }
 
     @Component
@@ -364,7 +365,7 @@ public class Init {
                 OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
                 orderItems.add(orderItem);
             }
-            Guest guest = new Guest(request.getSenderNickname(), request.getSenderPhone(), request.getSenderEmail());
+            Guest guest = new Guest(request.getSenderNickname(), request.getSenderEmail());
             Order order = Order.createGuestOrder(request.getPaymentId(), guest, delivery, orderItems);
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);

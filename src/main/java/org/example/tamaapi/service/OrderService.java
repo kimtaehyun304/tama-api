@@ -1,5 +1,6 @@
 package org.example.tamaapi.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.Authority;
@@ -10,7 +11,9 @@ import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.domain.order.OrderStatus;
+import org.example.tamaapi.dto.requestDto.order.SaveMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
+import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
@@ -19,14 +22,12 @@ import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -38,6 +39,8 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final ColorItemSizeStockRepository colorItemSizeStockRepository;
     private final JdbcTemplateRepository jdbcTemplateRepository;
+    private final PortOneService portOneService;
+    private final ObjectMapper objectMapper;
 
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;
@@ -64,7 +67,6 @@ public class OrderService {
     public Long saveGuestOrder(String paymentId,
                                String senderNickname,
                                String senderEmail,
-                               String senderPhone,
                                 String receiverNickname,
                                 String receiverPhone,
                                 String zipCode,
@@ -73,7 +75,7 @@ public class OrderService {
                                 String message,
                                 List<SaveOrderItemRequest> saveOrderItemRequests) {
 
-        Guest guest = new Guest(senderNickname,senderPhone,senderEmail);
+        Guest guest = new Guest(senderNickname, senderEmail);
         Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
         List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
         Order order = Order.createGuestOrder(paymentId, guest, delivery, orderItems);
@@ -86,7 +88,7 @@ public class OrderService {
 
     //saveOrder 공통 로직
     private List<OrderItem> createOrderItem(String paymentId, List<SaveOrderItemRequest> saveOrderItemRequests){
-        validatePayment(paymentId, saveOrderItemRequests);
+        validateTotalPrice(paymentId);
         validatePaymentId(paymentId);
         List<OrderItem> orderItems = new ArrayList<>();
 
@@ -117,24 +119,11 @@ public class OrderService {
     }
 
     //클라이언트 위변조 검증
-    private void validatePayment(String paymentId, List<SaveOrderItemRequest> saveOrderItemRequests) {
-
-        //결제내역 단건 조회. amount.total 가져오기 위함
-        Map<String, Object> paymentResponse = RestClient.create().get()
-                .uri("https://api.portone.io/payments/{paymentId}", paymentId)
-                .header("Authorization", "PortOne " + PORT_ONE_SECRET)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    throw new IllegalArgumentException("포트원 결제내역 단건조회 API 호출 실패");
-                })
-                .body(new ParameterizedTypeReference<>() {
-                });
-
-        Map<String, Object> amountMap = (Map<String, Object>) paymentResponse.get("amount");
-
-        int clientTotal = (int) amountMap.get("total");
-
-        List<Long> colorItemSizeStockIds = saveOrderItemRequests.stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
+    private void validateTotalPrice(String paymentId) {
+        Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
+        SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
+        List<SaveOrderItemRequest> orderItems = saveOrderRequest.getOrderItems();
+        List<Long> colorItemSizeStockIds = orderItems.stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
         List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
 
         Map<Long, Integer> idPriceMap = new HashMap<>();
@@ -144,48 +133,115 @@ public class OrderService {
             idPriceMap.put(colorItemSizeStock.getId(), discountedPrice != null ? discountedPrice : price);
         }
 
-        int serverTotal = saveOrderItemRequests.stream().mapToInt(i -> idPriceMap.get(i.getColorItemSizeStockId()) * i.getOrderCount()).sum();
+        Map<String, Object> amountMap = (Map<String, Object>) paymentResponse.get("amount");
+        int clientTotal = (int) amountMap.get("total");
+        int serverTotal = orderItems.stream().mapToInt(i -> idPriceMap.get(i.getColorItemSizeStockId()) * i.getOrderCount()).sum();
 
         if (clientTotal != serverTotal) {
-            cancelPortOnePayment(paymentId);
+            portOneService.cancelPayment(paymentId, "클라이언트 위변조 검출");
             throw new IllegalArgumentException("클라이언트 위변조 검출. 결제 자동 취소");
         }
 
     }
+
+    public void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest){
+        if(saveOrderRequest.getPaymentId() == null) {
+            throw new IllegalArgumentException("paymentId 누락. 결제 취소 실패");
+        }
+
+        String paymentId = saveOrderRequest.getPaymentId();
+        if (saveOrderRequest.getSenderNickname() == null) {
+            String cancelMsg = "[senderNickname] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getSenderEmail() == null) {
+            String cancelMsg = "[senderEmail] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getReceiverNickname() == null) {
+            String cancelMsg = "[receiverNickname] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getReceiverPhone() == null) {
+            String cancelMsg = "[receiverPhone] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getZipCode() == null) {
+            String cancelMsg = "[zipCode] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getStreetAddress() == null) {
+            String cancelMsg = "[streetAddress] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getDetailAddress() == null) {
+            String cancelMsg = "[detailAddress] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getDeliveryMessage() == null) {
+            String cancelMsg = "[deliveryMessage] 누락으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        if (saveOrderRequest.getOrderItems() == null || saveOrderRequest.getOrderItems().isEmpty()) {
+            String cancelMsg = "[orderItems] 누락 또는 비어있음으로 인한 결제취소";
+            portOneService.cancelPayment(paymentId, cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
+        }
+
+        for (int i = 0; i < saveOrderRequest.getOrderItems().size(); i++) {
+            SaveOrderItemRequest item = saveOrderRequest.getOrderItems().get(i);
+
+            if (item.getColorItemSizeStockId() == null) {
+                String cancelMsg = String.format("[orderItems[%d].colorItemSizeStockId] 누락으로 인한 결제취소", i);
+                portOneService.cancelPayment(paymentId, cancelMsg);
+                throw new IllegalArgumentException(cancelMsg);
+            }
+
+            if (item.getOrderCount() == null) {
+                String cancelMsg = String.format("[orderItems[%d].orderCount] 누락으로 인한 결제취소", i);
+                portOneService.cancelPayment(paymentId, cancelMsg);
+                throw new IllegalArgumentException(cancelMsg);
+            }
+        }
+
+    }
+
 
     private void validatePaymentId(String paymentId) {
         orderRepository.findByPaymentId(paymentId)
                 .ifPresent(order -> { throw new IllegalArgumentException("이미 사용된 paymentId 입니다."); });
     }
 
-    public void cancelPortOnePayment(String paymentId) {
-        RestClient.create().post()
-                .uri("https://api.portone.io/payments/{paymentId}/cancel", paymentId)
-                .header("Authorization", "PortOne " + PORT_ONE_SECRET)
-                .body(Map.of("reason", "클라이언트 위변조 검출")) // 문자열로 JSON 전달
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    String format = String.format("[포트원 결제 취소 API 호출 실패] 결제번호:%s", paymentId);
-                    log.info(format);
-                    throw new IllegalArgumentException("포트원 결제 취소 API 호출 실패");
-                })
-                .toBodilessEntity();
-    }
 
-    public void cancelGuestOrder(Long orderId){
+
+    public void cancelGuestOrder(Long orderId, String reason){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
         OrderStatus status = order.getStatus();
         if(!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK))
             throw new IllegalArgumentException("주문 취소 가능 단계가 아닙니다.");
         order.cancelOrder();
-        cancelPortOnePayment(order.getPaymentId());
+        portOneService.cancelPayment(order.getPaymentId(), reason);
     }
 
-    public void cancelMemberOrder(Long orderId, Long memberId){
+    public void cancelMemberOrder(Long orderId, Long memberId, String reason){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
-
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
-
 
         if(!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId))
             throw new IllegalArgumentException("주문한 사용자가 아닙니다.");
@@ -195,7 +251,7 @@ public class OrderService {
             throw new IllegalArgumentException("주문 취소 가능 단계가 아닙니다.");
 
         order.cancelOrder();
-        cancelPortOnePayment(order.getPaymentId());
+        portOneService.cancelPayment(order.getPaymentId(), reason);
     }
 
 

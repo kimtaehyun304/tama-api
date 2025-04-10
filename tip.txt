@@ -5,6 +5,7 @@
 
 @ModelAttribute: @Setter or @AllArgCons
 ㄴ@GetMapping에 주로 사용. POST, PUT, DELETE는 @RequestBody 사용
+ㄴ내부적으로 @RequestParam 이용
 
 row 개수가 적다면? → findAllByMemberId + Stream
 row 개수가 많다면? → existsBy로 바로 DB에서 검사
@@ -59,3 +60,6 @@ CorsFilter는 @Order(Ordered.HIGHEST_PRECEDENCE) 필요X
 
 8080포트는 EC2 IP만 허용해야 함 (아에 막으면 포트포워딩 안됨)
 ㄴnginX가 아니라 스프링부트가 직접 리스닝해서 http:dldm.kr:8080/api 접속되기 때문
+
+포트원 웹훅은 안정적이지만 클라이언트로 응답을 못보내서 ifarme, redirectUrl로 했다.
+ㄴ ifarme은 원래 @RequsetBody였는데 redirectUr이 포트원 서버에서 주문정보를 가져와서, 포트원 서버에서 가져오는 방법으로 통일했다.

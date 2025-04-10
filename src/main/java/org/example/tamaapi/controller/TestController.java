@@ -5,13 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.dto.CharacterCreateRequest;
 import org.example.tamaapi.dto.CharacterRequest;
+import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
 import org.example.tamaapi.dto.responseDto.item.ItemImageDto;
 import org.example.tamaapi.repository.item.ColorItemImageRepository;
+import org.example.tamaapi.service.PortOneService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -19,7 +22,8 @@ import java.util.List;
 public class TestController {
 
     private final ColorItemImageRepository colorItemImageRepository;
-
+    private final PortOneService portOneService;
+    /*
     @PostMapping(value = "/api/v1/character")
     public void saveCharacter(@RequestBody CharacterCreateRequest request) {
         log.info("이름 : {}, 나이 : {}", request.getAge(), request.getName());
@@ -57,8 +61,10 @@ public class TestController {
     }
 
     @GetMapping(value = "/api/find")
-    public List<ItemImageDto> find() {
-        return colorItemImageRepository.findAll().stream().map(ItemImageDto::new).toList();
+    public SaveOrderRequest find() {
+        Map<String, Object> res = portOneService.findByPaymentId("payment-3fcab5a5-516f-4533-93bd-3976b9d7cd4d");
+        SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) res.get("customData"));
+        return  saveOrderRequest;
     }
-
+    */
 }

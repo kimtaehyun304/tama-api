@@ -12,13 +12,13 @@ public class Guest {
 
     private String nickname;
 
-    private String phone;
+    //private String phone;
 
     private String email;
 
-    public Guest(String nickname, String phone, String email) {
+
+    public Guest(String nickname, String email) {
         this.nickname = nickname;
-        this.phone = phone;
         this.email = email;
     }
 }
