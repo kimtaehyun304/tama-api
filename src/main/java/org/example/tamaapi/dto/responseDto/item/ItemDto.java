@@ -2,7 +2,7 @@ package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.*;
 import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.Item;
+import org.example.tamaapi.domain.item.Item;
 
 import java.time.LocalDate;
 
@@ -11,27 +11,27 @@ import java.time.LocalDate;
 @ToString
 public class ItemDto {
 
-    Long id;
+    private final Long id;
 
-    Gender gender;
+    private final Gender gender;
 
-    String yearSeason;
+    private final String yearSeason;
 
-    String name;
+    private final String name;
 
-    String description;
+    private final String description;
 
-    LocalDate dateOfManufacture;
+    private final LocalDate dateOfManufacture;
 
-    String countryOfManufacture;
+    private final String countryOfManufacture;
 
-    String manufacturer;
+    private final String manufacturer;
 
-    String category;
+    private final String category;
 
-    String textile;
+    private final String textile;
 
-    String precaution;
+    private final String precaution;
 
     public ItemDto(Item item) {
         id = item.getId();

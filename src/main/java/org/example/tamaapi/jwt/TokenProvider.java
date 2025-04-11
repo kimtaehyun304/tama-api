@@ -1,12 +1,12 @@
 package org.example.tamaapi.jwt;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.exception.MyExpiredJwtException;
+import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,11 +17,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
+
 @Service
 @RequiredArgsConstructor
 public class TokenProvider {
 
     private final JwtProperties jwtProperties;
+    private final MemberRepository memberRepository;
 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
@@ -41,7 +44,7 @@ public class TokenProvider {
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .claim("id", member.getId())
+                .setSubject(member.getId().toString())
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
                 .compact();
     }
@@ -52,23 +55,28 @@ public class TokenProvider {
                     .setSigningKey(jwtProperties.getSecretKey())
                     .parseClaimsJws(token);
             return true;
-        }catch (Exception e) {
-            return false;
+        } catch (MalformedJwtException e) {
+            throw new IllegalArgumentException("토큰이 첨부되지 않았습니다");
+        } catch (ExpiredJwtException e) {
+            throw new MyExpiredJwtException("토큰 유효기간이 만료되었습니다.");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
     }
 
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
-        org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
+        //String stringMemberId = claims.getSubject();
+        Long memberId = Long.valueOf(claims.getSubject());
+        //Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
-        return new UsernamePasswordAuthenticationToken(securityUser, token, authorities);
-    }
-
-    public Long getUserId(String token) {
-        Claims claims = getClaims(token);
-        return claims.get("id", Long.class);
+        //member.getAuthority().getAuthority() : ADMIN -> ROLE_ADMIN 변환
+        //Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().getAuthority()));
+        //org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(stringMemberId, ", null);
+        CustomUserDetails securityUser = new CustomUserDetails(memberId, null);
+        //CustomUserDetails securityUser = new CustomUserDetails(memberId, member.getEmail(), member.getPhone(), member.getPassword(), member.getNickname(), member.getGender(), member.getHeight(), member.getWeight(), member.getProvider(), member.getAuthority());
+        return new UsernamePasswordAuthenticationToken(securityUser, token);
     }
 
 

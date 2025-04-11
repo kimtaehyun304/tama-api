@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.SerializationUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Base64;
 
 public class CookieUtil {
@@ -41,7 +44,16 @@ public class CookieUtil {
     }
 
     // 쿠키를 역질렬화 객체로 변환
-    public static <T>  T deserialize(Cookie cookie, Class<T> cls) {
-        return cls.cast(SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie.getValue())));
+    public static <T> T deserialize(Cookie cookie, Class<T> cls) {
+        byte[] data = Base64.getUrlDecoder().decode(cookie.getValue());
+
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+             ObjectInputStream ois = new ObjectInputStream(bais)) {
+
+            Object obj = ois.readObject();
+            return cls.cast(obj);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("쿠키 역직렬화 실패", e);
+        }
     }
 }

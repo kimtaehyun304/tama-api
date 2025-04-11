@@ -4,15 +4,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 public class LoginRequest {
 
     @NotNull @Email
-    String email;
+    private String email;
 
     @NotNull
-    String password;
+    private String password;
 
 }

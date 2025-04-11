@@ -1,28 +1,27 @@
 package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ColorItem;
-import org.example.tamaapi.domain.ItemImage;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.dto.UploadFile;
 
 @Getter
 @ToString
+@Setter
 public class RelatedColorItemDto {
 
     //ColorItemId
-    Long id;
+    private Long id;
 
-    String color;
+    private String color;
 
-    String imageSrc;
+    private UploadFile uploadFile;
 
-    public RelatedColorItemDto(ColorItem colorItem) {
+    public RelatedColorItemDto(ColorItem colorItem, UploadFile uploadFile) {
         id = colorItem.getId();
         color = colorItem.getColor().getName();
-        imageSrc = colorItem.getImageSrc();
+        this.uploadFile = uploadFile;
     }
 
 }

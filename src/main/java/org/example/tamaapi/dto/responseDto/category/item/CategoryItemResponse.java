@@ -3,8 +3,8 @@ package org.example.tamaapi.dto.responseDto.category.item;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.tamaapi.domain.*;
-import org.example.tamaapi.repository.query.RelatedColorItemQueryDto;
+import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.domain.item.Item;
 
 import java.util.List;
 
@@ -13,15 +13,15 @@ import java.util.List;
 public class CategoryItemResponse {
 
     @JsonIgnore
-    Long itemId;
+    private Long itemId;
 
-    String name;
+    private String name;
 
-    Integer price;
+    private Integer price;
 
-    Integer discountedPrice;
+    private Integer discountedPrice;
 
-    List<RelatedColorItemQueryDto> relatedColorItems;
+    private List<RelatedColorItemResponse> relatedColorItems;
 
     public CategoryItemResponse(Item item) {
         itemId = item.getId();
@@ -30,21 +30,14 @@ public class CategoryItemResponse {
         discountedPrice = item.getDiscountedPrice();
     }
 
-/*
-    public CategoryItemResponse(ItemStock itemStock) {
-        name = itemStock.getColorItem().getItem().getName();
-        itemStock.getColorItem().getItem().g
-    }
-
-
-
-
-    public CategoryItemResponse(Item item, Long totalStock) {
+    public CategoryItemResponse(Item item, ColorItem colorItem) {
+        itemId = item.getId();
         name = item.getName();
         price = item.getPrice();
         discountedPrice = item.getDiscountedPrice();
     }
-    */
+
+
     public CategoryItemResponse(Item item, ColorItem colorItem, Long totalStock) {
         itemId = item.getId();
         name = item.getName();
@@ -52,9 +45,4 @@ public class CategoryItemResponse {
         discountedPrice = item.getDiscountedPrice();
     }
 
-    /*
-    public CategoryItemResponse(Item item, Set<ColorItem> relatedColorItems) {
-        name = item.getName();
-        this.relatedColorItems.addAll(relatedColorItems.stream().map(RelatedCategoryItemResponse::new).toList());
-    }*/
 }

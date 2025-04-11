@@ -1,29 +1,33 @@
 package org.example.tamaapi.dto.responseDto;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ItemStock;
-import org.example.tamaapi.dto.responseDto.item.ItemStockDto;
+import org.example.tamaapi.domain.item.ColorItemImage;
+import org.example.tamaapi.domain.item.ColorItemSizeStock;
+import org.example.tamaapi.dto.UploadFile;
+import org.example.tamaapi.dto.responseDto.item.ColorItemSizeStockDto;
 
 @Getter
+@Setter
 @ToString
 public class ShoppingBagDto {
 
     // 쇼핑백 로컬스토리지 JSON = {itemStockId:1, orderCount: 1}
 
-    Long colorItemId;
+    private Long colorItemId;
 
-    Integer price;
+    private Integer price;
 
-    Integer discountedPrice;
+    private Integer discountedPrice;
 
-    String color;
+    private String color;
 
-    String name;
+    private String name;
 
-    String image;
+    private UploadFile uploadFile;
 
-    ItemStockDto stock;
+    private ColorItemSizeStockDto sizeStock;
 
     /*
     public ShoppingBagDto(ColorItem colorItem) {
@@ -34,13 +38,12 @@ public class ShoppingBagDto {
     }
      */
 
-    public ShoppingBagDto(ItemStock itemStock) {
-        colorItemId = itemStock.getColorItem().getId();
-        price = itemStock.getColorItem().getItem().getPrice();
-        discountedPrice = itemStock.getColorItem().getItem().getDiscountedPrice();
-        color = itemStock.getColorItem().getColor().getName();
-        name = itemStock.getColorItem().getItem().getName();
-        image = itemStock.getColorItem().getImageSrc();
-        stock = new ItemStockDto(itemStock);
+    public ShoppingBagDto(ColorItemSizeStock colorItemSizeStock) {
+        colorItemId = colorItemSizeStock.getColorItem().getId();
+        price = colorItemSizeStock.getColorItem().getItem().getPrice();
+        discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
+        color = colorItemSizeStock.getColorItem().getColor().getName();
+        name = colorItemSizeStock.getColorItem().getItem().getName();
+        sizeStock = new ColorItemSizeStockDto(colorItemSizeStock);
     }
 }

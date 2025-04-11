@@ -2,8 +2,9 @@ package org.example.tamaapi.dto.responseDto.item;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.example.tamaapi.domain.ColorItem;
-import org.example.tamaapi.domain.ItemImage;
+import org.example.tamaapi.domain.item.ColorItem;
+import org.example.tamaapi.domain.item.ColorItemImage;
+import org.example.tamaapi.dto.UploadFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,34 +14,36 @@ import java.util.List;
 public class ColorItemDetailDto {
 
     //ColorItemId
-    Long id;
+    private final Long id;
 
-    Integer price;
+    private final Integer price;
 
-    Integer discountedPrice;
+    private final Integer discountedPrice;
 
-    String color;
+    private final String color;
 
     //공통 정보
-    ItemDto common;
+    private final ItemDto common;
 
-    List<String> images = new ArrayList<>();
+    private final List<UploadFile> uploadFiles = new ArrayList<>();
 
-    List<ItemStockDto> stocks = new ArrayList<>();
+    private final List<ColorItemSizeStockDto> sizeStocks = new ArrayList<>();
 
-    List<RelatedColorItemDto> relatedColorItems = new ArrayList<>();
+    private final List<RelatedColorItemDto> relatedColorItems = new ArrayList<>();
 
     // 상품 상세
-    public ColorItemDetailDto(ColorItem colorItem, List<ItemImage> itemImages, List<ColorItem> colorItems) {
+    public ColorItemDetailDto(ColorItem colorItem, List<ColorItemImage> colorItemImages, List<RelatedColorItemDto> relatedColorItemDtos) {
         id = colorItem.getId();
         price = colorItem.getItem().getPrice();
         discountedPrice = colorItem.getItem().getDiscountedPrice();
         color = colorItem.getColor().getName();
         common = new ItemDto(colorItem.getItem());
-        stocks.addAll(colorItem.getStocks().stream().map(ItemStockDto::new).toList());
-        this.images.add(colorItem.getImageSrc());
-        this.images.addAll(itemImages.stream().map(ItemImage::getSrc).toList());
-        relatedColorItems.addAll(colorItems.stream().map(RelatedColorItemDto::new).toList());
+        sizeStocks.addAll(colorItem.getColorItemSizeStocks().stream().map(ColorItemSizeStockDto::new).toList());
+        uploadFiles.addAll(colorItemImages.stream().map(ColorItemImage::getUploadFile).toList());
+        this.relatedColorItems.addAll(relatedColorItemDtos);
+        //this.images.add(colorItem.getImageSrc());
+        //this.images.addAll(colorItemImages.stream().map(ci -> ci.getUploadFile().getStoredFileName()).toList());
+
     }
 
 

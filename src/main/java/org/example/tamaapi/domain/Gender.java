@@ -1,5 +1,5 @@
 package org.example.tamaapi.domain;
 
 public enum Gender {
-    MALE, FEMALE, ALL
+    MALE, FEMALE, BOTH
 }

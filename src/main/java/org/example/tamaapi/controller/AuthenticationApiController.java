@@ -3,19 +3,16 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
-import org.example.tamaapi.dto.requestDto.EmailRequest;
-import org.example.tamaapi.dto.requestDto.MyTokenRequest;
+import org.example.tamaapi.dto.requestDto.member.EmailRequest;
+import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.repository.ColorItemRepository;
-import org.example.tamaapi.repository.ItemImageRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.EmailService;
 import org.example.tamaapi.util.RandomStringGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,14 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationApiController {
 
-    private final ColorItemRepository colorItemRepository;
-    private final ItemImageRepository itemImageRepository;
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final EmailService emailService;
 
     @PostMapping("/api/auth/access-token")
-    public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest, BindingResult bindingResult) {
+    public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
         String accessToken = (String) cacheService.get(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
 
         if (accessToken == null || accessToken.isEmpty())
@@ -42,8 +37,10 @@ public class AuthenticationApiController {
     }
 
     @PostMapping("/api/auth/email")
-    public ResponseEntity<Object> email(@Valid @RequestBody EmailRequest emailRequest, BindingResult bindingResult) {
-        memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {throw new IllegalArgumentException("이미 가입된 이메일입니다");});
+    public ResponseEntity<Object> email(@Valid @RequestBody EmailRequest emailRequest) {
+        memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다");
+        });
         String authString = RandomStringGenerator.generateRandomString(6);
         cacheService.save(MyCacheType.AUTHSTRING.getName(), emailRequest.getEmail(), authString);
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
