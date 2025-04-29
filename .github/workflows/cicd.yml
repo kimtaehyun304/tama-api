@@ -1,8 +1,8 @@
 name: CICD
 
 on:
-  pull_request_review:
-    types: [submitted]
+  push:
+    branches: [main]  # main 브랜치에 푸시(= PR 머지)될 때 실행
 
 jobs:
   build:
