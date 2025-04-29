@@ -48,7 +48,7 @@ public class PortOneService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     String format = String.format("[포트원 결제 취소 API 호출 실패] 결제번호:%s", paymentId);
-                    log.info(format);
+                    log.error(format);
                     throw new IllegalArgumentException("포트원 결제 취소 API 호출 실패");
                 })
                 .toBodilessEntity();

@@ -40,7 +40,7 @@ public class Init {
     public void init() throws InterruptedException {
         String[] profiles = environment.getActiveProfiles();
         List<String> profileList = Arrays.asList(profiles);
-        if (profileList.isEmpty() || profileList.contains("init")) {
+        if (profileList.contains("init")) {
             initService.initCategory();
             initService.initColor();
             initService.initItem();

@@ -1,0 +1,46 @@
+name: CICD
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: touch ./src/main/resources/application.yml
+      - run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+      - run: cat ./src/main/resources/application.yml
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar
+
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.0.2
+        id: current-time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
+
+      - name: Set artifact
+        run: echo "artifact=$(ls ./build/libs/*.jar)" >> $GITHUB_ENV
+
+      - name: Beanstalk Deploy
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: tama-api-flow7
+          environment_name: Tama-api-flow7-env
+          version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
+          region: ap-northeast-2
+          deployment_package: ${{ env.artifact }}

@@ -139,14 +139,18 @@ public class OrderService {
 
         if (clientTotal != serverTotal) {
             portOneService.cancelPayment(paymentId, "클라이언트 위변조 검출");
-            throw new IllegalArgumentException("클라이언트 위변조 검출. 결제 자동 취소");
+            String cancelMsg = "클라이언트 위변조 검출. 결제 자동 취소";
+            log.error("[{}], paymentId:{}", cancelMsg, paymentId);
+            throw new IllegalArgumentException(cancelMsg);
         }
 
     }
 
     public void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest){
         if(saveOrderRequest.getPaymentId() == null) {
-            throw new IllegalArgumentException("paymentId 누락. 결제 취소 실패");
+            String cancelMsg = "paymentId 누락으로 인한 결제 취소 실패";
+            log.error("[{}] {}", cancelMsg, saveOrderRequest);
+            throw new IllegalArgumentException(cancelMsg);
         }
 
         String paymentId = saveOrderRequest.getPaymentId();
