@@ -40,14 +40,10 @@ public class Init {
     public void init() throws InterruptedException {
         String[] profiles = environment.getActiveProfiles();
         List<String> profileList = Arrays.asList(profiles);
-        if (profileList.contains("init")) {
-            initService.initCategory();
-            initService.initColor();
-            initService.initItem();
-            initService.initMember();
-            initService.initMemberAddress();
-            initService.initOrder();
-            initService.initReview();
+        if (profileList.contains("local")) {
+            initService.initAll();
+        } else if (profileList.contains("init") && !initService.isInit()) {
+            initService.initAll();
         }
 
     }
@@ -69,6 +65,27 @@ public class Init {
         private final MemberService memberService;
         private final ItemService itemService;
         private final OrderItemRepository orderItemRepository;
+
+        public boolean isInit() {
+            return colorItemSizeStockRepository.count() == 0 &&
+                    categoryRepository.count() == 0 &&
+                    memberRepository.count() == 0 &&
+                    colorRepository.count() == 0 &&
+                    reviewRepository.count() == 0 &&
+                    orderRepository.count() == 0 &&
+                    orderItemRepository.count() == 0;
+        }
+
+        public void initAll() {
+            initCategory();
+            initColor();
+            initItem();
+            initMember();
+            initMemberAddress();
+            initOrder();
+            initReview();
+        }
+
 
         public void initCategory() {
             Category outer = Category.builder().name("아우터").build();

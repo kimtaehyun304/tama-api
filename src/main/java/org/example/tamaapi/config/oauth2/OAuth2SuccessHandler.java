@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static org.example.tamaapi.jwt.TokenProvider.ACCESS_TOKEN_DURATION;
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 
 
 @Component
@@ -38,7 +39,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        Member member = memberRepository.findByEmail((String) oAuth2User.getAttributes().get("email")).orElseThrow(() -> new IllegalArgumentException("member를 찾을 수 없습니다"));
+        Member member = memberRepository.findByEmail((String) oAuth2User.getAttributes().get("email")).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         String tempToken = UUID.randomUUID().toString();
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);

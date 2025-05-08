@@ -13,6 +13,7 @@ import org.example.tamaapi.service.EmailService;
 import org.example.tamaapi.util.RandomStringGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +30,7 @@ public class AuthenticationApiController {
     public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
         String accessToken = (String) cacheService.get(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
 
-        if (accessToken == null || accessToken.isEmpty())
+        if(StringUtils.hasText(accessToken))
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("일치하는 accessToken이 없습니다."));
 
         cacheService.evict(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());

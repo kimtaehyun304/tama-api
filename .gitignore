@@ -28,6 +28,7 @@ out/
 application*.yml
 logback-spring.xml
 memo.txt
+src/main/generated
 
 ### NetBeans ###
 /nbproject/private/

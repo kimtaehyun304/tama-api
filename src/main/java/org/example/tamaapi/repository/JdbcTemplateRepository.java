@@ -20,7 +20,6 @@ public class JdbcTemplateRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public void saveOrderItems(List<OrderItem> orderItems) {
-
         jdbcTemplate.batchUpdate("INSERT INTO order_item(order_id, color_item_size_stock_id, order_price, count) values (?, ?, ?, ?)", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {

@@ -1,12 +1,16 @@
 package org.example.tamaapi.repository.item.query;
 
+import com.nimbusds.oauth2.sdk.util.ListUtils;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.item.ColorItem;
-import org.example.tamaapi.domain.item.ColorItemImage;
-import org.example.tamaapi.domain.item.Item;
+import org.example.tamaapi.domain.QMember;
+import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.MySort;
@@ -18,6 +22,8 @@ import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +31,16 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import static org.example.tamaapi.domain.QMember.member;
+import static org.example.tamaapi.domain.item.QCategory.category;
+import static org.example.tamaapi.domain.item.QColor.*;
+import static org.example.tamaapi.domain.item.QColorItem.colorItem;
+import static org.example.tamaapi.domain.item.QColorItemSizeStock.colorItemSizeStock;
+import static org.example.tamaapi.domain.item.QItem.*;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_IMAGE;
+import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 //DTO 반환이라 extends 엔티티에 맞는게 없음. -> 아무거나 써도 에러 안남. 무난하게 루트 엔티티 적어둠
 //DATA JPA 안쓰는 게 어울리나, 순수 JPA는 생산성이 낮아서 안쓰기로 함
@@ -37,10 +52,11 @@ public class ItemQueryRepository {
 
     private final EntityManager em;
     private final ColorItemImageRepository colorItemImageRepository;
+    private final JPAQueryFactory queryFactory;
 
-    public CustomPage<CategoryItemQueryDto> findCategoryItemsByFilter(MySort sort, CustomPageRequest customPageRequest, List<Long> categoryIds, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+    public CustomPage<CategoryItemQueryDto> findCategoryItemsByFilter(MySort sort, CustomPageRequest customPageRequest, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         //다용도
-        List<Item> items = findItemsByCategoryIdInAndFilter(categoryIds, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
+        List<Item> items = findItemsByCategoryIdInAndFilter(categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
 
         //페이징
         List<Long> itemIds = items.stream().map(Item::getId).toList();
@@ -64,49 +80,39 @@ public class ItemQueryRepository {
     //--카테고리 아이템 로직 시작
     //페이징 where in 절에 쓸 itemIds, rowCount
     //페이징 자식 컬렉션에 쓸 colorItemIds(지연 로딩) //이건 뭐지?
-    private List<Item> findItemsByCategoryIdInAndFilter(List<Long> categoryIds, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-        String jpql = "SELECT i FROM Item i JOIN i.colorItems ci JOIN ci.colorItemSizeStocks s JOIN ci.color";
+    private List<Item> findItemsByCategoryIdInAndFilter(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+       return queryFactory.selectFrom(item).join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
+                .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
+                        , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))
+               .fetch();
+    }
 
-        // WHERE 절 추가 로직
-        boolean hasCondition = false;
-        if (categoryIds != null && !categoryIds.isEmpty()) {
-            jpql += (hasCondition ? " AND" : " WHERE") + " i.category.id IN :categoryIds";
-            hasCondition = true;
-        }
-        if (minPrice != null) {
-            jpql += (hasCondition ? " AND" : " WHERE") + " COALESCE(i.discountedPrice, i.price) >= :minPrice";
-            hasCondition = true;
-        }
-        if (maxPrice != null) {
-            jpql += (hasCondition ? " AND" : " WHERE") + " COALESCE(i.discountedPrice, i.price) <= :maxPrice";
-            hasCondition = true;
-        }
-        if (colorIds != null && !colorIds.isEmpty()) {
-            jpql += (hasCondition ? " AND" : " WHERE") + " ci.color.id IN :colorIds";
-            hasCondition = true;
-        }
-        if (genders != null && !genders.isEmpty()) {
-            jpql += (hasCondition ? " AND" : " WHERE") + " i.gender IN :genders";
-            hasCondition = true;
-        }
-        if (isContainSoldOut == null || Boolean.FALSE.equals(isContainSoldOut)) {
-            jpql += (hasCondition ? " AND" : " WHERE") + " s.stock > 0";
-        }
+    private BooleanExpression itemNameContains(String itemName) {
+        return hasText(itemName) ? item.name.contains(itemName) : null;
+    }
 
+    private BooleanExpression categoryIdIn(List<Long> categoryIds) {
+        return isEmpty(categoryIds) ? null : category.id.in(categoryIds);
+    }
 
-        // 그룹화 추가 (안 필요하길랙 주석)
-        //jpql += " GROUP BY i.id, ci.id";
+    private BooleanExpression minPriceGoe(Integer minPrice) {
+        return minPrice == null ? null : item.price.goe(minPrice);
+    }
 
-        TypedQuery<Item> query = em.createQuery(jpql, Item.class);
+    private BooleanExpression maxPriceLoe(Integer maxPrice) {
+        return maxPrice == null ? null : item.price.loe(maxPrice);
+    }
 
-        if (categoryIds != null && !categoryIds.isEmpty()) query.setParameter("categoryIds", categoryIds);
-        if (colorIds != null && !colorIds.isEmpty()) query.setParameter("colorIds", colorIds);
-        if (minPrice != null) query.setParameter("minPrice", minPrice);
-        if (maxPrice != null) query.setParameter("maxPrice", maxPrice);
-        if (colorIds != null && !colorIds.isEmpty()) query.setParameter("colorIds", colorIds);
-        if (genders != null && !genders.isEmpty()) query.setParameter("genders", genders);
+    private BooleanExpression colorIdIn(List<Long> colorIds) {
+        return isEmpty(colorIds) ? null : color.id.in(colorIds);
+    }
 
-        return query.getResultList();
+    private BooleanExpression genderIn(List<Gender> genders) {
+        return isEmpty(genders) ? null : member.gender.in(genders);
+    }
+
+    private BooleanExpression isContainSoldOut(Boolean isContainSoldOut) {
+        return isTrue(isContainSoldOut) ? null : colorItemSizeStock.stock.gt(0);
     }
 
     //페이징, 정렬

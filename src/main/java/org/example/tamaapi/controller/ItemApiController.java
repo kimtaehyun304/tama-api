@@ -111,8 +111,8 @@ public class ItemApiController {
             colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
         }
 
-        return itemQueryRepository.findCategoryItemsByFilter(sort, customPageRequest, categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice()
-                , colorIds, itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
+        return itemQueryRepository.findCategoryItemsByFilter(sort, customPageRequest, categoryIds, itemFilter.getItemName(), itemFilter.getMinPrice()
+                , itemFilter.getMaxPrice(), colorIds, itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
     }
 
     @GetMapping("/api/items/minMaxPrice")
