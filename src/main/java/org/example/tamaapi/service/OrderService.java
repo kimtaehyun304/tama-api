@@ -29,6 +29,8 @@ import org.springframework.web.client.RestClient;
 
 import java.util.*;
 
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class OrderService {
                                 String message,
                                 List<SaveOrderItemRequest> saveOrderItemRequests) {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
         Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
         List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
         Order order = Order.createMemberOrder(paymentId, member, delivery, orderItems);
@@ -245,7 +247,7 @@ public class OrderService {
 
     public void cancelMemberOrder(Long orderId, Long memberId, String reason){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         if(!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId))
             throw new IllegalArgumentException("주문한 사용자가 아닙니다.");

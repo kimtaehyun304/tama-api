@@ -32,7 +32,7 @@ public class UploadApiController {
     @PostMapping(value = "/api/items/images/new")
     @PreAuthentication
     @Secured("ROLE_ADMIN")
-    public ResponseEntity<SimpleResponse> saveItems(@Valid @ModelAttribute SaveColorItemImageWrapperRequest wrapperRequest) {
+    public ResponseEntity<SimpleResponse> saveItemImages(@Valid @ModelAttribute SaveColorItemImageWrapperRequest wrapperRequest) {
         //이미지 파일인지 검증
         wrapperRequest.getRequests().forEach(req -> s3Service.areFilesImage(req.getFiles()));
 
@@ -58,7 +58,6 @@ public class UploadApiController {
                 .toList();
 
         itemService.saveColorItemImages(colorItemImages);
-
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("저장 성공"));
     }
 

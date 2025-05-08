@@ -59,8 +59,6 @@ public class PreAuthenticationAspect {
         );
 
         SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-
-
     }
 
 }

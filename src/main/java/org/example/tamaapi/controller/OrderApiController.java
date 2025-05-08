@@ -79,7 +79,6 @@ public class OrderApiController {
     //멤버 주문 저장
     @PostMapping("/api/orders/member")
     public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
 
@@ -279,9 +278,13 @@ public class OrderApiController {
     @GetMapping("/api/orders")
     @PreAuthentication
     @PreAuthorize("hasRole('ADMIN')")
-    public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
+    public CustomPage<AdminOrderResponse> orders(AdminOrderCond adminOrderCond, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
         PageRequest pageRequest = PageRequest.of(customPageRequest.getPage() - 1, customPageRequest.getSize());
         Page<Order> orders = orderRepository.findAllWithMemberAndDelivery(pageRequest);
+
+
+
+
         List<AdminOrderResponse> orderResponses = orders.stream().map(AdminOrderResponse::new).toList();
         List<Long> orderIds = orders.stream().map(Order::getId).toList();
         Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds).stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));

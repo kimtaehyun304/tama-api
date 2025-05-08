@@ -38,12 +38,10 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         //소셜 계정 일반 계정 중복 가능성 -> 공통 예외 처리
         //회원가입할때 있으면 실패해야함. 로그인일때 있으면 업데이트하고
         //memberRepository.findByEmail(email).ifPresentOrElse(member -> member.changeNickname(name), () -> memberRepository.save(Member.builder().email(email).nickname(name).build()));
-
-
         memberRepository.findByEmail(email)
                 .ifPresentOrElse(member -> {
                     switch (member.getProvider()) {
-                        case LOCAL ->{
+                        case LOCAL -> {
                             String message = "이미 가입한 일반 계정이 있습니다.";
                             OAuth2Error error = new OAuth2Error("CONFLICT", message, null);
                             //OAuth2AuthenticationException로 해야 OAuth2FailureHandler가 예외 처리 가능
