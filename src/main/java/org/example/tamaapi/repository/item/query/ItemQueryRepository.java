@@ -56,18 +56,17 @@ public class ItemQueryRepository {
 
     public CustomPage<CategoryItemQueryDto> findCategoryItemsByFilter(MySort sort, CustomPageRequest customPageRequest, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         //다용도
-        List<Item> items = findItemsByCategoryIdInAndFilter(categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
+        List<Long> itemIds = findItemIdsByCategoryIdInAndFilter(categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
 
         //페이징
-        List<Long> itemIds = items.stream().map(Item::getId).toList();
-        List<CategoryItemQueryDto> pagingCategoryItems = findAllByItemIdIn(itemIds, sort, customPageRequest);
+        List<CategoryItemQueryDto> pagingCategoryItems = findAllPageByItemIdInSort(itemIds, sort, customPageRequest);
 
         //자식 컬렉션 (해당 페이지 자식만)
         List<Long> pagedItemIds = pagingCategoryItems.stream().map(CategoryItemQueryDto::getItemId).toList();
         List<RelatedColorItemResponse> colorItems = fetchColorItemsByCategoryIdInAndFilter(pagedItemIds, colorIds, isContainSoldOut);
 
         //커스텀 페이징 변환
-        int rowCount = items.size();
+        int rowCount = itemIds.size();
         CustomPage<CategoryItemQueryDto> customPagingCategoryItems = new CustomPage<>(pagingCategoryItems, customPageRequest, rowCount);
 
         //key:itemId. List<CategoryItemResponse>에 List<RelatedColorItemResponse> 삽입
@@ -80,8 +79,8 @@ public class ItemQueryRepository {
     //--카테고리 아이템 로직 시작
     //페이징 where in 절에 쓸 itemIds, rowCount
     //페이징 자식 컬렉션에 쓸 colorItemIds(지연 로딩) //이건 뭐지?
-    private List<Item> findItemsByCategoryIdInAndFilter(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-       return queryFactory.selectFrom(item).join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
+    private List<Long> findItemIdsByCategoryIdInAndFilter(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+        return queryFactory.select(item.id).distinct().from(item).join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
                 .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
                         , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))
                .fetch();
@@ -115,9 +114,28 @@ public class ItemQueryRepository {
         return isTrue(isContainSoldOut) ? null : colorItemSizeStock.stock.gt(0);
     }
 
+    private List<CategoryItemQueryDto> findAllPageByItemIdInSort2(List<Long> itemIds, MySort sort, CustomPageRequest customPageRequest) {
+        String jpql = "SELECT new org.example.tamaapi.repository.item.query.CategoryItemQueryDto(i) FROM Item i WHERE i.id in :itemIds";
+
+        // ORDER BY. 컨트롤러 sort required true -> sort null X
+        switch (sort.getProperty()) {
+            case "price" ->
+                    jpql += String.format(" order by COALESCE(i.discountedPrice, i.price) %s, i.id DESC", sort.getDirection());
+            case "createdAt" -> jpql += " order by i.createdAt DESC, i.id DESC";
+            default -> throw new MyBadRequestException("유효한 property가 없습니다.");
+        }
+
+        TypedQuery<CategoryItemQueryDto> query = em.createQuery(jpql, CategoryItemQueryDto.class);
+        query.setParameter("itemIds", itemIds);
+
+        query.setFirstResult((customPageRequest.getPage() - 1) * customPageRequest.getSize());
+        query.setMaxResults(customPageRequest.getSize());
+        return query.getResultList();
+    }
+
     //페이징, 정렬
     //다대일 조인 여러번해서 페이징하면 colorItems 리스트가 이상하게 들어가서 이렇게 함
-    private List<CategoryItemQueryDto> findAllByItemIdIn(List<Long> itemIds, MySort sort, CustomPageRequest customPageRequest) {
+    private List<CategoryItemQueryDto> findAllPageByItemIdInSort(List<Long> itemIds, MySort sort, CustomPageRequest customPageRequest) {
         String jpql = "SELECT new org.example.tamaapi.repository.item.query.CategoryItemQueryDto(i) FROM Item i WHERE i.id in :itemIds";
 
         // ORDER BY. 컨트롤러 sort required true -> sort null X
