@@ -1,9 +1,7 @@
 package org.example.tamaapi.dto.requestDto.item.save;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,3 +20,4 @@ public class SaveColorItemImageRequest {
     @NotEmpty
     private List<MultipartFile> files;
 }
+

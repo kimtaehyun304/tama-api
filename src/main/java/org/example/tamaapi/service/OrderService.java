@@ -148,7 +148,9 @@ public class OrderService {
 
     }
 
+    //사실 개발 단계에서만 일어날 법한 상황인데, 출시 버전에도 필요한가?
     public void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest){
+        //결제는 됐는데 paymentId가 첨부 안된 경우
         if(saveOrderRequest.getPaymentId() == null) {
             String cancelMsg = "paymentId 누락으로 인한 결제 취소 실패";
             log.error("[{}] {}", cancelMsg, saveOrderRequest);
