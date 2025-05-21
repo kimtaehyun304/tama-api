@@ -1,6 +1,5 @@
 package org.example.tamaapi.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -54,8 +51,6 @@ public class OrderApiController {
     private final OrderItemRepository orderItemRepository;
     private final PortOneService portOneService;
 
-    @Value("${frontend.url}")
-    private String FRONTEND_URL;
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
@@ -278,18 +273,13 @@ public class OrderApiController {
     @GetMapping("/api/orders")
     @PreAuthentication
     @PreAuthorize("hasRole('ADMIN')")
-    public CustomPage<AdminOrderResponse> orders(AdminOrderCond adminOrderCond, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
+    public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
         PageRequest pageRequest = PageRequest.of(customPageRequest.getPage() - 1, customPageRequest.getSize());
         Page<Order> orders = orderRepository.findAllWithMemberAndDelivery(pageRequest);
-
-
-
-
         List<AdminOrderResponse> orderResponses = orders.stream().map(AdminOrderResponse::new).toList();
         List<Long> orderIds = orders.stream().map(Order::getId).toList();
         Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds).stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
         orderResponses.forEach(o -> o.setOrderItems(orderItemsMap.get(o.getId())));
-
         return new CustomPage<>(orderResponses, orders.getPageable(), orders.getTotalPages(), orders.getTotalElements());
     }
 
