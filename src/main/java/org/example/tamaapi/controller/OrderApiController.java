@@ -3,6 +3,7 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.Order;
@@ -19,7 +20,6 @@ import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.EmailService;
 import org.example.tamaapi.service.OrderService;
 import org.example.tamaapi.service.PortOneService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +31,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -54,14 +55,14 @@ public class OrderApiController {
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
-    public CustomPage<OrderResponse> orders(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
-        if(userDetails == null)
+    public CustomPage<OrderResponse> orders(@AuthenticationPrincipal CustomPrincipal principal, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
+        if(principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         //조회라 굳이 검증 안필요
         //Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
         PageRequest pageRequest = PageRequest.of(customPageRequest.getPage() - 1, customPageRequest.getSize());
-        Page<Order> orders = orderRepository.findAllWithMemberAndDeliveryByMemberId(userDetails.getId(), pageRequest);
+        Page<Order> orders = orderRepository.findAllWithMemberAndDeliveryByMemberId(principal.getMemberId(), pageRequest);
         List<Long> orderIds = orders.stream().map(Order::getId).toList();
 
         Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds).stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
@@ -73,16 +74,27 @@ public class OrderApiController {
 
     //멤버 주문 저장
     @PostMapping("/api/orders/member")
-    public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
 
-        if(userDetails == null && paymentId != null)
-            portOneService.cancelPayment(paymentId, "구매자 PK 누락으로인한 결제 취소");
+        if (principal == null) {
+            String cancelMsg = (paymentId == null)
+                    ? "구매자 PK 누락되어 주문 거절. paymentId 누락 되어 결제 취소 불가"
+                    : "구매자 PK 누락되어 주문 거절. 결제 취소";
+
+            if (paymentId == null)
+                log.error("[{}] {}", cancelMsg, saveOrderRequest);
+            else
+                portOneService.cancelPayment(paymentId, cancelMsg);
+
+            throw new IllegalArgumentException(cancelMsg);
+        }
 
         orderService.validateSaveOrderRequest(saveOrderRequest);
 
-        Long memberId = userDetails.getId();
+        Long memberId = principal.getMemberId();
+
         orderService.saveMemberOrder(
                 saveOrderRequest.getPaymentId(),
                 memberId,
@@ -99,17 +111,27 @@ public class OrderApiController {
 
     //멤버 주문 저장
     @PostMapping("/api/orders/member/mobile")
-    public ResponseEntity<SimpleResponse> saveMemberOrderMobile(@RequestParam String paymentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<SimpleResponse> saveMemberOrderMobile(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
 
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
 
-        if(userDetails == null && paymentId != null)
-            portOneService.cancelPayment(paymentId, "구매자 PK 누락으로인한 결제 취소");
+        if (principal == null) {
+            String cancelMsg = (paymentId == null)
+                    ? "구매자 PK 누락되어 주문 거절. paymentId 누락 되어 결제 취소 불가"
+                    : "구매자 PK 누락되어 주문 거절. 결제 취소";
+
+            if (paymentId == null)
+                log.error("[{}] {}", cancelMsg, saveOrderRequest);
+            else
+                portOneService.cancelPayment(paymentId, cancelMsg);
+
+            throw new IllegalArgumentException(cancelMsg);
+        }
 
         orderService.validateSaveOrderRequest(saveOrderRequest);
 
-        Long memberId = userDetails.getId();
+        Long memberId = principal.getMemberId();
         orderService.saveMemberOrder(
                 saveOrderRequest.getPaymentId(),
                 memberId,
@@ -128,12 +150,12 @@ public class OrderApiController {
 
     //멤버 주문 취소
     @PutMapping("/api/orders/member/cancel")
-    public ResponseEntity<SimpleResponse> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<SimpleResponse> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal CustomPrincipal principal) {
 
-        if(userDetails == null)
+        if(principal == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
-        orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), userDetails.getId(), "구매자 취소 요청");
+        orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId(), "구매자 취소 요청");
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
     }
 
