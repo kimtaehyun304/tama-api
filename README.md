@@ -6,3 +6,6 @@
 API 서버 주소  
 [https://dldm.kr](https://dldm.kr/)  
 
+<h1>tama-api erd</h1>
+
+<img src="https://github.com/user-attachments/assets/1a6f9dc5-a0d3-43bc-bd43-b6a99ce217b0">
