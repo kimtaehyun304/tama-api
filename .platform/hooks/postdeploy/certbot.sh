@@ -1,1 +1,1 @@
-sudo certbot --nginx -d dldm.kr --non-interactive --agree-tos --email your-email@example.com --force-renewal --deploy-hook "nginx -s reload"
+sudo certbot --nginx -d dldm.kr --force-renewal
