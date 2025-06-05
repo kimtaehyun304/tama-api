@@ -17,5 +17,4 @@ public class CustomPrincipal {
         this.authorities = authorities;
     }
 
-
 }

@@ -21,12 +21,13 @@ https://www.inflearn.com/community/questions/16235/%EC%83%9D%EC%84%B1-%EB%A9%94%
 영속성 컨텍스트 1차 캐시 재사용은 findById만 가능
 https://limyohwan.tistory.com/62
 
-@PreAuthorize: AOP가 먼저 실행되도록 보장하지 않음. AOP가 먼저 실행되도록 하려면 @Secured 사용
 
 [파일 업로드 팁]
+요청 컨텐츠 타입에 따라 달라짐
+json은 묶어서 보내고, form-data는 각각 보냄 -> 파싱 차이
 application/json -> @RequestBody
 multipart/form-data OR application/x-www-form-urlencoded -> @RequestParam, @ModelAttribute 둘다 가능
-multipart/form-data -> @RequestPart
+multipart/form-data(json, 파일 part 분리해서 동시에 보낼 때) -> @RequestPart
 
 @RequestBody: List<ItemVo> 가능. ONLY JSON
 

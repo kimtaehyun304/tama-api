@@ -148,7 +148,7 @@ public class OrderService {
 
     }
 
-    //사실 개발 단계에서만 일어날 법한 상황인데, 출시 버전에도 필요한가?
+    //사실 개발 단계에서만 일어날 법한 상황인데, 출시 버전에도 필요한가? (그냥 fetch api 요청으로 보낼수도 있어서 필요함)
     public void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest){
         //결제는 됐는데 paymentId가 첨부 안된 경우
         if(saveOrderRequest.getPaymentId() == null) {

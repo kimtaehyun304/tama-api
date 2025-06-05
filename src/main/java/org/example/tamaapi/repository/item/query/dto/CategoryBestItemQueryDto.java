@@ -1,4 +1,4 @@
-package org.example.tamaapi.repository.item.query;
+package org.example.tamaapi.repository.item.query.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

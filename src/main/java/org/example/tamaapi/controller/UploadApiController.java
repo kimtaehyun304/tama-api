@@ -16,6 +16,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class UploadApiController {
     private final ItemService itemService;
     private final S3Service s3Service;
 
-    @PostMapping(value = "/api/items/images/new")
+    @PostMapping("/api/items/images/new")
     @PreAuthentication
     @Secured("ROLE_ADMIN")
     public ResponseEntity<SimpleResponse> saveItemImages(@Valid @ModelAttribute SaveColorItemImageWrapperRequest wrapperRequest) {

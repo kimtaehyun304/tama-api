@@ -26,7 +26,7 @@ public class CustomPageable {
     }
 
     //직접 만든 페이징. 페이지 1부터 시작
-    public CustomPageable(int page, int size, int rowCount) {
+    public CustomPageable(int page, int size, Long rowCount) {
         this.page = page;
         this.size = size;
         this.pageCount = (int) Math.ceil((double) rowCount/size);

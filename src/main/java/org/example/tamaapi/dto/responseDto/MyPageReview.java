@@ -24,11 +24,6 @@ public class MyPageReview<T> {
         myPageable = new CustomPageable(pageable, totalPages, totalElements);
     }
 
-    //직접 만든 페이징.
-    public MyPageReview(List<T> content, CustomPageRequest customPageRequest, int rowCount) {
-        this.content = content;
-        myPageable = new CustomPageable(customPageRequest.getPage(), customPageRequest.getSize(), rowCount);
-    }
 
 }
 

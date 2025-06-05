@@ -42,7 +42,7 @@ public class Init {
         List<String> profileList = Arrays.asList(profiles);
         if (profileList.contains("local")) {
             initService.initAll();
-        } else if (profileList.contains("init") && !initService.isInit()) {
+        } else if (profileList.contains("init") && initService.isNotInit()) {
             initService.initAll();
         }
 
@@ -66,7 +66,7 @@ public class Init {
         private final ItemService itemService;
         private final OrderItemRepository orderItemRepository;
 
-        public boolean isInit() {
+        public boolean isNotInit() {
             return colorItemSizeStockRepository.count() == 0 &&
                     categoryRepository.count() == 0 &&
                     memberRepository.count() == 0 &&
@@ -313,8 +313,8 @@ public class Init {
         public void initOrder() {
             SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(1L, 1),
-                    new SaveOrderItemRequest(3L, 1)
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(3L, 3)
             ));
             createMemberOrder(1L, request);
 

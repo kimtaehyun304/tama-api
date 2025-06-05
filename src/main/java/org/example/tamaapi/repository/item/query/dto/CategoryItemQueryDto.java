@@ -1,6 +1,7 @@
-package org.example.tamaapi.repository.item.query;
+package org.example.tamaapi.repository.item.query.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.tamaapi.domain.item.ColorItem;
@@ -24,7 +25,7 @@ public class CategoryItemQueryDto {
 
     private List<RelatedColorItemResponse> relatedColorItems;
 
-
+    @QueryProjection
     public CategoryItemQueryDto(Item item) {
         itemId = item.getId();
         name = item.getName();
