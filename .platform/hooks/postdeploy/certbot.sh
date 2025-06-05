@@ -1,1 +1,0 @@
-sudo certbot --nginx -d dldm.kr --force-renewal
