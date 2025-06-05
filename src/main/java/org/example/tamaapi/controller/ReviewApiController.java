@@ -3,12 +3,11 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.domain.item.Review;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
-import org.example.tamaapi.dto.requestDto.MySort;
+import org.example.tamaapi.dto.requestDto.CustomSort;
 import org.example.tamaapi.dto.requestDto.item.save.SaveReviewRequest;
 import org.example.tamaapi.dto.responseDto.MyPageReview;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
@@ -42,7 +41,7 @@ public class ReviewApiController {
     private final OrderItemRepository orderItemRepository;
 
     @GetMapping("/api/reviews")
-    public MyPageReview<ReviewResponse> reviews(@RequestParam Long colorItemId, @Valid CustomPageRequest customPageRequest, @RequestParam MySort sort) {
+    public MyPageReview<ReviewResponse> reviews(@RequestParam Long colorItemId, @Valid CustomPageRequest customPageRequest, @RequestParam CustomSort sort) {
 
         if(!sort.getProperty().equals("createdAt"))
             throw new MyBadRequestException("유효한 property가 아닙니다");

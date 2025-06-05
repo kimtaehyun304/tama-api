@@ -80,7 +80,6 @@ public class TokenProvider {
         //CustomUserDetails securityUser = new CustomUserDetails(memberId, member.getEmail(), member.getPhone(), member.getPassword(), member.getNickname(), member.getGender(), member.getHeight(), member.getWeight(), member.getProvider(), member.getAuthority());
 
         CustomPrincipal customPrincipal = new CustomPrincipal(memberId, null);
-
         return new UsernamePasswordAuthenticationToken(customPrincipal, token);
     }
 

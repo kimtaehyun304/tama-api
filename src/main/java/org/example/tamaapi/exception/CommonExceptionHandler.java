@@ -61,6 +61,7 @@ public class CommonExceptionHandler {
 
     @ExceptionHandler(MyBadRequestException.class)
     public ResponseEntity<SimpleResponse> MyBadRequestException(MyBadRequestException exception) {
+        System.out.println(123);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new SimpleResponse(exception.getMessage()));
     }
 

@@ -23,7 +23,7 @@ public class CustomPage<T> {
     }
 
     //직접 만든 페이징.
-    public CustomPage(List<T> content, CustomPageRequest customPageRequest, int rowCount) {
+    public CustomPage(List<T> content, CustomPageRequest customPageRequest, Long rowCount) {
         this.content = content;
         myPageable = new CustomPageable(customPageRequest.getPage(), customPageRequest.getSize(), rowCount);
     }
