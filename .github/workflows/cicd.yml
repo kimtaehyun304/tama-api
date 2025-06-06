@@ -41,6 +41,7 @@ jobs:
         run: |
           mkdir -p deploy
           cp build/libs/*.jar deploy/application.jar
+          cp -r .platform deploy/.platform
           cd deploy && zip -r deploy.zip .
 
       - name: Set artifact path
