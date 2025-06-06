@@ -1,20 +1,25 @@
-#test
 name: CICD
 
 on:
   push:
-    branches: [master]  # main 브랜치에 푸시(= PR 머지)될 때 실행
+    branches: [master]  # master 브랜치에 푸시될 때 실행
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: touch ./src/main/resources/application.yml
-      - run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
-      - run: cat ./src/main/resources/application.yml
 
-      - uses: actions/setup-java@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create application.yml from secrets
+        run: |
+          touch ./src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+          cat ./src/main/resources/application.yml
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -32,8 +37,15 @@ jobs:
           format: YYYY-MM-DDTHH-mm-ss
           utcOffset: "+09:00"
 
-      - name: Set artifact
-        run: echo "artifact=$(ls ./build/libs/*.jar)" >> $GITHUB_ENV
+      - name: Generate deployment package
+        run: |
+          mkdir -p deploy
+          cp build/libs/*.jar deploy/application.jar
+          cp -r .platform deploy/.platform
+          cd deploy && zip -r deploy.zip .
+
+      - name: Set artifact path
+        run: echo "artifact=deploy/deploy.zip" >> $GITHUB_ENV
 
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v20
