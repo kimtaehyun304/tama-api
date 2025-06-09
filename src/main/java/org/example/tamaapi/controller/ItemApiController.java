@@ -61,7 +61,8 @@ public class ItemApiController {
 
         List<ColorItem> relatedColorItems = colorItemRepository.findRelatedColorItemByItemId(colorItem.getItem().getId());
         List<Long> itemIds = relatedColorItems.stream().map(rci -> rci.getItem().getId()).toList();
-        //이거 영속성 컨텍스트 충돌 날거 같은데
+
+        //이거 영속성 컨텍스트 충돌 날거 같은데 (충돌 안남)
         List<ColorItemImage> relatedColorItemDefaultImages = colorItemImageRepository.findAllByColorItemItemIdInAndSequence(itemIds, 1);
         Map<Long, UploadFile> uploadFileMap = relatedColorItemDefaultImages.stream().collect(Collectors.toMap(ci -> ci.getColorItem().getId(), ColorItemImage::getUploadFile));
         List<RelatedColorItemDto> relatedColorItemDtos = relatedColorItems.stream().map(rci -> new RelatedColorItemDto(rci, uploadFileMap.get(rci.getId()))).toList();

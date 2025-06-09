@@ -7,8 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
-
-//@Component
+@Component
 public class CorsFilter implements Filter {
 
     // 허용할 도메인 목록
@@ -25,11 +24,9 @@ public class CorsFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         String origin = request.getHeader("Origin");
-        System.out.println("origin = " + origin);
-        System.out.println("allowedOrigins = " + allowedOrigins.toString());
 
 
-        // 허용된 Origin만 응답에 포함
+        // 허용된 Origin만 응답에 포함 (안돼서 WebSecurityConfig 씀)
         if (allowedOrigins.contains(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Credentials", "true");

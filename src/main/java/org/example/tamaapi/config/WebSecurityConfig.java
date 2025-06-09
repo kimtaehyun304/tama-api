@@ -72,8 +72,8 @@ public class WebSecurityConfig {
     }
 
     //CORS 필터 대신 이거 사용
-    @Bean
-    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+    //@Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
 
         List<String> allowedOrigins = List.of(
                 "http://localhost:3000",
