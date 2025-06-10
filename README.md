@@ -13,5 +13,4 @@ API 서버 주소
 
 <h1>tama-api erd</h1>
 
-<img src="https://github.com/user-attachments/assets/1a6f9dc5-a0d3-43bc-bd43-b6a99ce217b0">
-
+<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4">
