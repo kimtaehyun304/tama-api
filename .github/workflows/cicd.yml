@@ -3,6 +3,8 @@ name: CICD
 on:
   push:
     branches: [master]  # master 브랜치에 푸시될 때 실행
+    paths-ignore:
+      - '**/README.md'
 
 jobs:
   build:

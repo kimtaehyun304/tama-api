@@ -23,7 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+//필터에서 발생한 예외는 못잡음
 public class CommonExceptionHandler {
+
+    //런타임 에러 포함한 기타 예외
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<SimpleResponse> Exception(Exception exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
+    }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<SimpleResponse> DataIntegrityViolationException() {
