@@ -8,7 +8,7 @@ spring / jpa + queryDsl
 API 서버 주소  
 [https://dldm.kr](https://dldm.kr/)  
 
-다양한 sql 조인 경험 (상품 조회)  
+상품 조회 (페이징+동적 쿼리 / 조인)  
 [tama-api 브랜치](https://github.com/kimtaehyun304/tama-api/blob/master/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java)  
 
 <h1>tama-api erd</h1>
