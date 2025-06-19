@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
@@ -31,7 +30,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;

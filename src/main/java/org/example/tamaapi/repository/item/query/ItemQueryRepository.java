@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.Gender;
 
 import org.example.tamaapi.domain.item.*;
-import org.example.tamaapi.domain.order.QOrderItem;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.CustomSort;

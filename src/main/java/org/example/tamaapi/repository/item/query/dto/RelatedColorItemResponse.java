@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.tamaapi.domain.item.ColorItem;
 import org.example.tamaapi.dto.UploadFile;
 
 @Getter

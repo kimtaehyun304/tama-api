@@ -36,7 +36,4 @@ public class AdminOrderResponse {
         delivery = new DeliveryResponse(order.getDelivery());
     }
 
-    public AdminOrderResponse(Long orderId) {
-        id = orderId;
-    }
 }
