@@ -35,4 +35,8 @@ public class AdminOrderResponse {
         buyerName = order.getMember() != null ? order.getMember().getNickname() : order.getGuest().getNickname();
         delivery = new DeliveryResponse(order.getDelivery());
     }
+
+    public AdminOrderResponse(Long orderId) {
+        id = orderId;
+    }
 }

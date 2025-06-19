@@ -1,6 +1,7 @@
 package org.example.tamaapi.repository.order;
 
 import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.dto.responseDto.order.AdminOrderResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select o from Order o join fetch o.orderItems oi join fetch o.delivery d where o.id = :orderId")
     Optional<Order> findAllWithOrderItemAndDeliveryByOrderId(Long orderId);
 
+
     @Query("select o from Order o left join fetch o.member m join fetch o.delivery d")
     Page<Order> findAllWithMemberAndDelivery(Pageable pageable);
+
+
 }

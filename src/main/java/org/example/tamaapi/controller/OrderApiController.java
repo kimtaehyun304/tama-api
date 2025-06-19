@@ -295,14 +295,14 @@ public class OrderApiController {
     @GetMapping("/api/orders")
     @PreAuthentication
     @PreAuthorize("hasRole('ADMIN')")
-    public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
-        PageRequest pageRequest = PageRequest.of(customPageRequest.getPage() - 1, customPageRequest.getSize());
+        public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
+        PageRequest pageRequest = customPageRequest.convertPageRequest();
         Page<Order> orders = orderRepository.findAllWithMemberAndDelivery(pageRequest);
-        List<AdminOrderResponse> orderResponses = orders.stream().map(AdminOrderResponse::new).toList();
-        List<Long> orderIds = orders.stream().map(Order::getId).toList();
+        Page<AdminOrderResponse> orderResponses = orders.map(AdminOrderResponse::new);
+        List<Long> orderIds = orderResponses.stream().map(AdminOrderResponse::getId).toList();
         Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds).stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
         orderResponses.forEach(o -> o.setOrderItems(orderItemsMap.get(o.getId())));
-        return new CustomPage<>(orderResponses, orders.getPageable(), orders.getTotalPages(), orders.getTotalElements());
+        return new CustomPage<>(orderResponses.getContent(), orderResponses.getPageable(), orderResponses.getTotalPages(), orderResponses.getTotalElements());
     }
 
 }

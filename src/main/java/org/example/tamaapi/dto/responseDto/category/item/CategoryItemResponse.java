@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.tamaapi.domain.item.ColorItem;
 import org.example.tamaapi.domain.item.Item;
+import org.example.tamaapi.repository.item.query.dto.RelatedColorItemResponse;
 
 import java.util.List;
 

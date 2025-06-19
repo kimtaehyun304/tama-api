@@ -20,9 +20,8 @@ import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.*;
-import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryDto;
+import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
 import org.example.tamaapi.repository.item.query.dto.CategoryItemQueryDto;
-import org.example.tamaapi.repository.item.query.dto.ItemMinMaxQueryDto;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.util.FileStore;
 import org.springframework.core.io.UrlResource;
@@ -117,12 +116,12 @@ public class ItemApiController {
             }
         }
 
-        return itemQueryRepository.findCategoryItems(sort, customPageRequest, categoryIds, itemFilter.getItemName(), itemFilter.getMinPrice()
+        return itemQueryRepository.findCategoryItemsWithPagingAndSort(sort, customPageRequest, categoryIds, itemFilter.getItemName(), itemFilter.getMinPrice()
                 , itemFilter.getMaxPrice(), colorIds, itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
     }
 
     @GetMapping("/api/items/best")
-    public List<CategoryBestItemQueryDto> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
+    public List<CategoryBestItemQueryResponse> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
 
         //상위 카테고리인지 확인
         List<Long> categoryIds = new ArrayList<>();
