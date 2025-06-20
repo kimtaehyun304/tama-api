@@ -1,6 +1,7 @@
-package org.example.tamaapi.dto.responseDto.order;
+package org.example.tamaapi.repository.order.query.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.example.tamaapi.domain.order.OrderItem;
@@ -10,7 +11,7 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_IMAGE;
 
 @Getter
 @AllArgsConstructor
-public class OrderItemResponse {
+public class AdminOrderItemResponse {
 
     @JsonIgnore
     private Long orderId;
@@ -32,19 +33,23 @@ public class OrderItemResponse {
 
     private Boolean isReviewWritten;
 
-    public OrderItemResponse(OrderItem orderItem) {
+    @QueryProjection
+    public AdminOrderItemResponse(Boolean isReviewNotNull, Long orderId, Long orderItemId, Integer orderPrice, Integer count, String name, String color, String size) {
+        this.orderId = orderId;
+        this.orderItemId = orderItemId;
+        this.name = name;
+        this.color = color;
+        this.size = size;
+        this.orderPrice = orderPrice;
+        this.count = count;
 
-        orderId = orderItem.getOrder().getId();
-        orderItemId = orderItem.getId();
-        name = orderItem.getColorItemSizeStock().getColorItem().getItem().getName();
-        color = orderItem.getColorItemSizeStock().getColorItem().getColor().getName();
-        size = orderItem.getColorItemSizeStock().getSize();
-        orderPrice = orderItem.getOrderPrice();
-        count = orderItem.getCount();
+        /*
         //지연로딩
         uploadFile = orderItem.getColorItemSizeStock().getColorItem().getImages()
                 .stream().filter(i -> i.getSequence() == 1).findFirst().orElseThrow(()-> new IllegalArgumentException(NOT_FOUND_IMAGE)).getUploadFile();
-        //isReviewWritten = orderItem.getReview() != null;
-    }
 
+         */
+        isReviewWritten = isReviewNotNull;
+
+    }
 }

@@ -121,10 +121,9 @@ public class ItemQueryRepository {
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     //카테고리 베스트 아이템
 
-    //orderItem 루트를 colorItem으로 바꿀려고 dto 조회 (근데 어짜피 queryRepository는 재사용할 일 없으니 전부 dto 조회하는 게 난듯)
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
-
-        List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select(new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.price, item.discountedPrice)).from(orderItem)
+        List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
+                        (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.price, item.discountedPrice)).from(orderItem)
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)
                 .where(categoryIdIn(categoryIds))
                 .groupBy(colorItem.id)
@@ -133,22 +132,18 @@ public class ItemQueryRepository {
                 .limit(customPageRequest.getSize())
                 .fetch();
 
-        //이미지 세팅
+        //상품 이미지 세팅
         List<Long> colorItemIds = categoryBestItemQueryResponses.stream().map(CategoryBestItemQueryResponse::getColorItemId).toList();
-
-        //1차캐시 재사용은 findById만 되서 map 씀
         List<ColorItemImage> colorItemImages = colorItemImageRepository.findAllByColorItemIdInAndSequence(colorItemIds, 1);
-
         Map<Long, UploadFile> uploadFileMap = colorItemImages.stream().collect(Collectors.toMap(c -> c.getColorItem().getId(), ColorItemImage::getUploadFile));
         categoryBestItemQueryResponses.forEach(cbi -> cbi.setUploadFile(
                 uploadFileMap.get(cbi.getColorItemId())
         ));
 
-        //리뷰 개수 세팅
+        //리뷰 정보 세팅
         List<CategoryBestItemReviewQueryDto> reviewQueryDtos = findAvgRatingsCountInColorItemId(colorItemIds);
         Map<Long, CategoryBestItemReviewQueryDto> reviewMap = reviewQueryDtos.stream()
                 .collect(Collectors.toMap(CategoryBestItemReviewQueryDto::getColorItemId, Function.identity()));
-
         categoryBestItemQueryResponses.forEach(cbi -> {
                     CategoryBestItemReviewQueryDto reviewQueryDto = reviewMap.get(cbi.getColorItemId());
                     if (reviewQueryDto != null) {

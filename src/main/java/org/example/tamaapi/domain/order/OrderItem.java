@@ -15,8 +15,6 @@ public class OrderItem {
     @Column(name = "order_item_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "orderItem")
-    private Review review;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")

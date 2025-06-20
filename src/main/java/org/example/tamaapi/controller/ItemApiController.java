@@ -180,36 +180,4 @@ public class ItemApiController {
         return new SavedColorItemIdResponse(savedColorItemIds);
     }
 
-    /*
-    @GetMapping("/api/items/minMaxPrice")
-    public ItemMinMaxQueryDto categoryItemMinMaxPrice(@RequestParam Long categoryId, @Valid CategoryItemFilterRequest itemFilter) {
-
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리일경우 하위를 함께 보여줌
-        if (category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-        //상위 색상일경우 하위를 함께 보여줌
-        List<Long> colorIds = new ArrayList<>();
-        if (itemFilter != null) {
-            List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
-            for (Color color : colors) {
-                colorIds.add(color.getId());
-                colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
-            }
-        }
-
-        ItemMinMaxQueryDto itemMinMaxQueryDto = itemQueryRepository.findMinMaxPriceByCategoryIdInAndFilter(categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice(), colorIds
-                , itemFilter.getGenders(), itemFilter.getIsContainSoldOut()).orElseThrow(() -> new IllegalArgumentException("해당 아이템 최소가격 최대가격을 찾을 수 없습니다"));
-
-        return itemMinMaxQueryDto;
-    }
-    */
-
 }

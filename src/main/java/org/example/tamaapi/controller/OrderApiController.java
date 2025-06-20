@@ -4,18 +4,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.*;
 import org.example.tamaapi.dto.responseDto.CustomPage;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.dto.responseDto.order.AdminOrderResponse;
 import org.example.tamaapi.dto.responseDto.order.OrderItemResponse;
 import org.example.tamaapi.dto.responseDto.order.OrderResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
+import org.example.tamaapi.dto.responseDto.order.AdminOrderResponse;
+import org.example.tamaapi.repository.order.query.OrderQueryRepository;
 import org.example.tamaapi.service.EmailService;
 import org.example.tamaapi.service.OrderService;
 import org.example.tamaapi.service.PortOneService;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +48,7 @@ public class OrderApiController {
     private final OrderRepository orderRepository;
     private final EmailService emailService;
     private final OrderItemRepository orderItemRepository;
+    private final OrderQueryRepository orderQueryRepository;
     private final PortOneService portOneService;
 
 
@@ -63,7 +64,8 @@ public class OrderApiController {
         Page<Order> orders = orderRepository.findAllWithMemberAndDeliveryByMemberId(principal.getMemberId(), pageRequest);
         List<Long> orderIds = orders.stream().map(Order::getId).toList();
 
-        Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds).stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
+        Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds)
+                .stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
         List<OrderResponse> orderResponses = orders.stream().map(OrderResponse::new).toList();
         orderResponses.forEach(o -> o.setOrderItems(orderItemsMap.get(o.getId())));
 
@@ -286,21 +288,15 @@ public class OrderApiController {
     @PostMapping("/api/webhook/portOne")
     public void webhook() {
 
-
     }
 
     //모든 주문 조회
     @GetMapping("/api/orders")
-    @PreAuthentication
-    @PreAuthorize("hasRole('ADMIN')")
-        public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
-        PageRequest pageRequest = customPageRequest.convertPageRequest();
-        Page<Order> orders = orderRepository.findAllWithMemberAndDelivery(pageRequest);
-        Page<AdminOrderResponse> orderResponses = orders.map(AdminOrderResponse::new);
-        List<Long> orderIds = orderResponses.stream().map(AdminOrderResponse::getId).toList();
-        Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds).stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
-        orderResponses.forEach(o -> o.setOrderItems(orderItemsMap.get(o.getId())));
-        return new CustomPage<>(orderResponses.getContent(), orderResponses.getPageable(), orderResponses.getTotalPages(), orderResponses.getTotalElements());
+    //@PreAuthentication
+    //@PreAuthorize("hasRole('ADMIN')")
+    public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
+
+        return orderQueryRepository.findAdminOrder(customPageRequest);
     }
 
 }
