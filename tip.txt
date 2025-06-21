@@ -63,3 +63,7 @@ CorsFilter는 @Order(Ordered.HIGHEST_PRECEDENCE) 필요X
 
 포트원 웹훅은 안정적이지만 클라이언트로 응답을 못보내서 ifarme, redirectUrl로 했다.
 ㄴ ifarme은 원래 @RequsetBody였는데 redirectUr이 포트원 서버에서 주문정보를 가져와서, 포트원 서버에서 가져오는 방법으로 통일했다.
+
+nginx 디폴트 설정: /api -> 5000 포트포워딩
+ㄴ빈즈토크의 경우 스프링부트에서 오버라이드 가능
+ㄴ스프링부트 8080 -> 5000 포트 변경
