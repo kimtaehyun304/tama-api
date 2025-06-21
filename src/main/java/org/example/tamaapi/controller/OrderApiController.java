@@ -4,19 +4,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.Order;
-import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.*;
 import org.example.tamaapi.dto.responseDto.CustomPage;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.dto.responseDto.order.OrderItemResponse;
-import org.example.tamaapi.dto.responseDto.order.OrderResponse;
+import org.example.tamaapi.repository.order.query.dto.GuestOrderResponse;
+import org.example.tamaapi.repository.order.query.dto.MemberOrderResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
-import org.example.tamaapi.dto.responseDto.order.AdminOrderResponse;
+import org.example.tamaapi.repository.order.query.dto.AdminOrderResponse;
 import org.example.tamaapi.repository.order.query.OrderQueryRepository;
+import org.example.tamaapi.repository.order.query.dto.OrderItemResponse;
 import org.example.tamaapi.service.EmailService;
 import org.example.tamaapi.service.OrderService;
 import org.example.tamaapi.service.PortOneService;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
@@ -54,22 +56,12 @@ public class OrderApiController {
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
-    public CustomPage<OrderResponse> orders(@AuthenticationPrincipal CustomPrincipal principal, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
+    public CustomPage<MemberOrderResponse> orders(@AuthenticationPrincipal CustomPrincipal principal, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
         if(principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
-        //조회라 굳이 검증 안필요
-        //Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-        PageRequest pageRequest = PageRequest.of(customPageRequest.getPage() - 1, customPageRequest.getSize());
-        Page<Order> orders = orderRepository.findAllWithMemberAndDeliveryByMemberId(principal.getMemberId(), pageRequest);
-        List<Long> orderIds = orders.stream().map(Order::getId).toList();
-
-        Map<Long, List<OrderItemResponse>> orderItemsMap = orderItemRepository.findAllWithByOrderIdIn(orderIds)
-                .stream().map(OrderItemResponse::new).collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
-        List<OrderResponse> orderResponses = orders.stream().map(OrderResponse::new).toList();
-        orderResponses.forEach(o -> o.setOrderItems(orderItemsMap.get(o.getId())));
-
-        return new CustomPage<>(orderResponses, orders.getPageable(), orders.getTotalPages(), orders.getTotalElements());
+        //조회라 굳이 멤버 존재 체크 안필요
+        return orderQueryRepository.findMemberOrdersWithPaging(customPageRequest, principal.getMemberId());
     }
 
     //멤버 주문 저장
@@ -161,7 +153,7 @@ public class OrderApiController {
 
     //비로그인 주문 조회
     @GetMapping("/api/orders/guest")
-    public OrderResponse guestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public GuestOrderResponse guestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
             throw new IllegalArgumentException(INVALID_HEADER);
@@ -177,16 +169,13 @@ public class OrderApiController {
 
         String buyerName = values[0];
         Long orderId = Long.parseLong(values[1]);
-        Order order = orderRepository.findAllWithOrderItemAndDeliveryByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
 
-        if(!order.getGuest().getNickname().equals(buyerName))
+        GuestOrderResponse guestOrderResponse = orderQueryRepository.findGuestOrder(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+
+        if(!guestOrderResponse.getGuestName().equals(buyerName))
             throw new IllegalArgumentException(NOT_FOUND_ORDER);
 
-       OrderResponse orderResponse = new OrderResponse(order);
-       List<OrderItemResponse> orderItems = orderItemRepository.findAllWithByOrderId(orderId).stream().map(OrderItemResponse::new).toList();
-       orderResponse.setOrderItems(orderItems);
-
-       return orderResponse;
+        return guestOrderResponse;
     }
 
     //비로그인 주문 저장
@@ -292,11 +281,10 @@ public class OrderApiController {
 
     //모든 주문 조회
     @GetMapping("/api/orders")
-    //@PreAuthentication
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthentication
+    @PreAuthorize("hasRole('ADMIN')")
     public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
-
-        return orderQueryRepository.findAdminOrder(customPageRequest);
+        return orderQueryRepository.findAdminOrdersWithPaging(customPageRequest);
     }
 
 }

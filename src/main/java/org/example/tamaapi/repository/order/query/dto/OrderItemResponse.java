@@ -4,17 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.tamaapi.domain.order.OrderItem;
+import lombok.Setter;
 import org.example.tamaapi.dto.UploadFile;
 
-import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_IMAGE;
-
 @Getter
+@Setter
 @AllArgsConstructor
-public class AdminOrderItemResponse {
+public class OrderItemResponse {
 
     @JsonIgnore
     private Long orderId;
+    @JsonIgnore
+    private Long colorItemId;
 
     private Long orderItemId;
 
@@ -28,28 +29,22 @@ public class AdminOrderItemResponse {
 
     private int count;
 
+    private Boolean isReviewWritten;
+
     //대표 이미지
     private UploadFile uploadFile;
 
-    private Boolean isReviewWritten;
 
     @QueryProjection
-    public AdminOrderItemResponse(Boolean isReviewNotNull, Long orderId, Long orderItemId, Integer orderPrice, Integer count, String name, String color, String size) {
+    public OrderItemResponse(Long orderId, Long colorItemId, Long orderItemId, Integer orderPrice, Integer count, String name, String color, String size, Boolean isReviewNotNull) {
         this.orderId = orderId;
+        this.colorItemId = colorItemId;
         this.orderItemId = orderItemId;
         this.name = name;
         this.color = color;
         this.size = size;
         this.orderPrice = orderPrice;
         this.count = count;
-
-        /*
-        //지연로딩
-        uploadFile = orderItem.getColorItemSizeStock().getColorItem().getImages()
-                .stream().filter(i -> i.getSequence() == 1).findFirst().orElseThrow(()-> new IllegalArgumentException(NOT_FOUND_IMAGE)).getUploadFile();
-
-         */
         isReviewWritten = isReviewNotNull;
-
     }
 }
