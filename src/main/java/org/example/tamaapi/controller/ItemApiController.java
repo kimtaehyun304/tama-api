@@ -7,7 +7,7 @@ import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CategoryItemFilterRequest;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
-import org.example.tamaapi.dto.requestDto.MySort;
+import org.example.tamaapi.dto.requestDto.CustomSort;
 import org.example.tamaapi.dto.requestDto.item.save.SaveColorItemRequest;
 import org.example.tamaapi.dto.requestDto.item.save.SaveItemRequest;
 import org.example.tamaapi.dto.requestDto.item.save.SaveSizeStockRequest;
@@ -20,10 +20,13 @@ import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.*;
+import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
+import org.example.tamaapi.repository.item.query.dto.CategoryItemQueryDto;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.util.FileStore;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
@@ -57,7 +60,8 @@ public class ItemApiController {
 
         List<ColorItem> relatedColorItems = colorItemRepository.findRelatedColorItemByItemId(colorItem.getItem().getId());
         List<Long> itemIds = relatedColorItems.stream().map(rci -> rci.getItem().getId()).toList();
-        //이거 영속성 컨텍스트 충돌 날거 같은데
+
+        //이거 영속성 컨텍스트 충돌 날거 같은데 (충돌 안남)
         List<ColorItemImage> relatedColorItemDefaultImages = colorItemImageRepository.findAllByColorItemItemIdInAndSequence(itemIds, 1);
         Map<Long, UploadFile> uploadFileMap = relatedColorItemDefaultImages.stream().collect(Collectors.toMap(ci -> ci.getColorItem().getId(), ColorItemImage::getUploadFile));
         List<RelatedColorItemDto> relatedColorItemDtos = relatedColorItems.stream().map(rci -> new RelatedColorItemDto(rci, uploadFileMap.get(rci.getId()))).toList();
@@ -70,7 +74,6 @@ public class ItemApiController {
         List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(itemStockIds);
         List<Long> colorItemIds = colorItemSizeStocks.stream().map(ciss -> ciss.getColorItem().getId()).toList();
 
-        //영속성 컨텍스트 저장용
         List<ColorItemImage> colorItemImages = colorItemImageRepository.findAllByColorItemIdInAndSequence(colorItemIds, 1);
         Map<Long, UploadFile> uploadFileMap = colorItemImages.stream().collect(Collectors.toMap(cii -> cii.getColorItem().getId(), ColorItemImage::getUploadFile));
 
@@ -86,7 +89,7 @@ public class ItemApiController {
     //sort는 if문 검증이라 분리
     @GetMapping("/api/items")
     public CustomPage<CategoryItemQueryDto> categoryItem(@RequestParam(required = false) Long categoryId, @Valid CustomPageRequest customPageRequest
-            , @RequestParam MySort sort, @Valid CategoryItemFilterRequest itemFilter) {
+            , @RequestParam CustomSort sort, @Valid CategoryItemFilterRequest itemFilter) {
 
         if (itemFilter.getMinPrice() != null && itemFilter.getMaxPrice() != null && itemFilter.getMinPrice() > itemFilter.getMaxPrice())
             throw new MyBadRequestException("최소값을 최대값보다 크게 입력했습니다.");
@@ -105,33 +108,7 @@ public class ItemApiController {
 
         //상위 색상일경우 하위를 함께 보여줌
         List<Long> colorIds = new ArrayList<>();
-        List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
-        for (Color color : colors) {
-            colorIds.add(color.getId());
-            colorIds.addAll(color.getChildren().stream().map(Color::getId).toList());
-        }
-
-        return itemQueryRepository.findCategoryItemsByFilter(sort, customPageRequest, categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice()
-                , colorIds, itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
-    }
-
-    @GetMapping("/api/items/minMaxPrice")
-    public ItemMinMaxQueryDto categoryItemMinMaxPrice(@RequestParam Long categoryId, @Valid CategoryItemFilterRequest itemFilter) {
-
-        //상위 카테고리인지 확인
-        Category category = categoryRepository.findWithChildrenById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-        List<Long> categoryIds = new ArrayList<>();
-
-        //상위 카테고리일경우 하위를 함께 보여줌
-        if (category.getChildren().isEmpty())
-            categoryIds.add(categoryId);
-        else
-            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
-
-        //상위 색상일경우 하위를 함께 보여줌
-        List<Long> colorIds = new ArrayList<>();
-        if (itemFilter != null) {
+        if(!CollectionUtils.isEmpty(itemFilter.getColorIds())) {
             List<Color> colors = colorRepository.findWithChildrenByIdIn(itemFilter.getColorIds());
             for (Color color : colors) {
                 colorIds.add(color.getId());
@@ -139,15 +116,12 @@ public class ItemApiController {
             }
         }
 
-        ItemMinMaxQueryDto itemMinMaxQueryDto = itemQueryRepository.findMinMaxPriceByCategoryIdInAndFilter(categoryIds, itemFilter.getMinPrice(), itemFilter.getMaxPrice(), colorIds
-                , itemFilter.getGenders(), itemFilter.getIsContainSoldOut()).orElseThrow(() -> new IllegalArgumentException("해당 아이템 최소가격 최대가격을 찾을 수 없습니다"));
-
-        return itemMinMaxQueryDto;
+        return itemQueryRepository.findCategoryItemsWithPagingAndSort(sort, customPageRequest, categoryIds, itemFilter.getItemName(), itemFilter.getMinPrice()
+                , itemFilter.getMaxPrice(), colorIds, itemFilter.getGenders(), itemFilter.getIsContainSoldOut());
     }
 
-
     @GetMapping("/api/items/best")
-    public List<CategoryBestItemQueryDto> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
+    public List<CategoryBestItemQueryResponse> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
 
         //상위 카테고리인지 확인
         List<Long> categoryIds = new ArrayList<>();
@@ -161,7 +135,7 @@ public class ItemApiController {
                 categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
         }
 
-        return itemQueryRepository.findCategoryBestItemByCategoryIdIn(categoryIds, customPageRequest);
+        return itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
     }
 
     //S3 도입 전에 쓰던 거
@@ -205,6 +179,5 @@ public class ItemApiController {
         List<Long> savedColorItemIds = itemService.saveItem(item, colorItems, colorItemSizeStocks);
         return new SavedColorItemIdResponse(savedColorItemIds);
     }
-
 
 }

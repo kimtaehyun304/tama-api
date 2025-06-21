@@ -25,10 +25,10 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-application.yml
-application-prod.yml
+application*.yml
 logback-spring.xml
 memo.txt
+src/main/generated
 
 ### NetBeans ###
 /nbproject/private/

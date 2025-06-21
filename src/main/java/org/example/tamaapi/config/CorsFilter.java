@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
-
+//cors 필터말고 UrlBasedCorsConfigurationSource 사용함
 //@Component
 public class CorsFilter implements Filter {
 
@@ -25,12 +25,8 @@ public class CorsFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         String origin = request.getHeader("Origin");
-        System.out.println("origin = " + origin);
-        System.out.println("allowedOrigins = " + allowedOrigins.toString());
 
-
-        // 허용된 Origin만 응답에 포함
-        if (allowedOrigins.contains(origin)) {
+        if (origin == null || allowedOrigins.contains(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Credentials", "true");
         }

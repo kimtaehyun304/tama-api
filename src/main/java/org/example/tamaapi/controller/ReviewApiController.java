@@ -2,12 +2,12 @@ package org.example.tamaapi.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.config.CustomUserDetails;
+import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.domain.item.Review;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
-import org.example.tamaapi.dto.requestDto.MySort;
+import org.example.tamaapi.dto.requestDto.CustomSort;
 import org.example.tamaapi.dto.requestDto.item.save.SaveReviewRequest;
 import org.example.tamaapi.dto.responseDto.MyPageReview;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
@@ -41,7 +41,7 @@ public class ReviewApiController {
     private final OrderItemRepository orderItemRepository;
 
     @GetMapping("/api/reviews")
-    public MyPageReview<ReviewResponse> reviews(@RequestParam Long colorItemId, @Valid CustomPageRequest customPageRequest, @RequestParam MySort sort) {
+    public MyPageReview<ReviewResponse> reviews(@RequestParam Long colorItemId, @Valid CustomPageRequest customPageRequest, @RequestParam CustomSort sort) {
 
         if(!sort.getProperty().equals("createdAt"))
             throw new MyBadRequestException("유효한 property가 아닙니다");
@@ -69,14 +69,14 @@ public class ReviewApiController {
 
 
     @PostMapping("/api/reviews")
-    public ResponseEntity<SimpleResponse> saveReview(@Valid @RequestBody SaveReviewRequest saveReviewRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<SimpleResponse> saveReview(@Valid @RequestBody SaveReviewRequest saveReviewRequest, @AuthenticationPrincipal CustomPrincipal principal) {
         //ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(saveReviewRequest.getColorItemSizeStockId()).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ITEM));
         OrderItem orderItem = orderItemRepository.findWithOrderById(saveReviewRequest.getOrderItemId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER_ITEM));
 
-        if(!Objects.equals(orderItem.getOrder().getMember().getId(), userDetails.getId()))
+        if(!Objects.equals(orderItem.getOrder().getMember().getId(), principal.getMemberId()))
             throw new IllegalArgumentException("주문자가 아닙니다.");
 
-        Member member = memberRepository.findById(userDetails.getId()).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
+        Member member = memberRepository.findById(principal.getMemberId()).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
         Review newReview = new Review(orderItem, member, saveReviewRequest.getRating(), saveReviewRequest.getComment(), saveReviewRequest.getHeight(), saveReviewRequest.getWeight());
         reviewRepository.save(newReview);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("저장 완료"));

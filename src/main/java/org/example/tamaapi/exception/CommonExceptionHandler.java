@@ -1,29 +1,31 @@
 package org.example.tamaapi.exception;
 
-import org.apache.coyote.BadRequestException;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.exception.MyBadRequestException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.util.StringUtils;
+
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @RestControllerAdvice
+//필터에서 발생한 예외는 못잡음
 public class CommonExceptionHandler {
+
+    //런타임 에러 포함한 기타 예외
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<SimpleResponse> Exception(Exception exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
+    }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<SimpleResponse> DataIntegrityViolationException() {

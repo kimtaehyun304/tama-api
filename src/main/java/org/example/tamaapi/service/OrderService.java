@@ -29,6 +29,8 @@ import org.springframework.web.client.RestClient;
 
 import java.util.*;
 
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class OrderService {
                                 String message,
                                 List<SaveOrderItemRequest> saveOrderItemRequests) {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
         Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
         List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
         Order order = Order.createMemberOrder(paymentId, member, delivery, orderItems);
@@ -139,14 +141,20 @@ public class OrderService {
 
         if (clientTotal != serverTotal) {
             portOneService.cancelPayment(paymentId, "클라이언트 위변조 검출");
-            throw new IllegalArgumentException("클라이언트 위변조 검출. 결제 자동 취소");
+            String cancelMsg = "클라이언트 위변조 검출. 결제 자동 취소";
+            log.error("[{}], paymentId:{}", cancelMsg, paymentId);
+            throw new IllegalArgumentException(cancelMsg);
         }
 
     }
 
+    //사실 개발 단계에서만 일어날 법한 상황인데, 출시 버전에도 필요한가? (그냥 fetch api 요청으로 보낼수도 있어서 필요함)
     public void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest){
+        //결제는 됐는데 paymentId가 첨부 안된 경우
         if(saveOrderRequest.getPaymentId() == null) {
-            throw new IllegalArgumentException("paymentId 누락. 결제 취소 실패");
+            String cancelMsg = "paymentId 누락으로 인한 결제 취소 실패";
+            log.error("[{}] {}", cancelMsg, saveOrderRequest);
+            throw new IllegalArgumentException(cancelMsg);
         }
 
         String paymentId = saveOrderRequest.getPaymentId();
@@ -241,7 +249,7 @@ public class OrderService {
 
     public void cancelMemberOrder(Long orderId, Long memberId, String reason){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         if(!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId))
             throw new IllegalArgumentException("주문한 사용자가 아닙니다.");

@@ -35,6 +35,8 @@ public class CategoryItemFilterRequest {
     //기본값 품절 포함x
     private Boolean isContainSoldOut;
 
+    private String itemName;
+
     //MySort sort;
 
 }

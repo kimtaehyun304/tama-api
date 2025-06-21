@@ -9,6 +9,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@ToString
 public class SaveOrderRequest {
 
     private String paymentId;

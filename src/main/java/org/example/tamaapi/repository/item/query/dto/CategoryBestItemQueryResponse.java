@@ -1,16 +1,15 @@
-package org.example.tamaapi.repository.item.query;
+package org.example.tamaapi.repository.item.query.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.tamaapi.domain.item.ColorItem;
-import org.example.tamaapi.domain.item.Item;
 import org.example.tamaapi.dto.UploadFile;
 
 @Getter
 //categoryItem에서 사용
 @Setter
-public class CategoryBestItemQueryDto {
+public class CategoryBestItemQueryResponse {
 
     @JsonIgnore
     private Long itemId;
@@ -30,12 +29,13 @@ public class CategoryBestItemQueryDto {
 
     private Long reviewCount = 0L;
 
-    public CategoryBestItemQueryDto(ColorItem colorItem, Item item) {
-        itemId = item.getId();
-        colorItemId = colorItem.getId();
-        name = item.getName();
-        price = item.getPrice();
-        discountedPrice = item.getDiscountedPrice();
+    @QueryProjection
+    public CategoryBestItemQueryResponse(Long itemId, Long colorItemId, String itemName, Integer price, Integer discountedPrice) {
+        this.itemId = itemId;
+        this.colorItemId = colorItemId;
+        this.name = itemName;
+        this.price = price;
+        this.discountedPrice = discountedPrice;
     }
 
 

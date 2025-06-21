@@ -3,6 +3,7 @@ package org.example.tamaapi.dto.requestDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
+import org.springframework.data.domain.PageRequest;
 
 @Getter
 public class CustomPageRequest {
@@ -23,6 +24,10 @@ public class CustomPageRequest {
     public CustomPageRequest(int page, int size) {
         this.page = page;
         this.size = size;
+    }
+
+    public PageRequest convertPageRequest(){
+        return PageRequest.of(page - 1, size);
     }
 
 

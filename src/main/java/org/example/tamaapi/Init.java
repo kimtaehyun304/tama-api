@@ -40,14 +40,10 @@ public class Init {
     public void init() throws InterruptedException {
         String[] profiles = environment.getActiveProfiles();
         List<String> profileList = Arrays.asList(profiles);
-        if (profileList.isEmpty() || profileList.contains("init")) {
-            initService.initCategory();
-            initService.initColor();
-            initService.initItem();
-            initService.initMember();
-            initService.initMemberAddress();
-            initService.initOrder();
-            initService.initReview();
+        if (profileList.contains("local")) {
+            initService.initAll();
+        } else if (profileList.contains("init") && initService.isNotInit()) {
+            initService.initAll();
         }
 
     }
@@ -69,6 +65,26 @@ public class Init {
         private final MemberService memberService;
         private final ItemService itemService;
         private final OrderItemRepository orderItemRepository;
+
+        public boolean isNotInit() {
+            return colorItemSizeStockRepository.count() == 0 &&
+                    categoryRepository.count() == 0 &&
+                    memberRepository.count() == 0 &&
+                    colorRepository.count() == 0 &&
+                    reviewRepository.count() == 0 &&
+                    orderRepository.count() == 0 &&
+                    orderItemRepository.count() == 0;
+        }
+
+        public void initAll() {
+            initCategory();
+            initColor();
+            initItem();
+            initMember();
+            initMemberAddress();
+            initOrder();
+            initReview();
+        }
 
         public void initCategory() {
             Category outer = Category.builder().name("아우터").build();
@@ -176,7 +192,6 @@ public class Init {
                     "폴리에스터 94%, 폴리우레탄 6% (상표,장식,무늬,자수,밴드,심지,보강재 제외)",
                     "세제는 중성세제를 사용하고 락스 등의 표백제는 사용을 금합니다. 세탁 시 삶아 빨 경우 섬유의 특성이 소멸되어 수축 및 물빠짐의 우려가 있으므로 미온 세탁하시기 바랍니다.");
 
-
             List<ColorItem> colorItems = new ArrayList<>();
             List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
             List<ColorItemImage> colorItemImages = new ArrayList<>();
@@ -186,7 +201,8 @@ public class Init {
             ColorItem ivoryColorItem = new ColorItem(bottomItem, ivory);
             colorItems.add(ivoryColorItem);
             colorItemSizeStocks.addAll(List.of(new ColorItemSizeStock(ivoryColorItem, "S(67CM)", 9), new ColorItemSizeStock(ivoryColorItem, "M(67CM)", 9)));
-            colorItemImages.addAll(List.of(
+            colorItemImages.addAll(
+                    List.of(
                             new ColorItemImage(ivoryColorItem, new UploadFile("woman-ivory-pants.jpg", "woman-ivory-pants-uuid.jpg"), 1),
                             new ColorItemImage(ivoryColorItem, new UploadFile("woman-ivory-pants-detail.jpg", "woman-ivory-pants-detail-uuid.jpg"), 2)
                     )
@@ -232,6 +248,7 @@ public class Init {
             Color blue = colorRepository.findByName("블루").get();
             ColorItem blueColorItem = new ColorItem(denimPantsItem, blue);
             colorItems.add(blueColorItem);
+
             colorItemSizeStocks.addAll(List.of(
                     new ColorItemSizeStock(blueColorItem, "S(70CM)", 9),
                     new ColorItemSizeStock(blueColorItem, "M(80CM)", 9)
@@ -296,8 +313,27 @@ public class Init {
         public void initOrder() {
             SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(1L, 1),
-                    new SaveOrderItemRequest(3L, 1)
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(2L, 2)
+            ));
+            createMemberOrder(1L, request);
+
+            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(3L, 2),
+                    new SaveOrderItemRequest(4L, 1)
+            ));
+            createMemberOrder(1L, request2);
+
+
+
+
+
+            /*
+            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(3L, 3)
             ));
             createMemberOrder(1L, request);
 
@@ -314,6 +350,8 @@ public class Init {
                     new SaveOrderItemRequest(6L, 1)
             ));
             createGuestOrder(saveGuestOrderRequest);
+
+             */
         }
 
         public void createMemberOrder(Long memberId, SaveMemberOrderRequest request) {

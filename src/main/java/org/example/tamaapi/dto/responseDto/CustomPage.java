@@ -3,12 +3,12 @@ package org.example.tamaapi.dto.responseDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 @Getter
-//Custom Page 객체라서 "My"Page 입니다. 멤버 마이페이지랑 혼동 주의
 public class CustomPage<T> {
 
     private final List<T> content;
@@ -23,10 +23,12 @@ public class CustomPage<T> {
     }
 
     //직접 만든 페이징.
-    public CustomPage(List<T> content, CustomPageRequest customPageRequest, int rowCount) {
+    public CustomPage(List<T> content, CustomPageRequest customPageRequest, Long rowCount) {
         this.content = content;
         myPageable = new CustomPageable(customPageRequest.getPage(), customPageRequest.getSize(), rowCount);
     }
+
+
 
 }
 

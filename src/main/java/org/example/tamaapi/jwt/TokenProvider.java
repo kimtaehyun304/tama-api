@@ -3,6 +3,7 @@ package org.example.tamaapi.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.exception.MyExpiredJwtException;
@@ -69,14 +70,17 @@ public class TokenProvider {
 
         //String stringMemberId = claims.getSubject();
         Long memberId = Long.valueOf(claims.getSubject());
+
         //Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         //member.getAuthority().getAuthority() : ADMIN -> ROLE_ADMIN 변환
         //Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().getAuthority()));
         //org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(stringMemberId, ", null);
-        CustomUserDetails securityUser = new CustomUserDetails(memberId, null);
+        //CustomUserDetails securityUser = new CustomUserDetails(memberId, null);
         //CustomUserDetails securityUser = new CustomUserDetails(memberId, member.getEmail(), member.getPhone(), member.getPassword(), member.getNickname(), member.getGender(), member.getHeight(), member.getWeight(), member.getProvider(), member.getAuthority());
-        return new UsernamePasswordAuthenticationToken(securityUser, token);
+
+        CustomPrincipal customPrincipal = new CustomPrincipal(memberId, null);
+        return new UsernamePasswordAuthenticationToken(customPrincipal, token);
     }
 
 

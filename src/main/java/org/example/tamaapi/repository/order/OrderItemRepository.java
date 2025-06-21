@@ -9,11 +9,10 @@ import java.util.Optional;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
-    @Query("select oi from OrderItem oi" +
-            " join fetch oi.colorItemSizeStock ciss join fetch ciss.colorItem ci join fetch ci.color cl join fetch ci.item" +
-            " where oi.order.id in :orderIds")
+    @Query("select r from Review r join fetch r.orderItem oi " +
+            "join fetch oi.colorItemSizeStock ciss join fetch ciss.colorItem ci join fetch ci.color cl join fetch ci.item " +
+            "where oi.order.id in :orderIds")
     List<OrderItem> findAllWithByOrderIdIn(List<Long> orderIds);
-
 
     @Query("select oi from OrderItem oi" +
             " join fetch oi.colorItemSizeStock ciss join fetch ciss.colorItem ci join fetch ci.color cl join fetch ci.item" +

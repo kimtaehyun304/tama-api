@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.config.CustomUserDetails;
 import org.example.tamaapi.domain.Member;
 import org.example.tamaapi.exception.UnauthorizedException;
@@ -37,16 +38,16 @@ public class PreAuthenticationAspect {
     public void setAuthentication() {
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // Authentication 객체에서 CustomUserDetails 가져오기
-        CustomUserDetails customUserDetails = null;
-        if (authentication.getPrincipal() instanceof CustomUserDetails)
-            customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        // Authentication 객체에서 CustomPrincipal 가져오기
+        CustomPrincipal customPrincipal = null;
+        if (authentication.getPrincipal() instanceof CustomPrincipal)
+            customPrincipal = (CustomPrincipal) authentication.getPrincipal();
 
         //헤더에 토큰 첨부안하면 null
-        if (customUserDetails == null)
+        if (customPrincipal == null)
             throw new UnauthorizedException(NOT_AUTHENTICATED);
 
-        Long memberId = customUserDetails.getId();
+        Long memberId = customPrincipal.getMemberId();
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
@@ -59,8 +60,6 @@ public class PreAuthenticationAspect {
         );
 
         SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-
-
     }
 
 }
