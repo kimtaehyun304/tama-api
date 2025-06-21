@@ -26,6 +26,7 @@ public class EmailService {
 
     private void sendEmail(String toMailAddr, String subject, String body) {
         MimeMessagePreparator mimeMessagePreparator = createMimeMessagePreparator(toMailAddr, subject, body);
+
         javaMailSender.send(mimeMessagePreparator);
     }
 

@@ -1,4 +1,4 @@
-package org.example.tamaapi.dto.responseDto.order;
+package org.example.tamaapi.repository.order.query.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
