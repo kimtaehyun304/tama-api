@@ -85,6 +85,20 @@ public class ItemQueryRepository {
                 .fetch();
     }
 
+    /* 데이터 십만개로 테스트 해봤는데, 서브쿼리랑 속도 비슷함
+    private List<CategoryItemQueryDto> findCategoryItemsParentWithPagingAndSort(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+        return queryFactory
+                .select(new QCategoryItemQueryDto(item.id, item.name, item.price, item.discountedPrice)).from(item)
+                .join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
+                .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice), colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))
+                .groupBy(item.id)
+                .offset(customPageRequest.getPage() - 1)
+                .limit(customPageRequest.getSize())
+                .orderBy(categoryItemSort(sort), new OrderSpecifier<>(Order.DESC, item.id))
+                .fetch();
+    }
+     */
+
     //페이징 COUNT (최적화를 위해 따로 분리)
     private Long countCategoryItems(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         return queryFactory.select(item.id.countDistinct()).from(item)

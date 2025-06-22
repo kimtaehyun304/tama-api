@@ -30,7 +30,7 @@ public class AuthenticationApiController {
     public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
         String accessToken = (String) cacheService.get(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
 
-        if(StringUtils.hasText(accessToken))
+        if(!StringUtils.hasText(accessToken))
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("일치하는 accessToken이 없습니다."));
 
         cacheService.evict(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
