@@ -50,7 +50,7 @@ public class ItemQueryRepository {
     private final ColorItemImageRepository colorItemImageRepository;
     private final JPAQueryFactory queryFactory;
 
-    //카테고리 아이템
+    //★카테고리 아이템 (상품 조회)
     public CustomPage<CategoryItemQueryDto> findCategoryItemsWithPagingAndSort(CustomSort sort, CustomPageRequest customPageRequest, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         //페이징
         List<CategoryItemQueryDto> paging = findCategoryItemsParent(customPageRequest, sort, categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
@@ -112,7 +112,7 @@ public class ItemQueryRepository {
     }
 
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
-    //카테고리 베스트 아이템
+    //★카테고리 베스트 아이템 (인기 상품 조회)
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
                         (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.price, item.discountedPrice)).from(orderItem)

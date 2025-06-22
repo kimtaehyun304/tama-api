@@ -12,8 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class SaveColorItemImageRequest {
-
-    //private Long colorId;
     @NotNull
     private Long colorItemId;
 

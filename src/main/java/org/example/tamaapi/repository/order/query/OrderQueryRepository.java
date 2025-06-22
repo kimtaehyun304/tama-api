@@ -76,6 +76,7 @@ public class OrderQueryRepository {
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------
+    //★멤버 주문 조회
     public CustomPage<MemberOrderResponse> findMemberOrdersWithPaging(CustomPageRequest customPageRequest, Long memberId){
         List<MemberOrderResponse> content = queryFactory.select(new QMemberOrderResponse(order))
                 .from(order).join(order.delivery, delivery).fetchJoin()
