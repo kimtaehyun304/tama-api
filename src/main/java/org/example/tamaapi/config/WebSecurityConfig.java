@@ -52,7 +52,7 @@ public class WebSecurityConfig {
 
         List<String> allowedOrigins = List.of(
                 "http://localhost:3000",
-                "https://dlpoma.store");
+                "https://dlta.kr");
 
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);

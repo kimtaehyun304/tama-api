@@ -53,25 +53,20 @@ public class ItemQueryRepository {
     //카테고리 아이템
     public CustomPage<CategoryItemQueryDto> findCategoryItemsWithPagingAndSort(CustomSort sort, CustomPageRequest customPageRequest, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         //페이징
-        List<CategoryItemQueryDto> paging = findCategoryItemsParentWithPagingAndSort(customPageRequest, sort, categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
+        List<CategoryItemQueryDto> paging = findCategoryItemsParent(customPageRequest, sort, categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
 
         //자식 컬렉션 (해당 페이지 자식만)
         List<Long> pagedItemIds = paging.stream().map(CategoryItemQueryDto::getItemId).toList();
-        List<RelatedColorItemResponse> colorItems = findCategoryItemsChildren(pagedItemIds, colorIds, isContainSoldOut);
+        Map<Long, List<RelatedColorItemResponse>> childrenMap = findCategoryItemsChildrenMap(pagedItemIds, colorIds, isContainSoldOut);
+        paging.forEach(p -> p.setRelatedColorItems(childrenMap.get(p.getItemId())));
 
         //커스텀 페이징 변환
         Long rowCount = countCategoryItems(categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
-        CustomPage<CategoryItemQueryDto> customPaging = new CustomPage<>(paging, customPageRequest, rowCount);
-
-        //key:itemId
-        //페이징에 자식 컬렉션 삽입
-        Map<Long, List<RelatedColorItemResponse>> colorItemMap = colorItems.stream().collect(Collectors.groupingBy(RelatedColorItemResponse::getItemId));
-        customPaging.getContent().forEach(ci -> ci.setRelatedColorItems(colorItemMap.get(ci.getItemId())));
-        return customPaging;
+        return new CustomPage<>(paging, customPageRequest, rowCount);
     }
 
-    //페이징 카테고리 아이템 부모
-    private List<CategoryItemQueryDto> findCategoryItemsParentWithPagingAndSort(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+    //카테고리 아이템 부모
+    private List<CategoryItemQueryDto> findCategoryItemsParent(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         return queryFactory
                 .select(new QCategoryItemQueryDto(item.id, item.name, item.price, item.discountedPrice)).from(item)
                 .where(item.id.in(
@@ -85,21 +80,7 @@ public class ItemQueryRepository {
                 .fetch();
     }
 
-    /* 데이터 십만개로 테스트 해봤는데, 서브쿼리랑 속도 비슷함
-    private List<CategoryItemQueryDto> findCategoryItemsParentWithPagingAndSort(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-        return queryFactory
-                .select(new QCategoryItemQueryDto(item.id, item.name, item.price, item.discountedPrice)).from(item)
-                .join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
-                .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice), colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))
-                .groupBy(item.id)
-                .offset(customPageRequest.getPage() - 1)
-                .limit(customPageRequest.getSize())
-                .orderBy(categoryItemSort(sort), new OrderSpecifier<>(Order.DESC, item.id))
-                .fetch();
-    }
-     */
-
-    //페이징 COUNT (최적화를 위해 따로 분리)
+    //카테고리 아이템 COUNT (최적화를 위해 따로 분리)
     private Long countCategoryItems(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         return queryFactory.select(item.id.countDistinct()).from(item)
                 .join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
@@ -107,10 +88,8 @@ public class ItemQueryRepository {
                 .fetchOne();
     }
 
-    //페이징 카테고리 아이템 자식 컬렉션 (@batchSize는 모든 자식 컬렉션을 가져오는 거라 부적절)
-    //InItemIds로 item 컬럼에 해당하는 검색 조건 대체 가능
-    private List<RelatedColorItemResponse> findCategoryItemsChildren(List<Long> itemIds, List<Long> colorIds, Boolean isContainSoldOut) {
-
+    //카테고리 아이템 자식 컬렉션 & InItemIds로 item 컬럼에 해당하는 검색 조건 대체 가능
+    private Map<Long, List<RelatedColorItemResponse>> findCategoryItemsChildrenMap(List<Long> itemIds, List<Long> colorIds, Boolean isContainSoldOut) {
         List<RelatedColorItemResponse> relatedColorItems = queryFactory.select
                         (new QRelatedColorItemResponse(colorItem.item.id, colorItem.id, color.name, color.hexCode, colorItemSizeStock.stock.sum()))
                 .from(colorItem).join(colorItem.color, color).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
@@ -129,12 +108,11 @@ public class ItemQueryRepository {
                 uploadFileMap.get(rci.getColorItemId())
         ));
 
-        return relatedColorItems;
+        return relatedColorItems.stream().collect(Collectors.groupingBy(RelatedColorItemResponse::getItemId));
     }
 
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     //카테고리 베스트 아이템
-
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
                         (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.price, item.discountedPrice)).from(orderItem)
@@ -179,9 +157,8 @@ public class ItemQueryRepository {
         query.setParameter("colorItemIds", colorItemIds);
         return query.getResultList();
     }
-
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
-
+    //queryDsl 검색 조건
     private OrderSpecifier<?> categoryItemSort(CustomSort sort) {
         Order direction = sort.getDirection().isAscending() ? Order.ASC : Order.DESC;
         return switch (sort.getProperty()) {

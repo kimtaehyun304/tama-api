@@ -38,23 +38,7 @@ public class OrderQueryRepository {
     private final ColorItemImageRepository colorItemImageRepository;
     private final JPAQueryFactory queryFactory;
 
-    //-------------------------------------------------------------------------------------------------------------------------------
-    public CustomPage<AdminOrderResponse> findAdminOrdersWithPaging(CustomPageRequest customPageRequest){
-        List<AdminOrderResponse> content = queryFactory.select(new QAdminOrderResponse(order, member.nickname)).from(order)
-                .join(order.delivery, delivery).fetchJoin().join(order.member, member)
-                .offset(customPageRequest.getPage() - 1)
-                .limit(customPageRequest.getSize())
-                .fetch();
-        Long count = queryFactory.select(order.count()).from(order).fetchOne();
-
-        List<Long> orderIds = content.stream().map(AdminOrderResponse::getId).toList();
-        Map<Long, List<OrderItemResponse>> childrenMap = findOrdersChildrenMap(orderIds);
-
-        content.forEach(o -> o.setOrderItems(childrenMap.get(o.getId())));
-        return new CustomPage<>(content, customPageRequest, count);
-    }
-
-    //memberOrder 때문에 리뷰 조인 필요
+    //공용 메서드 & findMemberOrdersWithPaging 때문에 리뷰 조인 필요
     private Map<Long, List<OrderItemResponse>> findOrdersChildrenMap(List<Long> orderIds){
         List<OrderItemResponse> children = queryFactory
                 .select(new QOrderItemResponse(orderItem.order.id, colorItem.id, orderItem.id, orderItem.orderPrice, orderItem.count, item.name, colorItem.color.name, colorItemSizeStock.size, review.id.isNotNull()))
@@ -74,6 +58,23 @@ public class OrderQueryRepository {
 
         return children.stream().collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
     }
+
+    //-------------------------------------------------------------------------------------------------------------------------------
+    public CustomPage<AdminOrderResponse> findAdminOrdersWithPaging(CustomPageRequest customPageRequest){
+        List<AdminOrderResponse> content = queryFactory.select(new QAdminOrderResponse(order, member.nickname)).from(order)
+                .join(order.delivery, delivery).fetchJoin().join(order.member, member)
+                .offset(customPageRequest.getPage() - 1)
+                .limit(customPageRequest.getSize())
+                .fetch();
+        Long count = queryFactory.select(order.count()).from(order).fetchOne();
+
+        List<Long> orderIds = content.stream().map(AdminOrderResponse::getId).toList();
+        Map<Long, List<OrderItemResponse>> childrenMap = findOrdersChildrenMap(orderIds);
+
+        content.forEach(o -> o.setOrderItems(childrenMap.get(o.getId())));
+        return new CustomPage<>(content, customPageRequest, count);
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------------
     public CustomPage<MemberOrderResponse> findMemberOrdersWithPaging(CustomPageRequest customPageRequest, Long memberId){
         List<MemberOrderResponse> content = queryFactory.select(new QMemberOrderResponse(order))
@@ -102,5 +103,7 @@ public class OrderQueryRepository {
         guestOrderResponse.setOrderItems(childrenMap.get(orderId));
         return Optional.of(guestOrderResponse);
     }
+
+
 
 }
