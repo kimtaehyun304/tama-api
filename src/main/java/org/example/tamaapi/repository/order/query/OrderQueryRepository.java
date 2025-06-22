@@ -26,15 +26,12 @@ import static org.example.tamaapi.domain.item.QReview.*;
 import static org.example.tamaapi.domain.order.QDelivery.delivery;
 import static org.example.tamaapi.domain.order.QOrder.*;
 import static org.example.tamaapi.domain.order.QOrderItem.orderItem;
-import static org.springframework.util.CollectionUtils.isEmpty;
-import static org.springframework.util.StringUtils.hasText;
 
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrderQueryRepository {
 
-    private final EntityManager em;
     private final ColorItemImageRepository colorItemImageRepository;
     private final JPAQueryFactory queryFactory;
 
@@ -43,7 +40,6 @@ public class OrderQueryRepository {
         List<OrderItemResponse> children = queryFactory
                 .select(new QOrderItemResponse(orderItem.order.id, colorItem.id, orderItem.id, orderItem.orderPrice, orderItem.count, item.name, colorItem.color.name, colorItemSizeStock.size, review.id.isNotNull()))
                 .from(orderItem).leftJoin(review).on(orderItem.id.eq(review.orderItem.id))
-
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.color, color).join(colorItem.item, item)
                 .where(orderItem.order.id.in(orderIds))
                 .fetch();
