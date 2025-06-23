@@ -19,7 +19,7 @@
 
 CORS
 <ul>
-  <li>CORS 필터 → @Bean UrlBasedCorsConfigurationSource으로 바꿈 (cors 맞춤이라 더 간단)</li>
+  <li>CORS 필터 → @Bean UrlBasedCorsConfigurationSource으로 바꿈 (이게 더 간단)</li>
 </ul>
 
 [스프링 컨버터](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/WebConfig.java#L14)
