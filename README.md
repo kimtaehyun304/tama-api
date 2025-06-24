@@ -31,6 +31,15 @@
   <li>@RequestParma은 @Valid 안되서 손수 검증함</li>
 </ul>
 
+#### Certbot 인증서 갱신 이슈
+<ul>
+  <li>80포트 포워딩 중이라 Certbot 갱신 실패 → Certbot 요청만 포워딩 제외하도록 수정</li>
+  <li>standalone 방식(갱신 중 어플리케이션 중단) → webroot 방식으로 변경(nginx 도입)</li>
+  <li>iptables → nginx 포워딩으로 변경(더 간단)</li>
+  <li>Certbot은 3개월 주기로 타이머를 통해 자동 갱신</li>
+  <li>갱신 반영 위해 nginx 재시작 필요 → 타이머에 reload hook 추가</li>
+</ul>
+
 [ItemQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L54)
 
 <ul>
@@ -41,15 +50,10 @@
 [OrderQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/order/query/OrderQueryRepository.java#L42)
 <ul>
   <li>주문 조회 (페이징 & 동적 쿼리)</li>
-</ul>
-
-#### Certbot 인증서 갱신 이슈
-<ul>
-  <li>80포트 포워딩 중이라 Certbot 갱신 실패 → Certbot 요청만 포워딩 제외하도록 수정</li>
-  <li>standalone 방식(갱신 중 어플리케이션 중단) → webroot 방식으로 변경(nginx 도입)</li>
-  <li>iptables → nginx 포워딩으로 변경(더 간단)</li>
-  <li>Certbot은 3개월 주기로 타이머를 통해 자동 갱신</li>
-  <li>갱신 반영 위해 nginx 재시작 필요 → 타이머에 reload hook 추가</li>
+  <li>이너조인은 테이블 교집합이라, 일치하지않는 행은 사라짐</li>
+  <li>아우터 조인은 from절 테이블에 조인 테이블이 찰싹 붙음 → from 절 테이블 행은 모두 유지(left join) </li>
+  <li>이너 조인은 중간에서 만나 합쳐진다면, 아우터 조인은 한쪽으로 쏠리는 개념</li>
+  <li>그래서 아우터조인만 left, right 조인 가능</li>
 </ul>
 
 <h1>tama-api erd</h1>
