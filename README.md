@@ -16,6 +16,9 @@
     → 소셜 계정으로 이미 가입된 경우라면 그냥 로그인으로 넘기기
   </li>
   <li>oAuth2 예외는 공통 예외 처리 불가 → OAuth2FailureHandler 사용</li>
+  <li>OAuth2FailureHandler는 js alert로 메시지 확인하게 하고 window.location.href </li>
+  
+  
 </ul>
 
 [스프링 컨버터](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/WebConfig.java#L14)
