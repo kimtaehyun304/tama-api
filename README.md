@@ -18,12 +18,6 @@
   <li>oAuth2 예외는 공통 예외 처리 불가 → OAuth2FailureHandler 사용</li>
 </ul>
 
-#### CORS
-<ul>
-  <li>CORS 필터 → @Bean UrlBasedCorsConfigurationSource으로 바꿈 (이게 더 간단)</li>
-  <li>CORS는 브라우저에서 응답을 버리는거라, 서버에서 로직은 실행되니 주의</li>
-</ul>
-
 [스프링 컨버터](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/WebConfig.java#L14)
 <ul>
   <li>정렬을 ?sort=price,asc 이런식으로 data jpa Pageable처럼 받으려고 컨버터 만듬</li>
@@ -38,6 +32,12 @@
   <li>iptables → nginx 포워딩으로 변경(더 간단)</li>
   <li>Certbot은 3개월 주기로 타이머를 통해 자동 갱신</li>
   <li>갱신 반영 위해 nginx 재시작 필요 → 타이머에 reload hook 추가</li>
+</ul>
+
+#### CORS
+<ul>
+  <li>CORS 필터 → @Bean UrlBasedCorsConfigurationSource으로 바꿈 (이게 더 간단)</li>
+  <li>CORS는 브라우저에서 응답을 버리는거라, 서버에서 로직은 실행되니 주의</li>
 </ul>
 
 [ItemQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L54)
