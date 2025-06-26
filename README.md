@@ -4,7 +4,11 @@
 </p>
 <p align="center">초기엔 ELB와 ACM을 썼지만, 비용 문제로 지우고 Certbot으로 전환</p>
 
-[프론트 주소(https://dlta.kr)](https://dlta.kr/)  & [API 서버 주소(https://dldm.kr)](https://dldm.kr/)  
+#### 프론트
+https://dlta.kr & [깃허브 리파지토리](https://github.com/kimtaehyun304/tama)
+
+#### 백엔드
+https://dldm.kr
 
 ### 어필
 [oAuth2 회원가입 이슈](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/oauth2/OAuth2UserCustomService.java#L33)
