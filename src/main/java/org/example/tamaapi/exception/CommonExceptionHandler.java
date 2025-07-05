@@ -3,6 +3,7 @@ package org.example.tamaapi.exception;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -25,6 +26,11 @@ public class CommonExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<SimpleResponse> Exception(Exception exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(HttpNotFoundException.class)
+    public ResponseEntity<SimpleResponse> Exception() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleResponse("404 Not Found"));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

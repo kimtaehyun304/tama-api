@@ -3,20 +3,30 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
+import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.domain.Authority;
 import org.example.tamaapi.dto.requestDto.member.EmailRequest;
 import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
+import org.example.tamaapi.dto.responseDto.IsAdminResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
+import org.example.tamaapi.exception.HttpNotFoundException;
+import org.example.tamaapi.exception.UnauthorizedException;
+import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.EmailService;
+import org.example.tamaapi.util.ErrorMessageUtil;
 import org.example.tamaapi.util.RandomStringGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,20 +35,20 @@ public class AuthenticationApiController {
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final EmailService emailService;
+    private final TokenProvider tokenProvider;
 
     @PostMapping("/api/auth/access-token")
-    public ResponseEntity<Object> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
+    public ResponseEntity<AccessTokenResponse> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {;
         String accessToken = (String) cacheService.get(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
-
         if(!StringUtils.hasText(accessToken))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("일치하는 accessToken이 없습니다."));
+            throw new IllegalArgumentException("일치하는 accessToken이 없습니다.");
 
         cacheService.evict(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
 
     @PostMapping("/api/auth/email")
-    public ResponseEntity<Object> email(@Valid @RequestBody EmailRequest emailRequest) {
+    public ResponseEntity<SimpleResponse> email(@Valid @RequestBody EmailRequest emailRequest) {
         memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {
             throw new IllegalArgumentException("이미 가입된 이메일입니다");
         });
@@ -47,6 +57,17 @@ public class AuthenticationApiController {
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }
+    //@CookieValue(name = "tamaAdminAccessToken") String accessToken
+    @GetMapping("/api/isAdmin")
+    public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal CustomPrincipal principal) {;
+        Authority authority = memberRepository.findAuthorityById(principal.getMemberId())
+                .orElseThrow(() -> new UnauthorizedException(ErrorMessageUtil.NOT_AUTHENTICATED));
 
+        if (authority != Authority.ADMIN)
+            throw new AuthorizationDeniedException(ErrorMessageUtil.ACCESS_DENIED);
+
+        return ResponseEntity.ok(new IsAdminResponse(true));
+    }
 
 }
+

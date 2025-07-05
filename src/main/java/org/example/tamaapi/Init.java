@@ -279,7 +279,6 @@ public class Init {
         }
 
         public void initMember() {
-            //test@tama.com
             String password = bCryptPasswordEncoder.encode("test");
             Member member = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011112222").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
             memberRepository.save(member);
