@@ -57,14 +57,14 @@ public class AuthenticationApiController {
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }
-    //@CookieValue(name = "tamaAdminAccessToken") String accessToken
+
     @GetMapping("/api/isAdmin")
     public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal CustomPrincipal principal) {;
         Authority authority = memberRepository.findAuthorityById(principal.getMemberId())
-                .orElseThrow(() -> new UnauthorizedException(ErrorMessageUtil.NOT_AUTHENTICATED));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
 
         if (authority != Authority.ADMIN)
-            throw new AuthorizationDeniedException(ErrorMessageUtil.ACCESS_DENIED);
+            return ResponseEntity.ok(new IsAdminResponse(false));
 
         return ResponseEntity.ok(new IsAdminResponse(true));
     }
