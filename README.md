@@ -1,6 +1,6 @@
 <h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
 <p align="center">
-<img src="https://github.com/user-attachments/assets/b160556b-07c2-4af6-a10c-65b0fb57e5c1" width="80%" height="80%"/>
+<img src="https://github.com/user-attachments/assets/b160556b-07c2-4af6-a10c-65b0fb57e5c1"/>
 </p>
 <p align="center">초기엔 ELB와 ACM을 썼지만, 비용 문제로 지우고 Certbot으로 전환</p>
 
