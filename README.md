@@ -66,5 +66,5 @@ https://dldm.kr
 
 <h1>tama-api erd</h1>
 <p align="center">
-<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4" width="90%" height="90%"/>
+<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
 </p>
