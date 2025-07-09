@@ -28,8 +28,8 @@ https://dldm.kr
 
 [스프링 컨버터](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/WebConfig.java#L14)
 <ul>
-  <li>정렬을 ?sort=price,asc 이런식으로 data jpa Pageable처럼 받으려고 컨버터 만듬</li>
-  <li>@RequestParma으로 받고 컨버터 연결되게 했음</li>
+  <li>정렬을 ?sort=price,asc 이렇게 요청하게하려고 @RequestPartm 컨버터 만듬 </li>
+  <li>@RequestParam 컨버터는 CustomSort 객체와 바인딩</li>
   <li>@RequestParma은 @Valid 안되서 손수 검증함</li>
 </ul>
 
