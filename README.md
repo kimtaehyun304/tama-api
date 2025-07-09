@@ -58,6 +58,8 @@ https://dldm.kr
 [OrderQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/order/query/OrderQueryRepository.java#L42)
 <ul>
   <li>마이 페이지 주문 조회 (페이징 & 동적 쿼리)</li>
+  <li>이너 조인은 테이블이 중앙에서 만나는 방식이고, 아우터 조인은 한쪽으로 쏠리는 방식</li>
+  <li>아우터 조인만 left, right 구분 가능</li>
 </ul>
 
 <h1>tama-api erd</h1>
