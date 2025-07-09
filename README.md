@@ -57,11 +57,7 @@ https://dldm.kr
 
 [OrderQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/order/query/OrderQueryRepository.java#L42)
 <ul>
-  <li>주문 조회 (페이징 & 동적 쿼리)</li>
-  <li>이너조인은 테이블 교집합이라, 일치하지않는 행은 사라짐</li>
-  <li>아우터 조인은 from절 테이블에 조인 테이블이 찰싹 붙음 → from 절 테이블 행은 모두 유지(left join) </li>
-  <li>이너 조인은 중간에서 만나 합쳐진다면, 아우터 조인은 한쪽으로 쏠리는 개념</li>
-  <li>그래서 아우터조인만 left, right 조인 가능</li>
+  <li>마이 페이지 주문 조회 (페이징 & 동적 쿼리)</li>
 </ul>
 
 <h1>tama-api erd</h1>
