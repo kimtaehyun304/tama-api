@@ -22,14 +22,12 @@ https://dldm.kr
   </li>
   <li>oAuth2 예외는 공통 예외 처리 불가 → OAuth2FailureHandler 사용</li>
   <li>OAuth2FailureHandler는 js alert로 메시지 확인하게 하고 window.location.href </li>
-  
-  
 </ul>
 
 [스프링 컨버터](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/WebConfig.java#L14)
 <ul>
-  <li>정렬을 ?sort=price,asc 이런식으로 data jpa Pageable처럼 받으려고 컨버터 만듬</li>
-  <li>@RequestParma으로 받고 컨버터 연결되게 했음</li>
+  <li>정렬을 ?sort=price,asc 이렇게 요청하게하려고 @RequestPartm 컨버터 만듬 </li>
+  <li>@RequestParam 컨버터는 CustomSort 객체와 바인딩</li>
   <li>@RequestParma은 @Valid 안되서 손수 검증함</li>
 </ul>
 
@@ -57,14 +55,12 @@ https://dldm.kr
 
 [OrderQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/order/query/OrderQueryRepository.java#L42)
 <ul>
-  <li>주문 조회 (페이징 & 동적 쿼리)</li>
-  <li>이너조인은 테이블 교집합이라, 일치하지않는 행은 사라짐</li>
-  <li>아우터 조인은 from절 테이블에 조인 테이블이 찰싹 붙음 → from 절 테이블 행은 모두 유지(left join) </li>
-  <li>이너 조인은 중간에서 만나 합쳐진다면, 아우터 조인은 한쪽으로 쏠리는 개념</li>
-  <li>그래서 아우터조인만 left, right 조인 가능</li>
+  <li>마이 페이지 주문 조회 (페이징 & 동적 쿼리)</li>
+  <li>이너 조인은 테이블이 중앙에서 만나는 방식이고, 아우터 조인은 한쪽으로 쏠리는 방식</li>
+  <li>아우터 조인만 left, right 구분 가능</li>
 </ul>
 
 <h1>tama-api erd</h1>
 <p align="center">
-<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4" width="90%" height="90%"/>
+<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
 </p>
