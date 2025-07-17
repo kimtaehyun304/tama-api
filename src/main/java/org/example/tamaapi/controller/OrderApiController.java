@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.config.aspect.PreAuthentication;
+import org.example.tamaapi.domain.PortOnePaymentStatus;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.*;
@@ -104,8 +105,13 @@ public class OrderApiController {
     //멤버 주문 저장
     @PostMapping("/api/orders/member/mobile")
     public ResponseEntity<SimpleResponse> saveMemberOrderMobile(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
-
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
+        PortOnePaymentStatus portOnePaymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
+
+        //모바일 결제는 브라우저에서 바로 결재하는거라 응답 확인 불가
+        if(portOnePaymentStatus.equals(PortOnePaymentStatus.FAILED))
+            throw new IllegalArgumentException("포트원 결제 실패로 인한 주문 진행 불가");
+
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
 
         if (principal == null) {
@@ -211,12 +217,13 @@ public class OrderApiController {
     //비로그인 주문 저장
     @PostMapping("/api/orders/guest/mobile")
     public ResponseEntity<SimpleResponse> saveGuestOrderMobile(@RequestParam String paymentId) {
-
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
+        PortOnePaymentStatus portOnePaymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
 
+        if(portOnePaymentStatus.equals(PortOnePaymentStatus.FAILED))
+            throw new IllegalArgumentException("포트원 결제 실패로 인한 주문 진행 불가");
 
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
-
         orderService.validateSaveOrderRequest(saveOrderRequest);
 
         Long newOrderId = orderService.saveGuestOrder(

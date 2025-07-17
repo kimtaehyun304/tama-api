@@ -178,12 +178,15 @@ public class ItemQueryRepository {
     }
 
     private BooleanExpression minPriceGoe(Integer minPrice) {
-        return minPrice == null ? null : item.price.goe(minPrice);
+        if (minPrice == null) return null;
+        return item.discountedPrice.coalesce(item.price).goe(minPrice);
     }
 
     private BooleanExpression maxPriceLoe(Integer maxPrice) {
-        return maxPrice == null ? null : item.price.loe(maxPrice);
+        if (maxPrice == null) return null;
+        return item.discountedPrice.coalesce(item.price).loe(maxPrice);
     }
+
 
     private BooleanExpression colorIdIn(List<Long> colorIds) {
         return isEmpty(colorIds) ? null : color.id.in(colorIds);
