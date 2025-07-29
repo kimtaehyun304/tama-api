@@ -2,7 +2,7 @@
 
 #### 인프라
 <p align="center">
-<img src="https://github.com/user-attachments/assets/2d1f9356-75e8-484d-93e3-d03aba1ba0c3"/>
+<img src="https://github.com/user-attachments/assets/cd62fb35-4615-4a69-bf6a-197f93bc2a7e"/>
 </p>
 
 <p align="center">
