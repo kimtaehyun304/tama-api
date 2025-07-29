@@ -1,6 +1,12 @@
  <h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
+
+#### 인프라
 <p align="center">
 <img src="https://github.com/user-attachments/assets/2d1f9356-75e8-484d-93e3-d03aba1ba0c3"/>
+</p>
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/37527844-0ba3-4aef-b10d-90a9c67efa6d"/>
 </p>
 
 #### 프론트
