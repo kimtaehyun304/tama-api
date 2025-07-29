@@ -1,8 +1,7 @@
-<h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
+ <h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
 <p align="center">
-<img src="https://github.com/user-attachments/assets/b160556b-07c2-4af6-a10c-65b0fb57e5c1"/>
+<img src="https://github.com/user-attachments/assets/2d1f9356-75e8-484d-93e3-d03aba1ba0c3"/>
 </p>
-<p align="center">초기엔 ELB와 ACM을 썼지만, 비용 문제로 지우고 Certbot으로 전환</p>
 
 #### 프론트
 https://dlta.kr & [깃허브 리파지토리](https://github.com/kimtaehyun304/tama)
