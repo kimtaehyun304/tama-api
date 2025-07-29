@@ -4,6 +4,7 @@
 <p align="center">
 <img src="https://github.com/user-attachments/assets/cd62fb35-4615-4a69-bf6a-197f93bc2a7e"/>
 </p>
+<p align="center">현재는 비용 때문에 ELB 지우고, https 인증서 ACM → Certbot 변경</p>
 
 <p align="center">
 <img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
