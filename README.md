@@ -13,8 +13,8 @@
 #### 서비스 주소
 https://dlta.kr
 
-#### 프로젝트 스킬
-스프링(boot, mvc, 시큐리티, 캐시) / data jpa, queryDsl
+#### 프로젝트 스킬 (스프링)
+boot, mvc, valid, security, cache
 
 ### 어필
 [oAuth2 회원가입 이슈](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/oauth2/OAuth2UserCustomService.java#L33)
