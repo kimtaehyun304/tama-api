@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-<img src="https://github.com/user-attachments/assets/37527844-0ba3-4aef-b10d-90a9c67efa6d"/>
+<img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
 </p>
 
 #### 프론트
