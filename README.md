@@ -10,11 +10,38 @@
 <img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
 </p>
 
-#### 서비스 주소
-https://dlta.kr
-
 #### 프로젝트 스킬 (스프링)
 boot, mvc, valid, security, cache
+
+#### 기능
+<p>https://dlta.kr</p>
+
+상품 API
+<ul>
+ <li>검색 상품 조회</li>
+ <li>검색 상품 조회</li>
+ <li>인기 상품 조회</li>
+ <li>장바구니 상품 조회</li>
+ <li>카테고리 조회</li>
+ <li>색상 조회</li>
+ <li>상품 등록·이미지 업로드</li>
+ <li>리뷰 조회·등록</li>
+</ul>
+
+주문 API
+<ul>
+ <li>주문 조회</li>
+ <li>상품 주문 (포트원 연동)</li>
+ <li>자주 쓰는 배송지 조회·등록</li>
+</ul>
+
+인증 API
+<ul>
+  <li>로그인·회원가입 (oauth2, jwt)</li>
+  <li>인증 문자 이메일 전송</li>
+  <li>관리자 확인</li>
+</ul>
+
 
 ### 어필
 [oAuth2 회원가입 이슈](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/oauth2/OAuth2UserCustomService.java#L33)
