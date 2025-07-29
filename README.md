@@ -9,11 +9,10 @@
 <img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
 </p>
 
-#### 프론트
-https://dlta.kr & [깃허브 리파지토리](https://github.com/kimtaehyun304/tama)
+#### 서비스 주소
+https://dlta.kr
 
-#### 백엔드
-https://dldm.kr  
+#### 프로젝트 스킬
 스프링(boot, mvc, 시큐리티, 캐시) / data jpa, queryDsl
 
 ### 어필
