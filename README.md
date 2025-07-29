@@ -1,4 +1,4 @@
- <h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
+<h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
 
 #### 인프라
 <p align="center">
@@ -10,12 +10,12 @@
 <img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
 </p>
 
+<p>https://dlta.kr</p>
+
 #### 프로젝트 스킬 (스프링)
 boot, mvc, valid, security, cache
 
 #### 기능
-<p>https://dlta.kr</p>
-
 상품 API
 <ul>
  <li>검색 상품 조회</li>
@@ -92,7 +92,7 @@ boot, mvc, valid, security, cache
   <li>아우터 조인만 left, right 구분 가능</li>
 </ul>
 
-<h1>tama-api erd</h1>
+<h1>erd</h1>
 <p align="center">
 <img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
 </p>
