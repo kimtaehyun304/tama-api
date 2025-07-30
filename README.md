@@ -13,7 +13,7 @@
 <p>https://dlta.kr</p>
 
 #### 프로젝트 스킬 (스프링)
-boot, mvc, valid, security, cache
+boot, mvc·rest api, valid, security, cache
 
 #### 기능
 상품 API
