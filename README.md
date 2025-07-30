@@ -71,45 +71,13 @@ https 인증서 자동 갱신 (Let`s Encrypt)
  <li>pc·모바일 따로 주문 API 개발</li>
 </ul>
 
-[oAuth2 회원가입 이슈](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/oauth2/OAuth2UserCustomService.java#L33)
+SQL 경험
 <ul>
-  <li>
-    oAuth2는 인증만 하기 때문에 로그인, 회원가입을 구분할 수 없음 <br>
-    → 이미 회원가입 했다고 예외 발생시키면, 로그인할 때도 같은 예외가 발생 <br>
-    → 따라서 자사 계정으로 이미 가입된 경우에만 예외 발생 시키기 (로그인 API 따로 있어서 괜찮)<br>
-    → 소셜 계정으로 이미 가입된 경우라면 그냥 로그인으로 넘기기
-  </li>
-  <li>oAuth2 예외는 공통 예외 처리 불가 → OAuth2FailureHandler 사용</li>
-  <li>OAuth2FailureHandler는 js alert로 메시지 확인하게 하고 window.location.href </li>
+ <li>1:N·1:N, 1:N·N:1, N:1·N:1 조인</li>
+ <li>페이징·정렬·동적쿼리·집계함수</li>
+ <li>댓글, 대댓글</li>
 </ul>
 
-[스프링 컨버터](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/WebConfig.java#L14)
-<ul>
-  <li>정렬을 ?sort=price,asc 이렇게 요청하게하려고 @RequestPartm 컨버터 만듬 </li>
-  <li>@RequestParam 컨버터는 CustomSort 객체와 바인딩</li>
-  <li>@RequestParma은 @Valid 안되서 손수 검증함</li>
-</ul>
-
-
-#### CORS
-<ul>
-  <li>CORS 필터 → @Bean UrlBasedCorsConfigurationSource으로 바꿈 (이게 더 간단)</li>
-  <li>CORS는 브라우저에서 응답을 버리는거라, 서버에서 로직은 실행되니 주의</li>
-</ul>
-
-[ItemQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L54)
-
-<ul>
-  <li>상품 조회(페이징 & 동적 쿼리)</li>
-  <li>인기 상품 조회(주문 많은순 정렬 & 페이징)</li>
-</ul>
-
-[OrderQueryRepository](https://github.com/kimtaehyun304/tama-api/blob/9116c6e2d4c3ca8d2b05187e606c715407804c04/src/main/java/org/example/tamaapi/repository/order/query/OrderQueryRepository.java#L42)
-<ul>
-  <li>마이 페이지 주문 조회 (페이징 & 동적 쿼리)</li>
-  <li>이너 조인은 테이블이 중앙에서 만나는 방식이고, 아우터 조인은 한쪽으로 쏠리는 방식</li>
-  <li>아우터 조인만 left, right 구분 가능</li>
-</ul>
 
 <h1>erd</h1>
 <p align="center">
