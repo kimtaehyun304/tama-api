@@ -43,8 +43,15 @@ boot, mvc, valid, security, cache
 </ul>
 
 
-### 프로젝트로 얻은 경험
-https 인증서 갱신 자동화 (Let`s Encrypt)
+### 프로젝트 경험
+aws 청구 요금 줄이기
+<ul>
+ <li>CloudWatch로 로그를 수집하고 S3로 옮겨서 저장소 요금을 줄임</li>
+ 
+</ul>
+
+
+https 인증서 자동 갱신 (Let`s Encrypt)
 <ul>
   <li>certbot 타이머로 인증서 자동 갱신</li>
    <ul>
@@ -56,6 +63,8 @@ https 인증서 갱신 자동화 (Let`s Encrypt)
       <li>certbot reload hook은 nginx를 재시작하는 기능</li>
    </ul>
 </ul>
+
+
 
 
 
