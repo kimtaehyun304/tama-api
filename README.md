@@ -1,6 +1,6 @@
 <h1>쇼핑몰 1인 개발 / 2024.12 ~ </h1>
 
-#### 인프라
+### 인프라
 <p align="center">
 <img src="https://github.com/user-attachments/assets/cd62fb35-4615-4a69-bf6a-197f93bc2a7e"/>
 </p>
@@ -12,10 +12,10 @@
 
 <p>https://dlta.kr</p>
 
-#### 프로젝트 스킬 (스프링)
+### 프로젝트 스킬 (스프링)
 boot, mvc·rest api, valid, security, cache
 
-#### 기능
+### 기능
 상품 API
 <ul>
  <li>상품 검색</li>
