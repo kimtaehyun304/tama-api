@@ -18,10 +18,9 @@ boot, mvc, valid, security, cache
 #### 기능
 상품 API
 <ul>
- <li>검색 상품 조회</li>
- <li>검색 상품 조회</li>
+ <li>상품 검색</li>
  <li>인기 상품 조회</li>
- <li>장바구니 상품 조회</li>
+ <li>장바구니에 담긴 상품 조회</li>
  <li>카테고리 조회</li>
  <li>색상 조회</li>
  <li>상품 등록·이미지 업로드</li>
@@ -65,10 +64,12 @@ https 인증서 자동 갱신 (Let`s Encrypt)
    </ul>
 </ul>
 
-
-
-
-
+결제·주문 API
+<ul>
+ <li>토스페이먼츠·카카오페이·카드 등 PG사 이용</li>
+ <li>결제가 올바로 됐는지 확인하고 주문 API 진행시킴</li>
+ <li>pc·모바일 따로 주문 API 개발</li>
+</ul>
 
 [oAuth2 회원가입 이슈](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/oauth2/OAuth2UserCustomService.java#L33)
 <ul>
@@ -88,7 +89,6 @@ https 인증서 자동 갱신 (Let`s Encrypt)
   <li>@RequestParam 컨버터는 CustomSort 객체와 바인딩</li>
   <li>@RequestParma은 @Valid 안되서 손수 검증함</li>
 </ul>
-
 
 
 #### CORS
