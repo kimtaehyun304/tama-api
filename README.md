@@ -43,7 +43,7 @@ boot, mvc, valid, security, cache
 </ul>
 
 
-### 어필
+### 프로젝트로 얻은 경험
 https 인증서 갱신 자동화 (Let`s Encrypt)
 <ul>
   <li>certbot 타이머로 인증서 자동 갱신</li>
