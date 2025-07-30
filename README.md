@@ -41,7 +41,7 @@ boot, mvc·rest api, valid, security, cache
   <li>관리자 확인</li>
 </ul>
 
-### 프로젝트 경험
+### 프로젝트로 얻은 경험
 aws 청구 요금 줄이기
 <ul>
  <li>저장소 비용을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
