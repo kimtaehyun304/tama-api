@@ -41,14 +41,13 @@ boot, mvc·rest api, valid, security, cache
   <li>관리자 확인</li>
 </ul>
 
-
 ### 프로젝트 경험
 aws 청구 요금 줄이기
 <ul>
- <li>저장소 비용을 줄이기위해, CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
- <li>이미지 조회 요금을 줄이기 위해, S3 앞에 cloudFront 배치</li>
- <li>네트워크 요금을 줄이기 위해, ec2·rds 가용 영역 일치 시킴 </li>
- <li>네트워크 요금을 줄이기 위해, select절 필드를 최소화</li>
+ <li>저장소 비용을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
+ <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
+ <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 </li>
+ <li>네트워크 요금을 줄이기 위해 select절 필드를 최소화</li>
 </ul>
 
 https 인증서 자동 갱신 (Let`s Encrypt)
@@ -85,6 +84,7 @@ SQL 경험
  <li>로컬 개발 간소화를 위해 h2 in-memory 사용</li>
  <li>소셜·일반 로그인 회원가입 중복 검증</li>
  <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
+ <li>코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회<li>
 </ul>
 
 <h1>erd</h1>
