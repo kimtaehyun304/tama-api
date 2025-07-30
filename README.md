@@ -44,6 +44,22 @@ boot, mvc, valid, security, cache
 
 
 ### 어필
+https 인증서 갱신 자동화 (Let`s Encrypt)
+<ul>
+  <li>certbot 타이머로 인증서 자동 갱신</li>
+   <ul>
+      <li>갱신 중 서비스가 중단되지 않게 하기 위해 인증 방식을 standalone → webroot로 변경</li>
+      <li>webroot로 변경하기 위해 nginx 추가</li>
+   </ul>
+  <li>certbot reload hook으로 새로운 인증서 자동 적용</li>
+   <ul>
+      <li>certbot reload hook은 nginx를 재시작하는 기능</li>
+   </ul>
+</ul>
+
+
+
+
 [oAuth2 회원가입 이슈](https://github.com/kimtaehyun304/tama-api/blob/7a61031cad7f6025516b17acbbbea24d252165f0/src/main/java/org/example/tamaapi/config/oauth2/OAuth2UserCustomService.java#L33)
 <ul>
   <li>
@@ -63,14 +79,7 @@ boot, mvc, valid, security, cache
   <li>@RequestParma은 @Valid 안되서 손수 검증함</li>
 </ul>
 
-#### Certbot 인증서 갱신 이슈
-<ul>
-  <li>80포트 포워딩 중이라 Certbot 갱신 실패 → Certbot 요청만 포워딩 제외하도록 수정</li>
-  <li>standalone 방식(갱신 중 어플리케이션 중단) → webroot 방식으로 변경(nginx 도입)</li>
-  <li>iptables → nginx 포워딩으로 변경(더 간단)</li>
-  <li>Certbot은 3개월 주기로 타이머를 통해 자동 갱신</li>
-  <li>갱신 반영 위해 nginx 재시작 필요 → 타이머에 reload hook 추가</li>
-</ul>
+
 
 #### CORS
 <ul>
