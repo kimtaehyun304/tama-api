@@ -74,10 +74,9 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 SQL 경험
 <ul>
  <li>1:N·1:N, 1:N·N:1, N:1·N:1 조인</li>
- <li>페이징·정렬·동적쿼리·집계함수</li>
+ <li>페이징·정렬·동적쿼리·서브쿼리·집계함수</li>
  <li>댓글, 대댓글</li>
 </ul>
-
 
 <h1>erd</h1>
 <p align="center">
