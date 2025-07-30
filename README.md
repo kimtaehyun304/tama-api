@@ -84,7 +84,7 @@ SQL 경험
  <li>로컬 개발 간소화를 위해 h2 in-memory 사용</li>
  <li>코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회</li>
  <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
- <li>소셜·일반 로그인 회원가입 중복 검증</li>
+ <li>소셜·일반 회원가입 중복 검증</li>
 </ul>
 
 <h1>erd</h1>
