@@ -44,7 +44,7 @@ boot, mvc·rest api, valid, security, cache
 ### 프로젝트로 얻은 경험
 aws 청구 요금 줄이기
 <ul>
- <li>저장소 비용을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
+ <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
  <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
  <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 </li>
  <li>네트워크 요금을 줄이기 위해 select절 필드를 최소화</li>
