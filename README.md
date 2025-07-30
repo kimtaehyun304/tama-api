@@ -72,6 +72,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 
 SQL 경험
 <ul>
+ <li>ORM N+1 문제 이해</li>
  <li>1:N·1:N, 1:N·N:1, N:1·N:1 이너·아우터 조인</li>
  <li>페이징·정렬·동적쿼리·서브쿼리·집계함수</li>
  <li>댓글, 대댓글</li>
