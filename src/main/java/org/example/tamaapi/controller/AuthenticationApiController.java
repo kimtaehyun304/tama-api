@@ -4,14 +4,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.domain.Authority;
+import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.dto.requestDto.member.EmailRequest;
 import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.IsAdminResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.exception.HttpNotFoundException;
-import org.example.tamaapi.exception.UnauthorizedException;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
@@ -20,13 +18,9 @@ import org.example.tamaapi.util.ErrorMessageUtil;
 import org.example.tamaapi.util.RandomStringGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +29,6 @@ public class AuthenticationApiController {
     private final MemberRepository memberRepository;
     private final CacheService cacheService;
     private final EmailService emailService;
-    private final TokenProvider tokenProvider;
 
     @PostMapping("/api/auth/access-token")
     public ResponseEntity<AccessTokenResponse> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {;

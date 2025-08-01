@@ -1,10 +1,11 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.user;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.tamaapi.domain.BaseEntity;
 
 //내 주소 설정
 @Entity

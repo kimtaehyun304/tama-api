@@ -1,10 +1,12 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.user;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.tamaapi.domain.BaseEntity;
+import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.order.Order;
 
 import java.util.ArrayList;

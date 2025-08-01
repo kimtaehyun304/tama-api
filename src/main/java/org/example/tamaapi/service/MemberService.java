@@ -1,8 +1,8 @@
 package org.example.tamaapi.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.Member;
-import org.example.tamaapi.domain.MemberAddress;
+import org.example.tamaapi.domain.user.Member;
+import org.example.tamaapi.domain.user.MemberAddress;
 import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.util.ErrorMessageUtil;

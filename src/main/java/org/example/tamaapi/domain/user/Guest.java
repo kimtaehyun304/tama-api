@@ -1,4 +1,4 @@
-package org.example.tamaapi.domain;
+package org.example.tamaapi.domain.user;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

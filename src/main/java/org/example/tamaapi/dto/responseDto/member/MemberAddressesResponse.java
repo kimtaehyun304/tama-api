@@ -1,16 +1,8 @@
 package org.example.tamaapi.dto.responseDto.member;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.tamaapi.domain.Gender;
-import org.example.tamaapi.domain.Member;
-import org.example.tamaapi.domain.MemberAddress;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.example.tamaapi.domain.user.MemberAddress;
 
 @Getter
 @AllArgsConstructor

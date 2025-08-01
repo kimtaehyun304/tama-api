@@ -2,7 +2,7 @@ package org.example.tamaapi.dto.responseDto.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Member;
 
 import java.util.ArrayList;
 import java.util.List;

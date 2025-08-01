@@ -1,12 +1,9 @@
 package org.example.tamaapi.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.tamaapi.domain.PortOnePaymentStatus;
-import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
+import org.example.tamaapi.domain.order.PortOnePaymentStatus;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -14,8 +11,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j

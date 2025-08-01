@@ -6,8 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.tamaapi.domain.BaseEntity;
-import org.example.tamaapi.domain.Member;
-import org.example.tamaapi.domain.item.ColorItemSizeStock;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.order.OrderItem;
 
 @Entity

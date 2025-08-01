@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.jwt.TokenProvider;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.springframework.beans.factory.annotation.Value;

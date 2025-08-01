@@ -2,7 +2,6 @@ package org.example.tamaapi.repository.order.query;
 
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.dto.UploadFile;
@@ -17,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.example.tamaapi.domain.QMember.member;
+
 import static org.example.tamaapi.domain.item.QColor.color;
 import static org.example.tamaapi.domain.item.QColorItem.colorItem;
 import static org.example.tamaapi.domain.item.QColorItemSizeStock.colorItemSizeStock;
@@ -26,6 +25,7 @@ import static org.example.tamaapi.domain.item.QReview.*;
 import static org.example.tamaapi.domain.order.QDelivery.delivery;
 import static org.example.tamaapi.domain.order.QOrder.*;
 import static org.example.tamaapi.domain.order.QOrderItem.orderItem;
+import static org.example.tamaapi.domain.user.QMember.member;
 
 @Repository
 @RequiredArgsConstructor

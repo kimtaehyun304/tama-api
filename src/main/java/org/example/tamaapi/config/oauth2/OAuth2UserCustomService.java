@@ -2,9 +2,9 @@ package org.example.tamaapi.config.oauth2;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.Authority;
-import org.example.tamaapi.domain.Member;
-import org.example.tamaapi.domain.Provider;
+import org.example.tamaapi.domain.user.Authority;
+import org.example.tamaapi.domain.user.Member;
+import org.example.tamaapi.domain.user.Provider;
 import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -13,7 +13,6 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import javax.naming.AuthenticationException;
 import java.util.Map;
 
 @Service

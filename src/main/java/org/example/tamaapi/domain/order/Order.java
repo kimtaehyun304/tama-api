@@ -5,8 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.tamaapi.domain.BaseEntity;
-import org.example.tamaapi.domain.Guest;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Guest;
+import org.example.tamaapi.domain.user.Member;
 
 import java.util.ArrayList;
 import java.util.List;

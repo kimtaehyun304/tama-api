@@ -1,20 +1,11 @@
 package org.example.tamaapi.jwt;
 
 
-import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.domain.Member;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor

@@ -3,15 +3,14 @@ package org.example.tamaapi.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.tamaapi.domain.Authority;
-import org.example.tamaapi.domain.Guest;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Authority;
+import org.example.tamaapi.domain.user.Guest;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.domain.order.OrderStatus;
-import org.example.tamaapi.dto.requestDto.order.SaveMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
@@ -20,12 +19,8 @@ import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 
 import java.util.*;
 
@@ -42,7 +37,6 @@ public class OrderService {
     private final ColorItemSizeStockRepository colorItemSizeStockRepository;
     private final JdbcTemplateRepository jdbcTemplateRepository;
     private final PortOneService portOneService;
-    private final ObjectMapper objectMapper;
 
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;

@@ -1,7 +1,7 @@
 package org.example.tamaapi.dto.responseDto.review;
 
 import lombok.Getter;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Member;
 
 @Getter
 public class ReviewMemberResponse {

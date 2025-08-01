@@ -4,6 +4,8 @@ package org.example.tamaapi.dto.responseDto.member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.example.tamaapi.domain.*;
+import org.example.tamaapi.domain.user.Authority;
+import org.example.tamaapi.domain.user.Member;
 
 @Getter
 @AllArgsConstructor

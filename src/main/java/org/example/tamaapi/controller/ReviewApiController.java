@@ -3,7 +3,7 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.item.Review;
 import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;

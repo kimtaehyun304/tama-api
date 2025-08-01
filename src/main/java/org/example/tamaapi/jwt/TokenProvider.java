@@ -4,21 +4,15 @@ package org.example.tamaapi.jwt;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.config.CustomUserDetails;
-import org.example.tamaapi.domain.Member;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.exception.MyExpiredJwtException;
 import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Set;
-
-import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 
 @Service
 @RequiredArgsConstructor
