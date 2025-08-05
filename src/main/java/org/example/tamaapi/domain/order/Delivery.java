@@ -4,14 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.tamaapi.domain.BaseEntity;
 
-//상세 주소를 그때마다 다르게 적을수도 있어서 엔티티로 안했음
 @Entity
 @Getter @Setter
-/*
-@Table(uniqueConstraints = {
-        @UniqueConstraint(name = "zipcode_street_detail_unique",columnNames = {"zipCode", "street", "detail"})
-})
- */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Delivery extends BaseEntity {
 
@@ -26,7 +20,6 @@ public class Delivery extends BaseEntity {
     // 도로명 주소
     private String street;
 
-    // 상세 주소
     private String detail;
 
     private String message;

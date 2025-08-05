@@ -37,6 +37,14 @@ class TamaApiApplicationTests {
     @Autowired
     private JPAQueryFactory queryFactory;
 
+    //페이징 sql에는 일대다 조인 불가 → 아래 방법으로 해결
+    // ○ where절에 서브 쿼리 사용
+    // ○ groupBy로 행을 줄이고 페이징 처리
+    // 두 방법 속도 비교 결과
+    // ○ System.currentTimeMillis() : 둘 다 비슷함
+    // ○ mysql explain : 서브쿼리 승리
+
+    //where절에 서브 쿼리 사용
     @Test
     public void 서브쿼리_페이징(){
         //요청 파라미터
@@ -50,10 +58,9 @@ class TamaApiApplicationTests {
         Boolean isContainSoldOut = true;
         CustomSort sort = new CustomSort("price", Sort.Direction.DESC);
 
+        long startTime, endTime;
+        startTime = System.currentTimeMillis();
 
-        long execStart, execEnd;
-
-        execStart = System.currentTimeMillis();
         queryFactory
                 .select(new QCategoryItemQueryDto(item.id, item.name, item.price, item.discountedPrice)).from(item)
                 .where(item.id.in(
@@ -65,10 +72,12 @@ class TamaApiApplicationTests {
                 .limit(customPageRequest.getSize())
                 .orderBy(categoryItemSort(sort), new OrderSpecifier<>(Order.DESC, item.id))
                 .fetch();
-         execEnd = System.currentTimeMillis();
-        System.out.println("[서브쿼리 페이징] 걸린 시간: " + (execEnd - execStart) + " ms");
+
+        endTime = System.currentTimeMillis();
+        System.out.println("[서브쿼리 페이징] 걸린 시간: " + (endTime - startTime) + " ms");
     }
 
+    //groupBy로 행을 줄이고 페이징 처리
     @Test
     public void groupBy_페이징(){
         //요청 파라미터
@@ -82,9 +91,9 @@ class TamaApiApplicationTests {
         Boolean isContainSoldOut = true;
         CustomSort sort = new CustomSort("price", Sort.Direction.DESC);
 
+        long startTime, endTime;
+        startTime = System.currentTimeMillis();
 
-        long execStart, execEnd;
-        execStart = System.currentTimeMillis();
         queryFactory
                 .select(new QCategoryItemQueryDto(item.id, item.name, item.price, item.discountedPrice)).from(item)
                 .join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
@@ -94,15 +103,13 @@ class TamaApiApplicationTests {
                 .limit(customPageRequest.getSize())
                 .orderBy(categoryItemSort(sort), new OrderSpecifier<>(Order.DESC, item.id))
                 .fetch();
-        execEnd = System.currentTimeMillis();
-        System.out.println("[groupBy 페이징] 걸린 시간: " + (execEnd - execStart) + " ms");
+
+        endTime = System.currentTimeMillis();
+        System.out.println("[groupBy 페이징] 걸린 시간: " + (endTime - startTime) + " ms");
     }
 
-
-
-
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
-
+    //querydsl 조건문
     private OrderSpecifier<?> categoryItemSort(CustomSort sort) {
         Order direction = sort.getDirection().isAscending() ? Order.ASC : Order.DESC;
         return switch (sort.getProperty()) {

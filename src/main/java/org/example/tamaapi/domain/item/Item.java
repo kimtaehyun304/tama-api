@@ -10,10 +10,13 @@ import org.hibernate.annotations.BatchSize;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+@Table(indexes = {
+        @Index(name = "idx_name_price_discountedPrice", columnList = "name, price, discountedPrice")
+})
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class Item extends BaseEntity {
 
     @Id

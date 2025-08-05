@@ -10,8 +10,8 @@ import org.example.tamaapi.domain.BaseEntity;
 //내 주소 설정
 @Entity
 @Getter @Setter
-@Table(name = "delvery_address", uniqueConstraints = {
-        @UniqueConstraint(name = "member_zipcode_street_detail_unique",columnNames = {"member_id","zipCode", "street", "detail"})
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "member_zipcode_street_detail_unique", columnNames = {"member_id","zipCode", "street", "detail"})
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberAddress extends BaseEntity {

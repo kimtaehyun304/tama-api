@@ -24,10 +24,13 @@ import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.service.MemberService;
 import org.example.tamaapi.service.ReviewService;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -90,21 +93,37 @@ public class Init {
             initReview();
         }
 
-        public void initCategory() {
+        /*
+        private void crawlItem(){
+
+            String CATEGORY_NUMBER = "2502165830";
+
+            RestClient.create().get()
+                    .uri("https://www.shinsegaev.com/dispctg/initDispCtg.siv?disp_ctg_no={CATEGORY_NUMBER}&outlet_yn=N", CATEGORY_NUMBER)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, res) -> {
+                        throw new IllegalArgumentException("크롤링 실패");
+                    })
+                    .body(new ParameterizedTypeReference<>() {
+                    });
+
+
+            new Item("")
+        }
+         */
+
+        private void initCategory() {
             Category outer = Category.builder().name("아우터").build();
             categoryRepository.save(outer);
 
             Category downPadding = Category.builder().name("다운/패딩").parent(outer).build();
             categoryRepository.save(downPadding);
 
-            Category jacketCoat = Category.builder().name("자켓/코트").parent(outer).build();
+            Category jacketCoat = Category.builder().name("자켓/코트/점퍼").parent(outer).build();
             categoryRepository.save(jacketCoat);
 
             Category vest = Category.builder().name("베스트").parent(outer).build();
             categoryRepository.save(vest);
-
-            Category jumper = Category.builder().name("점퍼").parent(outer).build();
-            categoryRepository.save(jumper);
 
             Category top = Category.builder().name("상의").build();
             categoryRepository.save(top);
@@ -140,46 +159,69 @@ public class Init {
             categoryRepository.save(skirt);
         }
 
-        public void initColor() {
+        private void initColor() {
+            //---
             Color white = Color.builder().name("화이트").hexCode("#FFFFFF").build();
             colorRepository.save(white);
 
+            colorRepository.save(Color.builder().name("베이지").hexCode("#F5F5DC").parent(white).build());
+            colorRepository.save(Color.builder().name("아이보리").hexCode("#FFFFF0").parent(white).build());
+
+            //---
             Color gray = Color.builder().name("그레이").hexCode("#BFBFBF").build();
             colorRepository.save(gray);
 
+            colorRepository.save(Color.builder().name("다크 그레이").hexCode("#363636").parent(gray).build());
+            colorRepository.save(Color.builder().name("챠콜").hexCode("#36454F").parent(gray).build());
+
+            //---
             Color black = Color.builder().name("블랙").hexCode("#000000").build();
             colorRepository.save(black);
 
+            //---
             Color red = Color.builder().name("레드").hexCode("#E30718").build();
             colorRepository.save(red);
 
+            colorRepository.save(Color.builder().name("핑크").hexCode("#FFC0CB").parent(red).build());
+            colorRepository.save(Color.builder().name("브릭").hexCode("#A76A33").parent(red).build());
+
+            //---
             Color brown = Color.builder().name("브라운").hexCode("#A76A33").build();
             colorRepository.save(brown);
 
+            colorRepository.save(Color.builder().name("다크 브라운").hexCode("#291C13").parent(brown).build());
+            colorRepository.save(Color.builder().name("다크 브라운").hexCode("#291C13").parent(brown).build());
+            colorRepository.save(Color.builder().name("브릭").hexCode("#A76A33").parent(brown).build());
+
+            //---
             Color yellow = Color.builder().name("옐로우").hexCode("#F2E646").build();
             colorRepository.save(yellow);
 
+            colorRepository.save(Color.builder().name("라이트 옐로우").hexCode("#F5EA61").parent(yellow).build());
+
+            //---
             Color green = Color.builder().name("그린").hexCode("#6AB441").build();
             colorRepository.save(green);
 
+            colorRepository.save(Color.builder().name("카키").hexCode("#8F784B").parent(green).build());
+            colorRepository.save(Color.builder().name("올리브").hexCode("#808000").parent(green).build());
+
+            //---
             Color blue = Color.builder().name("블루").hexCode("#4B7EB7").build();
             colorRepository.save(blue);
 
-            Color navy = Color.builder().name("네이비").hexCode("#000080").parent(blue).build();
-            colorRepository.save(navy);
+            colorRepository.save(Color.builder().name("스카이 블루").hexCode("#87CEEB").parent(blue).build());
+            colorRepository.save(Color.builder().name("네이비").hexCode("#000080").parent(blue).build());
 
-            Color pink = Color.builder().name("핑크").hexCode("#FFC0CB").parent(red).build();
-            colorRepository.save(pink);
+            //---
+            Color orange = Color.builder().name("오렌지").hexCode("#F89B00").build();
+            colorRepository.save(orange);
 
-            Color beige = Color.builder().name("베이지").hexCode("#F5F5DC").parent(white).build();
-            colorRepository.save(beige);
-
-            Color ivory = Color.builder().name("아이보리").hexCode("#FFFFF0").parent(white).build();
-            colorRepository.save(ivory);
-
+            colorRepository.save(Color.builder().name("다크 오렌지").hexCode("#ff8c00").parent(orange).build());
         }
 
-        public void initItem() {
+
+        private void initItem() {
             Category bottom = categoryRepository.findByName("팬츠").get();
 
             Item bottomItem = new Item(
@@ -282,22 +324,26 @@ public class Init {
 
         }
 
-        public void initMember() {
+        private void initMember() {
             String password = bCryptPasswordEncoder.encode("test");
-            Member member = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011112222").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
-            memberRepository.save(member);
 
-            Member member2 = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("test@tama.com").phone("01022223333").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
-            memberRepository.save(member2);
+            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("test@tama.com").phone("01022223333").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
+            memberRepository.save(admin);
+
+            Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011112222").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
+            memberRepository.save(OAUTH2_MEMBER);
+
+            Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER).email("pyb0402@tama.com").phone("01022223333").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
+            memberRepository.save(ORIGINAL_MEMBER);
         }
 
-        public void initMemberAddress() {
+        private void initMemberAddress() {
             Member member = memberRepository.findById(1L).get();
             memberService.saveMemberAddress(member.getId(), "우리집", member.getNickname(), member.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
             memberService.saveMemberAddress(member.getId(), "회사", member.getNickname(), member.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
         }
 
-        public void initReview() {
+        private void initReview() {
             List<Member> members = memberRepository.findAll();
             Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
                     .orderItem(orderItemRepository.findById(1L).get())
@@ -313,7 +359,7 @@ public class Init {
                     .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
         }
 
-        public void initOrder() {
+        private void initOrder() {
             SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
                     new SaveOrderItemRequest(1L, 2),
@@ -357,7 +403,7 @@ public class Init {
              */
         }
 
-        public void createMemberOrder(Long memberId, SaveMemberOrderRequest request) {
+        private void createMemberOrder(Long memberId, SaveMemberOrderRequest request) {
             Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
@@ -386,7 +432,7 @@ public class Init {
             jdbcTemplateRepository.saveOrderItems(orderItems);
         }
 
-        public void createGuestOrder(SaveGuestOrderRequest request) {
+        private void createGuestOrder(SaveGuestOrderRequest request) {
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
 
