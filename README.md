@@ -42,6 +42,21 @@ boot, mvc·rest api, valid, security, cache
 </ul>
 
 ### 프로젝트로 얻은 경험
+SQL 경험
+
+-select절 속도 고려
+<ul>
+ <li></li>
+</ul>
+
+
+<ul>
+ <li>ORM N+1 문제 이해</li>
+ <li>1:N·1:N, 1:N·N:1, N:1·N:1 이너·아우터 조인</li>
+ <li>페이징·정렬·동적쿼리·서브쿼리·집계함수</li>
+ <li>댓글, 대댓글</li>
+</ul>
+
 aws 청구 요금 줄이기
 <ul>
  <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
@@ -70,14 +85,6 @@ https 인증서 자동 갱신 (Let`s Encrypt)
  <li>pc·모바일 따로 주문 API 개발</li>
 </ul>
 
-SQL 경험
-<ul>
- <li>ORM N+1 문제 이해</li>
- <li>1:N·1:N, 1:N·N:1, N:1·N:1 이너·아우터 조인</li>
- <li>페이징·정렬·동적쿼리·서브쿼리·집계함수</li>
- <li>댓글, 대댓글</li>
- <li>조회 속도 향상을 위해 복합 인덱스 사용 고민</li>
-</ul>
 
 기타
 <ul>
