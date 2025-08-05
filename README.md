@@ -44,12 +44,12 @@ boot, mvc·rest api, valid, security, cache
 ### 프로젝트로 얻은 경험
 SQL 경험
 <ul>
- <li>SELECT절 속도 개선하기</li>
+ <li>상품 검색 쿼리 속도 개선하기</li>
  <ul>
-  <li>상품 검색 쿼리에 인덱스 설정 고민</li>
-  <li>
+  <li>커버링 인덱스로 explain type을 all→index로 승격</li>
+  <li> 
    <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
-    서브쿼리 vs 조인·groupBy 선택 고민
+    서브쿼리 vs 조인·groupBy 성능 비교 → 서브 쿼리 승리
    </a>
   </li>
  </ul>
