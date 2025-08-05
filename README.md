@@ -47,7 +47,9 @@ SQL 경험
  <li>SELECT절 속도 개선하기</li>
  <ul>
   <li>상품 검색 쿼리에 인덱스 설정 고민</li>
-  <li>서브쿼리 vs 조인·groupBy 선택 고민</li>
+  <li>
+   <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L41" target="_blank">서브쿼리 vs 조인·groupBy 선택 고민</a>
+  </li>
  </ul>
  <li>상품 연관관계(1:N - 1:N)를 조인하기 어려웠음 → 아래 방법들로 해결</li>
  <ul>
