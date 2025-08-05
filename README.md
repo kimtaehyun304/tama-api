@@ -43,18 +43,20 @@ boot, mvc·rest api, valid, security, cache
 
 ### 프로젝트로 얻은 경험
 SQL 경험
-
--select절 속도 고려
 <ul>
- <li></li>
-</ul>
-
-
-<ul>
- <li>ORM N+1 문제 이해</li>
- <li>1:N·1:N, 1:N·N:1, N:1·N:1 이너·아우터 조인</li>
- <li>페이징·정렬·동적쿼리·서브쿼리·집계함수</li>
- <li>댓글, 대댓글</li>
+ <li>SELECT절 속도 개선하기</li>
+ <ul>
+  <li>상품 검색 쿼리에 인덱스 설정 고민</li>
+  <li>서브쿼리 vs 조인·groupBy 선택 고민</li>
+ </ul>
+ <li>상품 연관관계(1:N - 1:N)를 조인하기 어려웠음 → 아래 방법들로 해결</li>
+ <ul>
+  <li>1:N - 1:N (공통 정보 -&lt; 색상 -&lt; 사이즈·재고)</li>
+  <li>쿼리 두번으로 나눠서 하기</li>
+  <li>조인하고 groupBy하기</li>
+  <li>서브쿼리 하기</li>
+ </ul>
+ <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
 </ul>
 
 aws 청구 요금 줄이기
