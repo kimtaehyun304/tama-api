@@ -61,6 +61,12 @@ SQL 경험
   <li>서브쿼리 하기</li>
  </ul>
  <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/master/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L116">
+  동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
+  </a>
+ </li>
+ 
 </ul>
 
 aws 청구 요금 줄이기
@@ -90,7 +96,6 @@ https 인증서 자동 갱신 (Let`s Encrypt)
  <li>결제가 올바로 됐는지 확인하고 주문 API 진행시킴</li>
  <li>pc·모바일 따로 주문 API 개발</li>
 </ul>
-
 
 기타
 <ul>
