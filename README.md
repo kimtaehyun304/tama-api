@@ -36,7 +36,7 @@ boot, mvc·rest api, valid, security, cache
 
 인증 API
 <ul>
-  <li>로그인·회원가입 (oauth2, jwt)</li>
+  <li>로그인·회원가입 (oauth2·jwt)</li>
   <li>인증 문자 이메일 전송</li>
   <li>관리자 확인</li>
 </ul>
@@ -44,23 +44,29 @@ boot, mvc·rest api, valid, security, cache
 ### 프로젝트로 얻은 경험
 SQL 경험
 <ul>
- <li>SELECT절 속도 개선하기</li>
+ <li>상품 검색 쿼리 속도 개선</li>
  <ul>
-  <li>상품 검색 쿼리에 인덱스 설정 고민</li>
-  <li>
+  <li>커버링 인덱스 적용하여 explain type 개선 (ALL→INDEX) </li>
+  <li> 
    <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
-    서브쿼리 vs 조인·groupBy 선택 고민
+    서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
    </a>
   </li>
  </ul>
- <li>상품 연관관계(1:N - 1:N)를 조인하기 어려웠음 → 아래 방법들로 해결</li>
+ <li>상품 연관관계(1:N - 1:N) 조인하기 어려웠음 → 아래 방법들로 해결</li>
  <ul>
-  <li>1:N - 1:N (공통 정보 -&lt; 색상 -&lt; 사이즈·재고)</li>
-  <li>쿼리 두번으로 나눠서 하기</li>
+  <li>공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
+  <li>쿼리 여러번 나눠서 하기</li>
   <li>조인하고 groupBy하기</li>
   <li>서브쿼리 하기</li>
  </ul>
  <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/master/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L116">
+  동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
+  </a>
+ </li>
+ 
 </ul>
 
 aws 청구 요금 줄이기
@@ -91,13 +97,16 @@ https 인증서 자동 갱신 (Let`s Encrypt)
  <li>pc·모바일 따로 주문 API 개발</li>
 </ul>
 
-
 기타
 <ul>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/3d0618e05a3088661b4e59c63009bf983976c55f/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
+  </a>
+ </li>
+ <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
  <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
- <li>코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회</li>
- <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>소셜·일반 회원가입 중복 계정인지 검증</li>
 </ul>
 
