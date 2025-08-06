@@ -46,7 +46,7 @@ SQL 경험
 <ul>
  <li>상품 검색 쿼리 속도 개선</li>
  <ul>
-  <li>커버링 인덱스 적용으로 explain type 개선 (ALL→INDEX) </li>
+  <li>커버링 인덱스 적용하여 explain type 개선 (ALL→INDEX) </li>
   <li> 
    <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
     서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
