@@ -36,7 +36,7 @@ boot, mvc·rest api, valid, security, cache
 
 인증 API
 <ul>
-  <li>로그인·회원가입 (oauth2, jwt)</li>
+  <li>로그인·회원가입 (oauth2·jwt)</li>
   <li>인증 문자 이메일 전송</li>
   <li>관리자 확인</li>
 </ul>
@@ -44,19 +44,19 @@ boot, mvc·rest api, valid, security, cache
 ### 프로젝트로 얻은 경험
 SQL 경험
 <ul>
- <li>상품 검색 쿼리 속도 개선하기</li>
+ <li>상품 검색 쿼리 속도 개선</li>
  <ul>
-  <li>커버링 인덱스로 explain type을 all→index로 승격</li>
+  <li>커버링 인덱스 적용으로 explain type 개선 (ALL→INDEX) </li>
   <li> 
    <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
-    서브쿼리 vs 조인·groupBy 성능 비교 → 서브 쿼리 승리
+    서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
    </a>
   </li>
  </ul>
- <li>상품 연관관계(1:N - 1:N)를 조인하기 어려웠음 → 아래 방법들로 해결</li>
+ <li>상품 연관관계(1:N - 1:N) 조인하기 어려웠음 → 아래 방법들로 해결</li>
+ <li>공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
  <ul>
-  <li>1:N - 1:N (공통 정보 -&lt; 색상 -&lt; 사이즈·재고)</li>
-  <li>쿼리 두번으로 나눠서 하기</li>
+  <li>쿼리 여러번 나눠서 하기</li>
   <li>조인하고 groupBy하기</li>
   <li>서브쿼리 하기</li>
  </ul>
