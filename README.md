@@ -100,7 +100,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 기타
 <ul>
  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/3d0618e05a3088661b4e59c63009bf983976c55f/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
    코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
   </a>
  </li>
