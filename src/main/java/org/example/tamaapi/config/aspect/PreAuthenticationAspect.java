@@ -25,17 +25,18 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 @Component
 @Aspect
 @RequiredArgsConstructor
-//@preAuthorize보다 먼저 실행되게 하기 위함. config를 분리헤야되서 찜찜하지만. 다른 방법을 못 찾았음.
-@Order(200-1)
+//@Secured("ROLE_ADMIN")보다 먼저 실행되도록 order 지정 (@Secured의 order는 100)
+//order 지정하려고 config 분리
+@Order(100-1)
 @Slf4j
 public class PreAuthenticationAspect {
 
     private final MemberRepository memberRepository;
+
     @Before("@annotation(PreAuthentication)")
     public void setAuthentication() {
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // Authentication 객체에서 CustomPrincipal 가져오기
         CustomPrincipal customPrincipal = null;
         if (authentication.getPrincipal() instanceof CustomPrincipal)
             customPrincipal = (CustomPrincipal) authentication.getPrincipal();
@@ -45,14 +46,12 @@ public class PreAuthenticationAspect {
             throw new UnauthorizedException(NOT_AUTHENTICATED);
 
         Long memberId = customPrincipal.getMemberId();
-
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().getAuthority()));
-
         Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
                 new CustomUserDetails(member.getId(), authorities),
-                null,  // password는 필요하지 않다면 null로 설정
+                null,  // password는 필요하지 않아서 null 지정
                 authorities
         );
 
