@@ -99,10 +99,14 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 
 기타
 <ul>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/3d0618e05a3088661b4e59c63009bf983976c55f/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
+  </a>
+ </li>
+ <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
  <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
- <li>코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회</li>
- <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>소셜·일반 회원가입 중복 계정인지 검증</li>
 </ul>
 
