@@ -48,7 +48,7 @@ SQL 경험
  <ul>
   <li>커버링 인덱스 적용하여 explain type 개선 (ALL→INDEX) </li>
   <li> 
-   <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
+   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
     서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
    </a>
   </li>
@@ -62,7 +62,7 @@ SQL 경험
  </ul>
  <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/master/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L116">
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
   동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
   </a>
  </li>
