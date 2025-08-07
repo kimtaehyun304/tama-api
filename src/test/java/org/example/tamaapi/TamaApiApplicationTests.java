@@ -37,12 +37,13 @@ class TamaApiApplicationTests {
     @Autowired
     private JPAQueryFactory queryFactory;
 
-    //페이징 sql에는 일대다 조인 불가 → 아래 방법으로 해결
+    //페이징 sql에는 일대다 조인 불가 → 두 해결 방법 존재
     // ○ where절에 서브 쿼리 사용
     // ○ groupBy로 행을 줄이고 페이징 처리
+
     // 두 방법 속도 비교 결과
-    // ○ System.currentTimeMillis() : 둘 다 비슷함
-    // ○ mysql explain : 서브쿼리 승리
+    // ○ System.currentTimeMillis() 비교 : 둘 다 비슷함
+    // ○ mysql explain 비교 : 서브쿼리 승리
 
     //where절에 서브 쿼리 사용
     @Test
