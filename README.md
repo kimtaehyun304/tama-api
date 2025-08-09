@@ -37,7 +37,7 @@ boot, mvc·rest api, valid, security, cache
 인증 API
 <ul>
   <li>로그인·회원가입 (oauth2·jwt)</li>
-  <li>인증 문자 이메일 전송</li>
+  <li>회원가입에 필요한 인증 문자를 이메일로 전송</li>
   <li>관리자 확인</li>
 </ul>
 
