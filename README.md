@@ -37,7 +37,7 @@ boot, mvc·rest api, valid, security, cache
 인증 API
 <ul>
   <li>로그인·회원가입 (oauth2·jwt)</li>
-  <li>인증 문자 이메일 전송</li>
+  <li>회원가입에 필요한 인증 문자를 이메일로 전송</li>
   <li>관리자 확인</li>
 </ul>
 
@@ -48,21 +48,21 @@ SQL 경험
  <ul>
   <li>커버링 인덱스 적용하여 explain type 개선 (ALL→INDEX) </li>
   <li> 
-   <a href="https://github.com/kimtaehyun304/tama-api/blob/8e9e5c00cd3b98b769b5a54c7f54720282eb3e59/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
+   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
     서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
    </a>
   </li>
  </ul>
  <li>상품 연관관계(1:N - 1:N) 조인하기 어려웠음 → 아래 방법들로 해결</li>
  <ul>
-  <li>공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
+  <li>ex) 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
   <li>쿼리 여러번 나눠서 하기</li>
   <li>조인하고 groupBy하기</li>
   <li>서브쿼리 하기</li>
  </ul>
  <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/master/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L116">
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
   동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
   </a>
  </li>
