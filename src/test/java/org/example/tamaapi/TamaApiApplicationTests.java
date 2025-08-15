@@ -163,8 +163,17 @@ class TamaApiApplicationTests {
     //using temporary 없앴는데 더 느려졌음
     @Test
     public void 상품검색_쿼리튜닝(){
-        List<Long> categoryIds = new ArrayList<>(1);
+
+        //요청 파라미터
         CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
+        List<Long> categoryIds = new ArrayList<>();
+        String itemName = "";
+        Integer minPrice = null;
+        Integer maxPrice = null;
+        List<Long> colorIds = new ArrayList<>();
+        List<Gender> genders = new ArrayList<>();
+        Boolean isContainSoldOut = true;
+        CustomSort sort = new CustomSort("price", Sort.Direction.DESC);
 
         queryFactory
                 .select(new QCategoryItemQueryDto(item.id, item.name, item.originalPrice, item.nowPrice)).from(item)
