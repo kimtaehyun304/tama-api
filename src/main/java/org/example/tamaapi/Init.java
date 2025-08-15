@@ -9,16 +9,14 @@ import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.order.OrderItem;
-import org.example.tamaapi.domain.user.Authority;
-import org.example.tamaapi.domain.user.Guest;
-import org.example.tamaapi.domain.user.Member;
-import org.example.tamaapi.domain.user.Provider;
+import org.example.tamaapi.domain.user.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.order.SaveGuestOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveMemberOrderRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.item.*;
+import org.example.tamaapi.repository.order.DeliveryRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.ItemService;
@@ -33,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -47,11 +47,18 @@ public class Init {
     public void init() throws InterruptedException {
         String[] profiles = environment.getActiveProfiles();
         List<String> profileList = Arrays.asList(profiles);
-        if (profileList.contains("local")) {
+
+        if (initService.isNotInit()) initService.initAll();
+
+
+        /*
+        if (profileList.contains("local") && initService.isNotInit()) {
             initService.initAll();
         } else if (profileList.contains("init") && initService.isNotInit()) {
             initService.initAll();
         }
+
+         */
 
     }
 
@@ -72,6 +79,10 @@ public class Init {
         private final MemberService memberService;
         private final ItemService itemService;
         private final OrderItemRepository orderItemRepository;
+        private final ItemRepository itemRepository;
+        private final ColorItemRepository colorItemRepository;
+        private final MemberAddressRepository memberAddressRepository;
+        private final DeliveryRepository deliveryRepository;
 
         public boolean isNotInit() {
             return colorItemSizeStockRepository.count() == 0 &&
@@ -86,11 +97,14 @@ public class Init {
         public void initAll() {
             initCategory();
             initColor();
-            initItem();
+            //initItem();
+            initManyItem();
             initMember();
             initMemberAddress();
-            initOrder();
-            initReview();
+            //initOrder();
+            initManyOrder();
+            //initReview();
+            initManyReview();
         }
 
         /*
@@ -220,11 +234,10 @@ public class Init {
             colorRepository.save(Color.builder().name("다크 오렌지").hexCode("#ff8c00").parent(orange).build());
         }
 
-
         private void initItem() {
-            Category bottom = categoryRepository.findByName("팬츠").get();
+            Category category = categoryRepository.findByName("팬츠").get();
 
-            Item bottomItem = new Item(
+            Item item = new Item(
                     49900,
                     39900,
                     Gender.FEMALE,
@@ -234,17 +247,18 @@ public class Init {
                     LocalDate.parse("2024-08-01"),
                     "방글라데시",
                     "(주)신세계인터내셔날",
-                    bottom,
+                    category,
                     "폴리에스터 94%, 폴리우레탄 6% (상표,장식,무늬,자수,밴드,심지,보강재 제외)",
                     "세제는 중성세제를 사용하고 락스 등의 표백제는 사용을 금합니다. 세탁 시 삶아 빨 경우 섬유의 특성이 소멸되어 수축 및 물빠짐의 우려가 있으므로 미온 세탁하시기 바랍니다.");
 
             List<ColorItem> colorItems = new ArrayList<>();
             List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
             List<ColorItemImage> colorItemImages = new ArrayList<>();
+            item.setCreatedAt(LocalDateTime.parse("2025-06-01T00:00:00"));
 
             // Color: 아이보리
             Color ivory = colorRepository.findByName("아이보리").get();
-            ColorItem ivoryColorItem = new ColorItem(bottomItem, ivory);
+            ColorItem ivoryColorItem = new ColorItem(item, ivory);
             colorItems.add(ivoryColorItem);
             colorItemSizeStocks.addAll(List.of(new ColorItemSizeStock(ivoryColorItem, "S(67CM)", 9), new ColorItemSizeStock(ivoryColorItem, "M(67CM)", 9)));
             colorItemImages.addAll(
@@ -256,7 +270,7 @@ public class Init {
 
             // Color: 핑크
             Color pink = colorRepository.findByName("핑크").get();
-            ColorItem pinkColorItem = new ColorItem(bottomItem, pink);
+            ColorItem pinkColorItem = new ColorItem(item, pink);
             colorItems.add(pinkColorItem);
             colorItemSizeStocks.addAll(List.of(new ColorItemSizeStock(pinkColorItem, "S(67CM)", 9), new ColorItemSizeStock(pinkColorItem, "M(67CM)", 9)));
             colorItemImages.addAll(List.of(
@@ -265,18 +279,18 @@ public class Init {
                     )
             );
 
-            itemService.saveItem(bottomItem, colorItems, colorItemSizeStocks);
+            itemService.saveItem(item, colorItems, colorItemSizeStocks);
             itemService.saveColorItemImages(colorItemImages);
 
             colorItems.clear();
             colorItemSizeStocks.clear();
             colorItemImages.clear();
+            //-------------------------------------------------------------------------------
+            category = categoryRepository.findByName("데님팬츠").get();
 
-            Category denimPants = categoryRepository.findByName("데님팬츠").get();
-
-            Item denimPantsItem = new Item(
-                    49900,  // original price
-                    29900,  // sale price
+            item = new Item(
+                    49900,
+                    29900,
                     Gender.MALE,
                     "24 F/W",
                     "남 데님 밴딩 팬츠",
@@ -284,15 +298,15 @@ public class Init {
                     LocalDate.parse("2024-07-01"),
                     "중국",
                     "(주)신세계인터내셔날",
-                    denimPants,
+                    category,
                     "겉감 - 면 91%, 폴리에스터 7%, 폴리우레탄 2%",
                     "상품별 정확한 세탁방법은 세탁취급주의 라벨을 확인한 뒤 세탁 바랍니다."
             );
-
+            item.setCreatedAt(LocalDateTime.parse("2025-07-01T00:00:00"));
 
             // Color: Blue
             Color blue = colorRepository.findByName("블루").get();
-            ColorItem blueColorItem = new ColorItem(denimPantsItem, blue);
+            ColorItem blueColorItem = new ColorItem(item, blue);
             colorItems.add(blueColorItem);
 
             colorItemSizeStocks.addAll(List.of(
@@ -307,7 +321,7 @@ public class Init {
 
             // Color: Navy
             Color navy = colorRepository.findByName("네이비").get();
-            ColorItem navyColorItem = new ColorItem(denimPantsItem, navy);
+            ColorItem navyColorItem = new ColorItem(item, navy);
             colorItems.add(navyColorItem);
             colorItemSizeStocks.addAll(List.of(
                     new ColorItemSizeStock(navyColorItem, "S(70CM)", 0),
@@ -319,9 +333,147 @@ public class Init {
                     new ColorItemImage(navyColorItem, new UploadFile("man-navy-pants-detail2.jpg", "man-navy-pants-detail2-uuid.jpg"), 3)
             ));
 
-            itemService.saveItem(denimPantsItem, colorItems, colorItemSizeStocks);
+            itemService.saveItem(item, colorItems, colorItemSizeStocks);
             itemService.saveColorItemImages(colorItemImages);
 
+            colorItems.clear();
+            colorItemSizeStocks.clear();
+            colorItemImages.clear();
+            //-------------------------------------------------------------------------------
+            category = categoryRepository.findByName("니트/가디건").get();
+
+            item = new Item(
+                    55000,
+                    55000,
+                    Gender.FEMALE,
+                    "25 S/S",
+                    "여 워셔블 긴팔 가디건",
+                    "원사에 실 꼬임을 많이 준 면 100% 강연 소재로 제작되어 탄탄하고 형태 안정성이 우수하여,\n" +
+                            "기계 세탁이 가능하고 관리가 용이한 워셔블 긴팔 가디건입니다.",
+                    LocalDate.parse("2024-07-01"),
+                    "중국",
+                    "(주)신세계인터내셔날",
+                    category,
+                    "면 100%(상표,장식,무늬,자수,밴드,심지,보강재 제외)",
+                    "상품별 정확한 세탁방법은 세탁취급주의 라벨을 확인한 뒤 세탁 바랍니다."
+            );
+            item.setCreatedAt(LocalDateTime.parse("2025-08-01T00:00:00"));
+
+            // Color: Blue
+            Color black = colorRepository.findByName("블랙").get();
+            ColorItem cardiganBlack = new ColorItem(item, black);
+            colorItems.add(cardiganBlack);
+
+            colorItemSizeStocks.addAll(List.of(
+                    new ColorItemSizeStock(cardiganBlack, "S(70CM)", 10),
+                    new ColorItemSizeStock(cardiganBlack, "M(80CM)", 10)
+            ));
+            colorItemImages.addAll(List.of(
+                    new ColorItemImage(cardiganBlack, new UploadFile("woman-black-neat.jpg", "woman-black-neat-3da68c93-01da-4dd9-b61c-e58d260c8afc.jpg"), 1),
+                    new ColorItemImage(cardiganBlack, new UploadFile("woman-black-neat-detail.jpg", "woman-black-neat-detail-0fe08476-a162-4187-b071-b080a774c46d.jpg"), 2)
+            ));
+
+            Color white = colorRepository.findByName("화이트").get();
+            ColorItem cardiganWhite = new ColorItem(item, white);
+            colorItems.add(cardiganWhite);
+            colorItemSizeStocks.addAll(List.of(
+                    new ColorItemSizeStock(cardiganWhite, "S(70CM)", 10),
+                    new ColorItemSizeStock(cardiganWhite, "M(80CM)", 10)
+            ));
+            colorItemImages.addAll(List.of(
+                    new ColorItemImage(cardiganWhite, new UploadFile("woman-white-neat.jpg", "woman-white-neat-7d26b6a1-d9f3-42a6-b501-85291e51e297.jpg"), 1),
+                    new ColorItemImage(cardiganWhite, new UploadFile("woman-white-neat-detail.jpg", "woman-white-neat-detail-4b088136-7064-431a-8e59-eeae60f9ae5d.jpg"), 2)
+            ));
+
+            itemService.saveItem(item, colorItems, colorItemSizeStocks);
+            itemService.saveColorItemImages(colorItemImages);
+            colorItems.clear();
+            colorItemSizeStocks.clear();
+            colorItemImages.clear();
+        }
+
+        private void initManyItem() {
+            log.info("initManyItem 실행 중");
+            Category category = categoryRepository.findByName("팬츠").get();
+
+            List<Item> items = new ArrayList<>();
+
+            for(int i=0; i<100000; i++) {
+                Item item = new Item(
+                        49900+i,
+                        39900+i,
+                        Gender.FEMALE,
+                        "24 F/W",
+                        "여 코듀로이 와이드 팬츠"+i,
+                        "무형광 원단입니다. 전 년 상품 자주히트와 동일한 소재이며, 네이밍이변경되었습니다.",
+                        LocalDate.parse("2024-08-01").plusDays(i),
+                        "방글라데시",
+                        "(주)신세계인터내셔날",
+                        category,
+                        "폴리에스터 94%, 폴리우레탄 6% (상표,장식,무늬,자수,밴드,심지,보강재 제외)",
+                        "세제는 중성세제를 사용하고 락스 등의 표백제는 사용을 금합니다. 세탁 시 삶아 빨 경우 섬유의 특성이 소멸되어 수축 및 물빠짐의 우려가 있으므로 미온 세탁하시기 바랍니다.");
+                item.setCreatedAt(LocalDateTime.parse("2025-06-01T00:00:00"));
+                items.add(item);
+            }
+
+            //itemRepository.saveAll(items);
+            jdbcTemplateRepository.saveItems(items);
+            initManyColorItem();
+            initManyStockImage();
+        }
+
+        private void initManyColorItem() {
+            log.info("initManyColorItem 실행 중");
+            Color ivory = colorRepository.findByName("아이보리").get();
+            Color pink = colorRepository.findByName("핑크").get();
+
+            List<ColorItem> colorItems = new ArrayList<>();
+
+            List<Item> items = itemRepository.findAll();
+            for (Item item : items) {
+                // Color: 아이보리
+                ColorItem ivoryColorItem = new ColorItem(item, ivory);
+                colorItems.add(ivoryColorItem);
+
+                // Color: 핑크
+                ColorItem pinkColorItem = new ColorItem(item, pink);
+                colorItems.add(pinkColorItem);
+
+            }
+            jdbcTemplateRepository.saveColorItems(colorItems);
+        }
+
+        private void initManyStockImage() {
+            log.info("initManyStockImage 실행 중");
+            List<ColorItem> colorItems = colorItemRepository.findAllWithColor();
+
+            List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
+            List<ColorItemImage> colorItemImages = new ArrayList<>();
+
+            for (ColorItem colorItem : colorItems) {
+                // 사이즈 재고 추가 (모든 색상 공통)
+                colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "S(67CM)", 9));
+                colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "M(67CM)", 9));
+
+                // 색상별 이미지 분기
+                switch (colorItem.getColor().getName()) {
+                    case "아이보리" -> {
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-ivory-pants.jpg", "woman-ivory-pants-uuid.jpg"), 1));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-ivory-pants-detail.jpg", "woman-ivory-pants-detail-uuid.jpg"), 2));
+                    }
+                    case "핑크" -> {
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-pink-pants.jpg", "woman-pink-pants-uuid.jpg"), 1));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-pink-pants-detail.jpg", "woman-pink-pants-detail-uuid.jpg"), 2));
+                    }
+                    default -> {
+                        // 다른 색상 처리 필요 시
+                    }
+                }
+            }
+
+
+            jdbcTemplateRepository.saveColorItemSizeStocks(colorItemSizeStocks);
+            jdbcTemplateRepository.saveColorItemImages(colorItemImages);
         }
 
         private void initMember() {
@@ -338,9 +490,13 @@ public class Init {
         }
 
         private void initMemberAddress() {
-            Member member = memberRepository.findById(1L).get();
-            memberService.saveMemberAddress(member.getId(), "우리집", member.getNickname(), member.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
-            memberService.saveMemberAddress(member.getId(), "회사", member.getNickname(), member.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
+            Member member2 = memberRepository.findById(2L).get();
+            memberService.saveMemberAddress(member2.getId(), "우리집", member2.getNickname(), member2.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
+            memberService.saveMemberAddress(member2.getId(), "회사", member2.getNickname(), member2.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
+
+            Member member3 = memberRepository.findById(3L).get();
+            memberService.saveMemberAddress(member3.getId(), "우리집", member3.getNickname(), member3.getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
+            memberService.saveMemberAddress(member3.getId(), "회사", member3.getNickname(), member3.getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
         }
 
         private void initReview() {
@@ -359,6 +515,40 @@ public class Init {
                     .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
         }
 
+        private void initManyReview() {
+            log.info("initManyReview 실행 중");
+
+            ArrayList<String> texts = new ArrayList<>(List.of(
+                    "원단이 부드럽고 착용감이 정말 좋아요.",
+                    "색상이 사진이랑 거의 똑같아서 만족합니다.",
+                    "생각보다 얇아서 여름에 입기 딱이에요.",
+                    "사이즈가 조금 작게 나온 것 같아요. 한 치수 크게 사세요.",
+                    "디자인이 예쁘고 마감도 깔끔합니다.",
+                    "빨아도 변형이 없어서 오래 입을 수 있을 것 같아요.",
+                    "겨울에 입기에는 조금 얇아서 아쉬워요.",
+                    "가격 대비 품질이 좋아서 추천합니다.",
+                    "재질이 탄탄해서 모양이 잘 잡혀요.",
+                    "배송이 빨랐고 포장도 깔끔했습니다."
+            ));
+
+
+            List<Review> reviews = new ArrayList<>();
+            List<OrderItem> orderItems = orderItemRepository.findAllWithOrderWithMember();
+
+            for (OrderItem orderItem : orderItems) {
+                Review review = Review.builder().member(orderItem.getOrder().getMember())
+                            .orderItem(orderItem)
+                            .rating(2)
+                            .comment(texts.get(0))
+                            .build();
+                review.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(orderItem.getId()));
+                review.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(orderItem.getId()));
+                reviews.add(review);
+            }
+
+            jdbcTemplateRepository.saveReviews(reviews);
+        }
+
         private void initOrder() {
             SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
@@ -373,9 +563,6 @@ public class Init {
                     new SaveOrderItemRequest(4L, 1)
             ));
             createMemberOrder(1L, request2);
-
-
-
 
 
             /*
@@ -408,7 +595,6 @@ public class Init {
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
 
-
             List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
             List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
 
@@ -418,8 +604,8 @@ public class Init {
                 ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId).orElseThrow(() -> new IllegalArgumentException(colorItemSizeStockId + "는 동록되지 않은 상품입니다"));
 
                 //가격 변동 or 할인 쿠폰 고려
-                Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
-                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
+                Integer price = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
+                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
                 int orderPrice = discountedPrice != null ? discountedPrice : price;
 
                 OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
@@ -427,6 +613,7 @@ public class Init {
             }
 
             Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
+
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);
             jdbcTemplateRepository.saveOrderItems(orderItems);
@@ -445,8 +632,8 @@ public class Init {
                 ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
 
                 //가격 변동 or 할인 쿠폰 고려
-                Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
-                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
+                Integer price = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
+                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
                 int orderPrice = discountedPrice != null ? discountedPrice : price;
 
                 OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
@@ -456,6 +643,90 @@ public class Init {
             Order order = Order.createGuestOrder(request.getPaymentId(), guest, delivery, orderItems);
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);
+            jdbcTemplateRepository.saveOrderItems(orderItems);
+        }
+
+
+        private void initManyOrder() {
+            log.info("initManyOrder 실행 중");
+            List<ColorItemSizeStock> foundColorItemSizeStocks = colorItemSizeStockRepository.findAll();
+            MemberAddress manAddress = memberAddressRepository.findById(1L).get();
+            MemberAddress womanAddress = memberAddressRepository.findById(3L).get();
+            List<Order> orders = new ArrayList<>();
+            List<OrderItem> orderItems = new ArrayList<>();
+            List<Delivery> deliveries = new ArrayList<>();
+
+            Member member;
+            Member man = memberRepository.findById(2L).get();
+            Member woman = memberRepository.findById(3L).get();
+            int count = 0;
+
+            for (ColorItemSizeStock colorItemSizeStock : foundColorItemSizeStocks) {
+                Long id = colorItemSizeStock.getId();
+                int orderCount = id < 10 ? 2 : 1;
+                SaveMemberOrderRequest request;
+
+                if(id % 2 == 0){
+                    request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), manAddress.getReceiverNickName(), manAddress.getReceiverPhone(), manAddress.getZipCode()
+                            , manAddress.getStreet(), manAddress.getDetail(), "문 앞에 놔주세요", List.of(
+                            new SaveOrderItemRequest(id, orderCount)
+                    ));
+                    member = man;
+                }else {
+                    request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), womanAddress.getReceiverNickName(), womanAddress.getReceiverPhone(), womanAddress.getZipCode()
+                            , womanAddress.getStreet(), womanAddress.getDetail(), "현관에 놔주세요", List.of(
+                            new SaveOrderItemRequest(id, orderCount)
+                    ));
+                    member = woman;
+                }
+
+                Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
+                delivery.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
+                delivery.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
+                deliveries.add(delivery);
+
+                for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
+                    //가격 변동 or 할인 쿠폰 고려
+                    Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+                    int orderPrice = nowPrice;
+
+                    OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+                    orderItems.add(orderItem);
+                }
+                Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
+                order.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
+                order.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
+                orders.add(order);
+                if(++count == 30000) break;
+            }
+
+            jdbcTemplateRepository.saveDeliveries(deliveries);
+            List<Delivery> foundDeliveries = deliveryRepository.findAll();
+            Map<LocalDateTime, Delivery> deliveryMap = foundDeliveries.stream()
+                    .collect(Collectors.toMap(
+                            BaseEntity::getCreatedAt,
+                            o -> o
+                    ));
+
+            for (Delivery delivery : deliveries) {
+                Delivery foundDelivery = deliveryMap.get(delivery.getCreatedAt());
+                if (foundDelivery != null) delivery.setIdByBatchId(foundDelivery.getId());
+            }
+
+            jdbcTemplateRepository.saveOrders(orders);
+
+            List<Order> foundOrders = orderRepository.findAll();
+            Map<LocalDateTime, Order> orderMap = foundOrders.stream()
+                    .collect(Collectors.toMap(
+                            BaseEntity::getCreatedAt,
+                            o -> o
+                    ));
+
+            for (Order order : orders) {
+                Order foundOrder = orderMap.get(order.getCreatedAt());
+                if (foundOrder != null) order.setIdByBatchId(foundOrder.getId());
+            }
+
             jdbcTemplateRepository.saveOrderItems(orderItems);
         }
 

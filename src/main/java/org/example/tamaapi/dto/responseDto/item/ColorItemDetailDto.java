@@ -16,9 +16,9 @@ public class ColorItemDetailDto {
     //ColorItemId
     private final Long id;
 
-    private final Integer price;
+    private final Integer originalPrice;
 
-    private final Integer discountedPrice;
+    private final Integer nowPrice;
 
     private final String color;
 
@@ -34,8 +34,8 @@ public class ColorItemDetailDto {
     // 상품 상세
     public ColorItemDetailDto(ColorItem colorItem, List<ColorItemImage> colorItemImages, List<RelatedColorItemDto> relatedColorItemDtos) {
         id = colorItem.getId();
-        price = colorItem.getItem().getPrice();
-        discountedPrice = colorItem.getItem().getDiscountedPrice();
+        originalPrice = colorItem.getItem().getOriginalPrice();
+        nowPrice = colorItem.getItem().getNowPrice();
         color = colorItem.getColor().getName();
         common = new ItemDto(colorItem.getItem());
         sizeStocks.addAll(colorItem.getColorItemSizeStocks().stream().map(ColorItemSizeStockDto::new).toList());

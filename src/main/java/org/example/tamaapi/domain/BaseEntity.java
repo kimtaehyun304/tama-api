@@ -3,6 +3,7 @@ package org.example.tamaapi.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,11 +18,16 @@ import java.time.LocalDateTime;
 @Setter
 public abstract class BaseEntity {
 
-    @CreatedDate
+    //@CreatedDate
     //@Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
 
 }

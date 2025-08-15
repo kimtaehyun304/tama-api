@@ -44,9 +44,8 @@ public class PaymentValidator {
 
         Map<Long, Integer> idPriceMap = new HashMap<>();
         for (ColorItemSizeStock colorItemSizeStock : colorItemSizeStocks) {
-            Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
-            Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
-            idPriceMap.put(colorItemSizeStock.getId(), discountedPrice != null ? discountedPrice : price);
+            Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+            idPriceMap.put(colorItemSizeStock.getId(), nowPrice);
         }
 
         int serverTotal = saveOrderItemRequests.stream().mapToInt(i -> idPriceMap.get(i.getColorItemSizeStockId()) * i.getOrderCount()).sum();

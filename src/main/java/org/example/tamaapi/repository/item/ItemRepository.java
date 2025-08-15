@@ -1,6 +1,7 @@
 package org.example.tamaapi.repository.item;
 
 import org.example.tamaapi.domain.item.Item;
+import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -14,5 +15,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("select i from Item i order by field(:itemIds)")
     List<Item> findAllOrderBy(List<Long> itemIds);
+
+
 
 }

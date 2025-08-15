@@ -2,8 +2,17 @@ package org.example.tamaapi.domain.item;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.exception.MyBadRequestException;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Table(indexes = {
+        //@Index(name = "idx_colorItemId_stock", columnList = "color_item_id, stock"),
+        //이게 더 explain filterd 지수 높음
+        @Index(name = "idx_stock", columnList = "stock"),
+})
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -11,7 +20,7 @@ public class ColorItemSizeStock {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_size_id")
+    @Column(name = "color_item_size_stock_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,6 +31,9 @@ public class ColorItemSizeStock {
     private String size;
 
     private int stock;
+
+    @OneToMany(mappedBy = "colorItemSizeStock")
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Builder
     public ColorItemSizeStock(ColorItem colorItem, String size, int stock) {

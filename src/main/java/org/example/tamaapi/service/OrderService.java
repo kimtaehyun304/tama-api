@@ -94,9 +94,8 @@ public class OrderService {
             ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
 
             //가격 변동 or 할인 쿠폰 고려
-            Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
-            Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
-            int orderPrice = discountedPrice != null ? discountedPrice : price;
+            Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+            int orderPrice = nowPrice;
 
             OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
             orderItems.add(orderItem);
@@ -124,9 +123,8 @@ public class OrderService {
 
         Map<Long, Integer> idPriceMap = new HashMap<>();
         for (ColorItemSizeStock colorItemSizeStock : colorItemSizeStocks) {
-            Integer price = colorItemSizeStock.getColorItem().getItem().getPrice();
-            Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
-            idPriceMap.put(colorItemSizeStock.getId(), discountedPrice != null ? discountedPrice : price);
+            Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+            idPriceMap.put(colorItemSizeStock.getId(), nowPrice);
         }
 
         Map<String, Object> amountMap = (Map<String, Object>) paymentResponse.get("amount");

@@ -36,6 +36,10 @@ public class Delivery extends BaseEntity {
         this.receiverNickname = receiverNickname;
         this.receiverPhone = receiverPhone;
     }
+
+    public void setIdByBatchId(Long id) {
+        this.id = id;
+    }
 }
 
 

@@ -30,12 +30,11 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
-    //비로그인 주문
-    @Embedded
-    private Guest guest;
-
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    @Embedded
+    private Guest guest;
 
     //cascade insert 여러번 나가서 jdbcTemplate 사용
     @OneToMany(mappedBy = "order")
@@ -85,6 +84,10 @@ public class Order extends BaseEntity {
 
     public void cancelOrder(){
         status = OrderStatus.CANCEL;
+    }
+
+    public void setIdByBatchId(Long id) {
+        this.id = id;
     }
 
 }

@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +26,9 @@ import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.item.query.dto.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -50,7 +53,7 @@ public class ItemQueryRepository {
     private final ColorItemImageRepository colorItemImageRepository;
     private final JPAQueryFactory queryFactory;
 
-    //★카테고리 아이템 (상품 조회)
+    //★카테고리 아이템 (상품 검색)
     public CustomPage<CategoryItemQueryDto> findCategoryItemsWithPagingAndSort(CustomSort sort, CustomPageRequest customPageRequest, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         //페이징
         List<CategoryItemQueryDto> paging = findCategoryItemsParent(customPageRequest, sort, categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
@@ -67,33 +70,44 @@ public class ItemQueryRepository {
 
     //카테고리 아이템 부모
     private List<CategoryItemQueryDto> findCategoryItemsParent(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+
         return queryFactory
-                .select(new QCategoryItemQueryDto(item.id, item.name, item.price, item.discountedPrice)).from(item)
-                .where(item.id.in(
-                        JPAExpressions
-                                .select(item.id).distinct().from(item)
-                                .join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
-                                .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice), colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))))
+                .select(new QCategoryItemQueryDto(
+                        item.id,
+                        item.name,
+                        item.originalPrice,
+                        item.nowPrice
+                ))
+                .from(item)
+                .join(item.colorItems, colorItem)
+                .join(colorItem.colorItemSizeStocks, colorItemSizeStock)
+                .where(categoryIdIn(categoryIds), genderIn(genders), minPriceGoe(minPrice), maxPriceLoe(maxPrice), itemNameContains(itemName), colorIdIn(colorIds), isContainSoldOut(isContainSoldOut))
+                .distinct() // SELECT DISTINCT
+                .orderBy(categoryItemSort(sort))
                 .offset(customPageRequest.getPage() - 1)
                 .limit(customPageRequest.getSize())
-                .orderBy(categoryItemSort(sort), new OrderSpecifier<>(Order.DESC, item.id))
                 .fetch();
     }
 
     //카테고리 아이템 COUNT (최적화를 위해 따로 분리)
     private Long countCategoryItems(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-        return queryFactory.select(item.id.countDistinct()).from(item)
-                .join(item.colorItems, colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock).join(colorItem.color, color)
-                .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice), colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))
+        return queryFactory.select(item.count()).from(item).where(
+                JPAExpressions.selectOne().from(colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
+                        .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
+                                , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut), colorItem.item.id.eq(item.id)).exists())
                 .fetchOne();
     }
 
     //카테고리 아이템 자식 컬렉션 & InItemIds로 item 컬럼에 해당하는 검색 조건 대체 가능
     private Map<Long, List<RelatedColorItemResponse>> findCategoryItemsChildrenMap(List<Long> itemIds, List<Long> colorIds, Boolean isContainSoldOut) {
+        //item.id.in(itemIds)에서 itemIds가 비어있으면 where 1=2 되면서 그룹바이 에러 발생 -> 빈 map 반환
+        if(CollectionUtils.isEmpty(itemIds))
+            return Collections.emptyMap();
+
         List<RelatedColorItemResponse> relatedColorItems = queryFactory.select
                         (new QRelatedColorItemResponse(colorItem.item.id, colorItem.id, color.name, color.hexCode, colorItemSizeStock.stock.sum()))
                 .from(colorItem).join(colorItem.color, color).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
-                .where(itemIdIn(itemIds), colorIdIn(colorIds), isContainSoldOut(isContainSoldOut))
+                .where(item.id.in(itemIds), colorIdIn(colorIds), isContainSoldOut(isContainSoldOut))
                 .groupBy(colorItem.id)
                 .fetch();
 
@@ -114,8 +128,9 @@ public class ItemQueryRepository {
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     //★카테고리 베스트 아이템 (인기 상품 조회)
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
+
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
-                        (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.price, item.discountedPrice)).from(orderItem)
+                        (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.originalPrice, item.nowPrice)).from(orderItem)
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)
                 .where(categoryIdIn(categoryIds))
                 .groupBy(colorItem.id)
@@ -148,6 +163,7 @@ public class ItemQueryRepository {
         return categoryBestItemQueryResponses;
     }
 
+
     //이상 없지만, IDE 에러 없애려고 cast 적용
     private List<CategoryBestItemReviewQueryDto> findAvgRatingsCountInColorItemId(List<Long> colorItemIds) {
         String jpql = "select new org.example.tamaapi.repository.item.query.dto.CategoryBestItemReviewQueryDto(ci.id, CAST(ROUND(AVG(r.rating), 1) AS double), count(ci.id)) from Review r" +
@@ -162,9 +178,14 @@ public class ItemQueryRepository {
     private OrderSpecifier<?> categoryItemSort(CustomSort sort) {
         Order direction = sort.getDirection().isAscending() ? Order.ASC : Order.DESC;
         return switch (sort.getProperty()) {
-            case "price" ->
-                    new OrderSpecifier<>(direction, Expressions.numberTemplate(Integer.class, "coalesce({0}, {1})", item.discountedPrice, item.price));
-            case "createdAt" -> new OrderSpecifier<>(Order.DESC, item.createdAt);
+            //인데스 적용을 위해, 즉 coalesce 안 쓰기 위해 [price, discounted_price] -> [originalPrice, nowPrice]로 변경
+            //case "price" -> new OrderSpecifier<>(direction, Expressions.numberTemplate(Integer.class, "coalesce({0}, {1})", item.discountedPrice, item.price));
+            //아마도 중복 버그 생길 수 있음 (id desc 추가 필요)
+            case "price" -> new OrderSpecifier<>(direction, item.nowPrice);
+
+            //case "createdAt" -> new OrderSpecifier<>(Order.DESC, item.createdAt);
+            //인데스 적용을 위해 item.id desc로 변경
+            case "createdAt" -> new OrderSpecifier<>(Order.DESC, item.id);
             default -> throw new MyBadRequestException("유효한 property가 없습니다.");
         };
     }
@@ -179,12 +200,12 @@ public class ItemQueryRepository {
 
     private BooleanExpression minPriceGoe(Integer minPrice) {
         if (minPrice == null) return null;
-        return item.discountedPrice.coalesce(item.price).goe(minPrice);
+        return item.nowPrice.goe(minPrice);
     }
 
     private BooleanExpression maxPriceLoe(Integer maxPrice) {
         if (maxPrice == null) return null;
-        return item.discountedPrice.coalesce(item.price).loe(maxPrice);
+        return item.nowPrice.loe(maxPrice);
     }
 
 
@@ -198,10 +219,6 @@ public class ItemQueryRepository {
 
     private BooleanExpression isContainSoldOut(Boolean isContainSoldOut) {
         return isTrue(isContainSoldOut) ? null : colorItemSizeStock.stock.gt(0);
-    }
-
-    private BooleanExpression itemIdIn(List<Long> itemIds) {
-        return isEmpty(itemIds) ? null : item.id.in(itemIds);
     }
 
 }

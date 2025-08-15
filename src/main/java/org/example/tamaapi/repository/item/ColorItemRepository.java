@@ -22,4 +22,7 @@ public interface ColorItemRepository extends JpaRepository<ColorItem, Long> {
     List<ColorItem> findWithItemAndImagesByItemId(Long itemId);
     */
 
+    //아이템 연관상품
+    @Query("select c from ColorItem c join fetch c.color order order by c.id asc")
+    List<ColorItem> findAllWithColor();
 }

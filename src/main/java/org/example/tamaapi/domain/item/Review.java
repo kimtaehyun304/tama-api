@@ -36,8 +36,10 @@ public class Review extends BaseEntity {
 
     private String comment;
 
+    // 키는 달라질수 있다.
     private Integer height;
 
+    // 몸무게는 달라질수 있다.
     private Integer weight;
 
     @Builder

@@ -10,8 +10,20 @@ import org.hibernate.annotations.BatchSize;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+//그룹바이에 복합 인덱스 적용하려면 PK도 같이 있어야함
 @Table(indexes = {
-        @Index(name = "idx_name_price_discountedPrice", columnList = "name, price, discountedPrice")
+        @Index(name = "idx_gender", columnList = "gender"),
+        @Index(name = "idx_nowPrice", columnList = "nowPrice"),
+        //@Index(name = "idx_gender_nowPrice", columnList = "gender, nowPrice"),
+        //@Index(name = "idx_category_gender", columnList = "category_id, gender"),
+        //@Index(name = "idx_category_nowPrice", columnList = "category_id, nowPrice"),
+        //@Index(name = "idx_category_gender_nowPrice", columnList = "category_id, gender, nowPrice")
+        //@Index(name = "idx_item_id,name_originalPrice_nowPrice_gender", columnList = "category_id, gender, nowPrice")
+        //@Index(name = "idx_gender_nowPrice_id_name_originalPrice", columnList = "gender, nowPrice, item_id, name, originalPrice")
+        //@Index(name = "idx_gender_nowPrice_name_id_originalPrice", columnList = "gender, nowPrice, name, item_id, originalPrice")
+        //temporary,filesort 개선용 (없는게 더 남)
+        //@Index(name = "idx_id_gender_nowPrice_name_originalPrice", columnList = "item_id, gender, nowPrice, name, originalPrice")
+        //@Index(name = "idx_gender_nowPrice_id", columnList = "gender, nowPrice, item_id")
 })
 @Entity
 @Getter
@@ -25,12 +37,13 @@ public class Item extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Integer price;
+    private Integer originalPrice;
 
     @Column(nullable = false)
-    private Integer discountedPrice;
+    private Integer nowPrice;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @Column(nullable = false)
@@ -65,10 +78,13 @@ public class Item extends BaseEntity {
     @BatchSize(size = 1000)
     private final List<ColorItem> colorItems = new ArrayList<>();
 
+
+
+
     @Builder
-    public Item(Integer price, Integer discountedPrice, Gender gender, String yearSeason, String name, String description, LocalDate dateOfManufacture, String countryOfManufacture, String manufacturer, Category category, String textile, String precaution) {
-        this.price = price;
-        this.discountedPrice = discountedPrice;
+    public Item(Integer originalPrice, Integer nowPrice, Gender gender, String yearSeason, String name, String description, LocalDate dateOfManufacture, String countryOfManufacture, String manufacturer, Category category, String textile, String precaution) {
+        this.originalPrice = originalPrice;
+        this.nowPrice = nowPrice;
         this.gender = gender;
         this.yearSeason = yearSeason;
         this.name = name;
@@ -81,4 +97,8 @@ public class Item extends BaseEntity {
         this.precaution = precaution;
     }
 
+    //배치작업 용
+    public void setIdByReturningId(Long id) {
+        this.id = id;
+    }
 }

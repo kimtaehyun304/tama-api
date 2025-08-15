@@ -17,9 +17,9 @@ public class ShoppingBagDto {
 
     private Long colorItemId;
 
-    private Integer price;
+    private Integer originalPrice;
 
-    private Integer discountedPrice;
+    private Integer nowPrice;
 
     private String color;
 
@@ -40,8 +40,8 @@ public class ShoppingBagDto {
 
     public ShoppingBagDto(ColorItemSizeStock colorItemSizeStock) {
         colorItemId = colorItemSizeStock.getColorItem().getId();
-        price = colorItemSizeStock.getColorItem().getItem().getPrice();
-        discountedPrice = colorItemSizeStock.getColorItem().getItem().getDiscountedPrice();
+        originalPrice = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
+        nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
         color = colorItemSizeStock.getColorItem().getColor().getName();
         name = colorItemSizeStock.getColorItem().getItem().getName();
         sizeStock = new ColorItemSizeStockDto(colorItemSizeStock);
