@@ -39,9 +39,7 @@ boot, mvc·rest api, valid, security, cache
   <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
   <li>이너·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
   <li>
-   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
   동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
-   </a>
  </li>
  </ul><br>
   
