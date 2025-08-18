@@ -15,6 +15,74 @@
 ### 프로젝트 스킬 (스프링)
 boot, mvc·rest api, valid, security, cache
 
+### 프로젝트로 얻은 경험
+
+상품 검색 쿼리 속도 개선
+ <ul>
+  <li>로컬에서 상품 row 십만개 넣고 진행</li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
+   <li>정렬 쿼리 row 중복 제거 방법 변경 (group by 0.8s → distinct 0.3s)</li>
+  </a>
+  <ul>
+   <li>최신순 정렬 order by 필드 변경 (created_at → item.id)</li>
+   <li>가격순 정렬 인덱스 적용하려고 컬럼 변경 colasecse(disconted_price, price) → now_price</li>
+  </ul>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L93">
+    <li>count 쿼리 row 중복 제거 방법 변경 (disticnt 0.8s → exists 0.3s)</li>
+  </a>
+ </ul><br>
+ 
+연관관계(1:N - 1:N) 조인 노하우 터득
+ <ul>
+  <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
+  <li>쿼리 여러번 나눠서 하기</li>
+  <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
+  <li>이너·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
+  <li>
+   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
+  동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
+   </a>
+ </li>
+ </ul><br>
+  
+aws 청구 요금 줄이기
+<ul>
+ <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
+ <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
+ <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 & select절 필드 최소화 </li>
+</ul>
+
+https 인증서 자동 갱신 (Let`s Encrypt)
+1) 인증서 무중단 자동 갱신 (cerbot 타이머) <br>
+   <ul>
+      <li>갱신 중 서비스가 중단되지 않게 하기 위해 인증 방식을 standalone → webroot로 변경</li>
+      <li>webroot로 변경하기 위해 nginx 추가</li>
+   </ul>
+2) 새로운 인증서 자동 적용 (certbot reload hook)<br>
+   <ul>
+      <li>certbot reload hook은 nginx를 재시작하는 기능</li>
+   </ul>
+
+결제·주문 API
+<ul>
+ <li>토스페이먼츠·카카오페이·카드 등 PG사 이용</li>
+ <li>결제가 올바로 됐는지 확인하고 주문 API 진행시킴</li>
+ <li>pc·모바일 따로 주문 API 개발</li>
+</ul>
+
+기타
+<ul>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
+  </a>
+ </li>
+ <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
+ <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
+ <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
+ <li>소셜·일반 회원가입 중복 계정인지 검증</li>
+</ul>
+
 ### 기능
 상품 API
 <ul>
@@ -41,74 +109,6 @@ boot, mvc·rest api, valid, security, cache
   <li>관리자 확인</li>
 </ul>
 
-### 프로젝트로 얻은 경험
-SQL 경험
-<ul>
- <li>상품 검색 쿼리 속도 개선</li>
- <ul>
-  <li>커버링 인덱스 적용하여 explain type 개선 (ALL→INDEX) </li>
-  <li> 
-   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
-    서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
-   </a>
-  </li>
- </ul>
- <li>상품 연관관계(1:N - 1:N) 조인하기 어려웠음 → 아래 방법들로 해결</li>
- <ul>
-  <li>ex) 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
-  <li>쿼리 여러번 나눠서 하기</li>
-  <li>조인하고 groupBy하기</li>
-  <li>서브쿼리 하기</li>
- </ul>
- <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
- <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
-  동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
-  </a>
- </li>
- 
-</ul>
-
-aws 청구 요금 줄이기
-<ul>
- <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
- <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
- <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 </li>
- <li>네트워크 요금을 줄이기 위해 select절 필드를 최소화</li>
-</ul>
-
-https 인증서 자동 갱신 (Let`s Encrypt)
-<ul>
-  <li>certbot 타이머로 인증서 자동 갱신</li>
-   <ul>
-      <li>갱신 중 서비스가 중단되지 않게 하기 위해 인증 방식을 standalone → webroot로 변경</li>
-      <li>webroot로 변경하기 위해 nginx 추가</li>
-   </ul>
-  <li>certbot reload hook으로 새로운 인증서 자동 적용</li>
-   <ul>
-      <li>certbot reload hook은 nginx를 재시작하는 기능</li>
-   </ul>
-</ul>
-
-결제·주문 API
-<ul>
- <li>토스페이먼츠·카카오페이·카드 등 PG사 이용</li>
- <li>결제가 올바로 됐는지 확인하고 주문 API 진행시킴</li>
- <li>pc·모바일 따로 주문 API 개발</li>
-</ul>
-
-기타
-<ul>
- <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
-   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
-  </a>
- </li>
- <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
- <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
- <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
- <li>소셜·일반 회원가입 중복 계정인지 검증</li>
-</ul>
 
 <h1>erd</h1>
 <p align="center">
