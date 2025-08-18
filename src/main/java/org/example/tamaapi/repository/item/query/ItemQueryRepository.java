@@ -128,7 +128,7 @@ public class ItemQueryRepository {
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     //★카테고리 베스트 아이템 (인기 상품 조회)
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
-
+        // 개선 방법 없어서, 캐시 써야함 (아직 안느려서 괜찮)
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
                         (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.originalPrice, item.nowPrice)).from(orderItem)
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)
@@ -166,9 +166,19 @@ public class ItemQueryRepository {
 
     //이상 없지만, IDE 에러 없애려고 cast 적용
     private List<CategoryBestItemReviewQueryDto> findAvgRatingsCountInColorItemId(List<Long> colorItemIds) {
-        String jpql = "select new org.example.tamaapi.repository.item.query.dto.CategoryBestItemReviewQueryDto(ci.id, CAST(ROUND(AVG(r.rating), 1) AS double), count(ci.id)) from Review r" +
-                " join r.orderItem oi join oi.colorItemSizeStock isk join isk.colorItem ci where ci.id in :colorItemIds" +
-                " group by ci.id";
+        String jpql = """
+            select new org.example.tamaapi.repository.item.query.dto.CategoryBestItemReviewQueryDto(
+                isk.colorItem.id,
+                CAST(ROUND(AVG(r.rating), 1) AS double),
+                count(isk.colorItem.id)
+            )
+            from Review r
+                join r.orderItem oi
+                join oi.colorItemSizeStock isk
+            where isk.id in :colorItemIds
+            group by isk.colorItem.id
+            """;
+
         TypedQuery<CategoryBestItemReviewQueryDto> query = em.createQuery(jpql, CategoryBestItemReviewQueryDto.class);
         query.setParameter("colorItemIds", colorItemIds);
         return query.getResultList();

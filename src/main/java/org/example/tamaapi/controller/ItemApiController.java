@@ -52,17 +52,20 @@ public class ItemApiController {
     private final FileStore fileStore;
 
     @GetMapping("/api/colorItems/{colorItemId}")
+    //select 필드 너무 많아서 dto 조회 개선 필요
     public ColorItemDetailDto colorItemDetail(@PathVariable Long colorItemId) {
         ColorItem colorItem = colorItemRepository.findWithItemAndStocksByColorItemId(colorItemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 colorItem을 찾을 수 없습니다"));
 
+        //해당 상품 모든 이미지
         List<ColorItemImage> colorItemImage = colorItemImageRepository.findAllByColorItemId(colorItemId);
 
+        //연관 상품 썸네일들
         List<ColorItem> relatedColorItems = colorItemRepository.findRelatedColorItemByItemId(colorItem.getItem().getId());
-        List<Long> itemIds = relatedColorItems.stream().map(rci -> rci.getItem().getId()).toList();
+        List<Long> colorItemIds = relatedColorItems.stream().map(ColorItem::getId).toList();
 
         //이거 영속성 컨텍스트 충돌 날거 같은데 (충돌 안남)
-        List<ColorItemImage> relatedColorItemDefaultImages = colorItemImageRepository.findAllByColorItemItemIdInAndSequence(itemIds, 1);
+        List<ColorItemImage> relatedColorItemDefaultImages = colorItemImageRepository.findAllByColorItemIdInAndSequence(colorItemIds, 1);
         Map<Long, UploadFile> uploadFileMap = relatedColorItemDefaultImages.stream().collect(Collectors.toMap(ci -> ci.getColorItem().getId(), ColorItemImage::getUploadFile));
         List<RelatedColorItemDto> relatedColorItemDtos = relatedColorItems.stream().map(rci -> new RelatedColorItemDto(rci, uploadFileMap.get(rci.getId()))).toList();
 

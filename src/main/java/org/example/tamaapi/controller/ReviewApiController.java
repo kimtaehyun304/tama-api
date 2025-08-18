@@ -41,6 +41,7 @@ public class ReviewApiController {
     private final OrderItemRepository orderItemRepository;
 
     @GetMapping("/api/reviews")
+    //select 필드 너무 많아서 dto 조회 개선 필요
     public MyPageReview<ReviewResponse> reviews(@RequestParam Long colorItemId, @Valid CustomPageRequest customPageRequest, @RequestParam CustomSort sort) {
 
         if(!sort.getProperty().equals("createdAt"))

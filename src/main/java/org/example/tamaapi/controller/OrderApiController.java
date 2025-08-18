@@ -41,14 +41,11 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_ORDER;
 @Slf4j
 public class OrderApiController {
 
-
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private final EmailService emailService;
-    private final OrderItemRepository orderItemRepository;
     private final OrderQueryRepository orderQueryRepository;
     private final PortOneService portOneService;
-
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
