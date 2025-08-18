@@ -21,7 +21,7 @@ boot, mvc·rest api, valid, security, cache
  <ul>
   <li>로컬db 상품 row 십만개 넣고 진행</li>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
-   <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0.3s)</li>
+   <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0s)</li>
   </a>
   <ul>
    <li>최신순 정렬 order by 필드 변경 (created_at → item.id)</li>
