@@ -79,10 +79,10 @@ public class ItemQueryRepository {
                         item.nowPrice
                 ))
                 .from(item)
-                .join(item.colorItems, colorItem)
-                .join(colorItem.colorItemSizeStocks, colorItemSizeStock)
-                .where(categoryIdIn(categoryIds), genderIn(genders), minPriceGoe(minPrice), maxPriceLoe(maxPrice), itemNameContains(itemName), colorIdIn(colorIds), isContainSoldOut(isContainSoldOut))
-                .distinct() // SELECT DISTINCT
+                .where(
+                        JPAExpressions.selectOne().from(colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
+                                .where(colorItem.item.id.eq(item.id), categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
+                                        , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut)).exists())
                 .orderBy(categoryItemSort(sort))
                 .offset(customPageRequest.getPage() - 1)
                 .limit(customPageRequest.getSize())
@@ -93,8 +93,8 @@ public class ItemQueryRepository {
     private Long countCategoryItems(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
         return queryFactory.select(item.count()).from(item).where(
                 JPAExpressions.selectOne().from(colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
-                        .where(categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
-                                , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut), colorItem.item.id.eq(item.id)).exists())
+                        .where(colorItem.item.id.eq(item.id), categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
+                                , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut)).exists())
                 .fetchOne();
     }
 

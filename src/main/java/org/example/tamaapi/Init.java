@@ -87,14 +87,15 @@ public class Init {
         public void initAll() {
             initCategory();
             initColor();
-            //initItem();
-            initManyItem(10000);
+            initManyItem(100000);
             initMember();
             initMemberAddress();
-            //initOrder();
             initManyOrder(30000);
+            initManyReview();
+
+            //initItem();
+            //initOrder();
             //initReview();
-            //initManyReview();
         }
 
         /*
@@ -446,15 +447,16 @@ public class Init {
                 colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "S(67CM)", 9));
                 colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "M(67CM)", 9));
 
+                //상품 이미지 s3에 이미 올려둔거 쓰는거라 이름 통일함
                 // 색상별 이미지 분기
                 switch (colorItem.getColor().getName()) {
                     case "아이보리" -> {
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-ivory-pants.jpg", i+"woman-ivory-pants-uuid.jpg"), 1));
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-ivory-pants-detail.jpg", i+"woman-ivory-pants-detail-uuid.jpg"), 2));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-ivory-pants.jpg", "woman-ivory-pants-uuid.jpg"), 1));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-ivory-pants-detail.jpg", "woman-ivory-pants-detail-uuid.jpg"), 2));
                     }
                     case "핑크" -> {
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-pink-pants.jpg", i+"woman-pink-pants-uuid.jpg"), 1));
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-pink-pants-detail.jpg", i+"woman-pink-pants-detail-uuid.jpg"), 2));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-pink-pants.jpg", "woman-pink-pants-uuid.jpg"), 1));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-pink-pants-detail.jpg", "woman-pink-pants-detail-uuid.jpg"), 2));
                     }
                     default -> {
                         // 다른 색상 처리 필요 시

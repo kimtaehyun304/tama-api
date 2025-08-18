@@ -46,8 +46,8 @@ class TamaApiApplicationTests {
     // ○ groupBy로 행을 줄이고 페이징 처리
 
     // 두 방법 속도 비교 결과
-    // ○ System.currentTimeMillis() 비교 : 둘 다 비슷함
-    // ○ mysql explain 비교 : groupBy 승리
+    // ○ System.currentTimeMillis() 비교 : 데이터 별로 없을땐 비슷
+    // ○ mysql 십만개 넣고 측정 : 서브쿼리 승리 (exists로 하면 테이블 하나 덜 읽을 수 있음)
 
     //where절에 서브 쿼리 사용
     @Test
