@@ -64,7 +64,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 결제·주문 API
 <ul>
  <li>토스페이먼츠·카카오페이·카드 등 PG사 이용</li>
- <li>결제가 올바로 됐는지 확인하고 주문 API 진행시킴</li>
+ <li>결제가 올바로 됐는지 포트원 API로 검증하고 주문 API 진행</li>
  <li>pc·모바일 따로 주문 API 개발</li>
 </ul>
 
