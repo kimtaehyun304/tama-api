@@ -15,43 +15,16 @@
 ### 프로젝트 스킬 (스프링)
 boot, mvc·rest api, valid, security, cache
 
-### 기능
-상품 API
-<ul>
- <li>상품 검색</li>
- <li>인기 상품 조회</li>
- <li>장바구니에 담긴 상품 조회</li>
- <li>카테고리 조회</li>
- <li>색상 조회</li>
- <li>상품 등록·이미지 업로드</li>
- <li>리뷰 조회·등록</li>
-</ul>
-
-주문 API
-<ul>
- <li>주문 조회</li>
- <li>상품 주문 (포트원 연동)</li>
- <li>자주 쓰는 배송지 조회·등록</li>
-</ul>
-
-인증 API
-<ul>
-  <li>로그인·회원가입 (oauth2·jwt)</li>
-  <li>회원가입에 필요한 인증 문자를 이메일로 전송</li>
-  <li>관리자 확인</li>
-</ul>
-
 ### 프로젝트로 얻은 경험
 SQL 경험
 <ul>
  <li>상품 검색 쿼리 속도 개선</li>
  <ul>
-  <li>커버링 인덱스 적용하여 explain type 개선 (ALL→INDEX) </li>
-  <li> 
-   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/test/java/org/example/tamaapi/TamaApiApplicationTests.java#L40">
-    서브쿼리 vs 조인+groupBy 성능 비교 → 서브쿼리 선택 
-   </a>
-  </li>
+  <li>count 쿼리 row 중복 제거 방법 변경 (disticnt 0.8s → exists 0.3s)</li>
+  <li>정렬 쿼리 row 중복 제거 방법 변경 (group by 0.8s → distinct 0.3s)</li>
+  <li>최신순 정렬 order by 필드 변경 (created_at → item.id)</li>
+  <li>가격순 정렬 인덱스 적용하려고 컬럼 변경 colasecse(disconted_price, price) → now_price</li>
+  
  </ul>
  <li>상품 연관관계(1:N - 1:N) 조인하기 어려웠음 → 아래 방법들로 해결</li>
  <ul>
@@ -109,6 +82,33 @@ https 인증서 자동 갱신 (Let`s Encrypt)
  <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
  <li>소셜·일반 회원가입 중복 계정인지 검증</li>
 </ul>
+
+### 기능
+상품 API
+<ul>
+ <li>상품 검색</li>
+ <li>인기 상품 조회</li>
+ <li>장바구니에 담긴 상품 조회</li>
+ <li>카테고리 조회</li>
+ <li>색상 조회</li>
+ <li>상품 등록·이미지 업로드</li>
+ <li>리뷰 조회·등록</li>
+</ul>
+
+주문 API
+<ul>
+ <li>주문 조회</li>
+ <li>상품 주문 (포트원 연동)</li>
+ <li>자주 쓰는 배송지 조회·등록</li>
+</ul>
+
+인증 API
+<ul>
+  <li>로그인·회원가입 (oauth2·jwt)</li>
+  <li>회원가입에 필요한 인증 문자를 이메일로 전송</li>
+  <li>관리자 확인</li>
+</ul>
+
 
 <h1>erd</h1>
 <p align="center">
