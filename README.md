@@ -19,6 +19,7 @@ boot, mvc·rest api, valid, security, cache
 
 상품 검색 쿼리 속도 개선
  <ul>
+  <li>로컬에서 상품 row 십만개 넣고 진행</li>
   <li>count 쿼리 row 중복 제거 방법 변경 (disticnt 0.8s → exists 0.3s)</li>
   <li>정렬 쿼리 row 중복 제거 방법 변경 (group by 0.8s → distinct 0.3s)</li>
   <li>최신순 정렬 order by 필드 변경 (created_at → item.id)</li>
@@ -29,9 +30,8 @@ boot, mvc·rest api, valid, security, cache
  <ul>
   <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
   <li>쿼리 여러번 나눠서 하기</li>
-  <li>조인하고 groupBy하기</li>
-  <li>서브쿼리 하기</li>
-  <li>이너조인·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
+  <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
+  <li>이너·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
   <li>
    <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
   동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
@@ -39,9 +39,6 @@ boot, mvc·rest api, valid, security, cache
  </li>
  </ul><br>
   
-
-
-
 aws 청구 요금 줄이기
 <ul>
  <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
