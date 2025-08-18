@@ -20,15 +20,15 @@ boot, mvc·rest api, valid, security, cache
 상품 검색 쿼리 속도 개선
  <ul>
   <li>로컬에서 상품 row 십만개 넣고 진행</li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
-   <li>정렬 쿼리 row 중복 제거 방법 변경 (group by 0.8s → distinct 0.3s)</li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
+   <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0.3s)</li>
   </a>
   <ul>
    <li>최신순 정렬 order by 필드 변경 (created_at → item.id)</li>
-   <li>가격순 정렬 인덱스 적용하려고 컬럼 변경 colasecse(disconted_price, price) → now_price</li>
+   <li>가격순 정렬 인덱스 적용하려고 order by 필드 변경</li>
+   <li>ex) colasecse(disconted_price, price) → now_price</li>
   </ul>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L93">
-    <li>count 쿼리 row 중복 제거 방법 변경 (disticnt 0.8s → exists 0.3s)</li>
   </a>
  </ul><br>
  
