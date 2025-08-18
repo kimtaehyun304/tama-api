@@ -1,6 +1,8 @@
 package org.example.tamaapi.repository.order.query;
 
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.ColorItemImage;
@@ -91,7 +93,9 @@ public class OrderQueryRepository {
                 .join(order.delivery, delivery).fetchJoin().join(order.member, member)
                 .offset(customPageRequest.getPage() - 1)
                 .limit(customPageRequest.getSize())
+                .orderBy(new OrderSpecifier<>(Order.DESC, order.id))
                 .fetch();
+
         Long count = queryFactory.select(order.count()).from(order).fetchOne();
 
         List<Long> orderIds = content.stream().map(AdminOrderResponse::getId).toList();

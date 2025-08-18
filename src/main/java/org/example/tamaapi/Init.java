@@ -24,6 +24,7 @@ import org.example.tamaapi.service.MemberService;
 import org.example.tamaapi.service.ReviewService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -42,24 +43,13 @@ public class Init {
 
     private final InitService initService;
     private final Environment environment;
-
+    private final OrderRepository orderRepository;
     @PostConstruct
     public void init() throws InterruptedException {
-        String[] profiles = environment.getActiveProfiles();
-        List<String> profileList = Arrays.asList(profiles);
+        String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto", "none");
 
-        if (initService.isNotInit()) initService.initAll();
-
-
-        /*
-        if (profileList.contains("local") && initService.isNotInit()) {
+        if(!ddlAuto.equals("none"))
             initService.initAll();
-        } else if (profileList.contains("init") && initService.isNotInit()) {
-            initService.initAll();
-        }
-
-         */
-
     }
 
     @Component
@@ -98,13 +88,13 @@ public class Init {
             initCategory();
             initColor();
             //initItem();
-            initManyItem();
+            initManyItem(10000);
             initMember();
             initMemberAddress();
             //initOrder();
-            initManyOrder();
+            initManyOrder(30000);
             //initReview();
-            initManyReview();
+            //initManyReview();
         }
 
         /*
@@ -392,13 +382,13 @@ public class Init {
             colorItemImages.clear();
         }
 
-        private void initManyItem() {
+        private void initManyItem(int ITEM_COUNT) {
             log.info("initManyItem 실행 중");
             Category category = categoryRepository.findByName("팬츠").get();
 
             List<Item> items = new ArrayList<>();
 
-            for(int i=0; i<100000; i++) {
+            for(int i=0; i<ITEM_COUNT; i++) {
                 Item item = new Item(
                         49900+i,
                         39900+i,
@@ -451,6 +441,7 @@ public class Init {
             List<ColorItemImage> colorItemImages = new ArrayList<>();
 
             for (ColorItem colorItem : colorItems) {
+                int i = 0;
                 // 사이즈 재고 추가 (모든 색상 공통)
                 colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "S(67CM)", 9));
                 colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "M(67CM)", 9));
@@ -458,19 +449,19 @@ public class Init {
                 // 색상별 이미지 분기
                 switch (colorItem.getColor().getName()) {
                     case "아이보리" -> {
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-ivory-pants.jpg", "woman-ivory-pants-uuid.jpg"), 1));
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-ivory-pants-detail.jpg", "woman-ivory-pants-detail-uuid.jpg"), 2));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-ivory-pants.jpg", i+"woman-ivory-pants-uuid.jpg"), 1));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-ivory-pants-detail.jpg", i+"woman-ivory-pants-detail-uuid.jpg"), 2));
                     }
                     case "핑크" -> {
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-pink-pants.jpg", "woman-pink-pants-uuid.jpg"), 1));
-                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile("woman-pink-pants-detail.jpg", "woman-pink-pants-detail-uuid.jpg"), 2));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-pink-pants.jpg", i+"woman-pink-pants-uuid.jpg"), 1));
+                        colorItemImages.add(new ColorItemImage(colorItem, new UploadFile(i+"woman-pink-pants-detail.jpg", i+"woman-pink-pants-detail-uuid.jpg"), 2));
                     }
                     default -> {
                         // 다른 색상 처리 필요 시
                     }
                 }
+                ++i;
             }
-
 
             jdbcTemplateRepository.saveColorItemSizeStocks(colorItemSizeStocks);
             jdbcTemplateRepository.saveColorItemImages(colorItemImages);
@@ -646,14 +637,13 @@ public class Init {
             jdbcTemplateRepository.saveOrderItems(orderItems);
         }
 
-
-        private void initManyOrder() {
+        private void initManyOrder(int ORDER_COUNT) {
             log.info("initManyOrder 실행 중");
             List<ColorItemSizeStock> foundColorItemSizeStocks = colorItemSizeStockRepository.findAll();
             MemberAddress manAddress = memberAddressRepository.findById(1L).get();
             MemberAddress womanAddress = memberAddressRepository.findById(3L).get();
-            List<Order> orders = new ArrayList<>();
-            List<OrderItem> orderItems = new ArrayList<>();
+            List<Order> newOrders = new ArrayList<>();
+            List<OrderItem> newOrderItems = new ArrayList<>();
             List<Delivery> deliveries = new ArrayList<>();
 
             Member member;
@@ -662,6 +652,8 @@ public class Init {
             int count = 0;
 
             for (ColorItemSizeStock colorItemSizeStock : foundColorItemSizeStocks) {
+                //반복문 안에서만 쓸 리스트
+                List<OrderItem> orderItems = new ArrayList<>();
                 Long id = colorItemSizeStock.getId();
                 int orderCount = id < 10 ? 2 : 1;
                 SaveMemberOrderRequest request;
@@ -690,14 +682,19 @@ public class Init {
                     Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
                     int orderPrice = nowPrice;
 
-                    OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+                    OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice)
+                            .count(saveOrderItemRequest.getOrderCount()).build();
+                    newOrderItems.add(orderItem);
                     orderItems.add(orderItem);
                 }
+
                 Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
                 order.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
                 order.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
-                orders.add(order);
-                if(++count == 30000) break;
+                newOrders.add(order);
+
+                orderItems.clear();
+                if(++count == ORDER_COUNT) break;
             }
 
             jdbcTemplateRepository.saveDeliveries(deliveries);
@@ -713,24 +710,27 @@ public class Init {
                 if (foundDelivery != null) delivery.setIdByBatchId(foundDelivery.getId());
             }
 
-            jdbcTemplateRepository.saveOrders(orders);
+            jdbcTemplateRepository.saveOrders(newOrders);
 
-            List<Order> foundOrders = orderRepository.findAll();
-            Map<LocalDateTime, Order> orderMap = foundOrders.stream()
+            //시간-PK 매핑
+            List<Order> foundOrders = orderRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+            Map<LocalDateTime, Long> foundOrderIdMap = foundOrders.stream()
                     .collect(Collectors.toMap(
                             BaseEntity::getCreatedAt,
-                            o -> o
+                            Order::getId
                     ));
 
-            for (Order order : orders) {
-                Order foundOrder = orderMap.get(order.getCreatedAt());
-                if (foundOrder != null) order.setIdByBatchId(foundOrder.getId());
+            //1.맵에서 날짜로 PK를 꺼낸다
+            //2.order 엔티티에 맞는 pk를 넣는다
+            //newOrders는 pk가 존재하지 않는다. (배치로 저장했기 때문에)
+            for (Order newOrder : newOrders) {
+                Long orderId = foundOrderIdMap.get(newOrder.getCreatedAt());
+                newOrder.setIdByBatchId(orderId);
             }
 
-            jdbcTemplateRepository.saveOrderItems(orderItems);
+            jdbcTemplateRepository.saveOrderItems(newOrderItems);
         }
 
     }
-
 
 }
