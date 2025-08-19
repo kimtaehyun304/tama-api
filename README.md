@@ -30,26 +30,25 @@ boot, mvc·rest api, valid, security, cache
   </ul>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L93">
   </a>
- </ul><br>
- 
+</ul>
+
+<a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
+ 상품 저장 쿼리 개선
+</a>
+ <ul>
+  <li>data jpa saveAll() → jdbcTemplate bulk insert</li>
+  <li>bulk insert하면 객체에 pk가 없음 → db 조회하여 할당</li>
+  <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
+ </ul>
+
 연관관계(1:N - 1:N) 조인 노하우 터득
  <ul>
   <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
   <li>쿼리 여러번 나눠서 하기</li>
   <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
   <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
-  <li>
-  동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
- </li>
  </ul><br>
-  
-aws 청구 요금 줄이기
-<ul>
- <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
- <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
- <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 & select절 필드 최소화 </li>
-</ul>
-
+ 
 https 인증서 자동 갱신 (Let`s Encrypt)
 1) 인증서 무중단 자동 갱신 (cerbot 타이머) <br>
    <ul>
@@ -61,11 +60,11 @@ https 인증서 자동 갱신 (Let`s Encrypt)
       <li>certbot reload hook은 nginx를 재시작하는 기능</li>
    </ul>
 
-결제·주문 API
+aws 청구 요금 줄이기
 <ul>
- <li>토스페이먼츠·카카오페이·카드 등 PG사 이용</li>
- <li>결제가 올바로 됐는지 포트원 API로 검증하고 주문 API 진행</li>
- <li>pc·모바일 따로 주문 API 개발</li>
+ <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
+ <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
+ <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 & select절 필드 최소화 </li>
 </ul>
 
 기타
@@ -78,7 +77,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
  <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
  <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
- <li>소셜·일반 회원가입 중복 계정인지 검증</li>
+ <li>동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용</li>
 </ul>
 
 ### 기능
@@ -96,7 +95,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 주문 API
 <ul>
  <li>주문 조회</li>
- <li>상품 주문 (포트원 연동)</li>
+ <li>상품 주문 (포트원 연동) (pc·모바일 API 분리)</li>
  <li>자주 쓰는 배송지 조회·등록</li>
 </ul>
 
