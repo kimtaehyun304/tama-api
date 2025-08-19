@@ -63,7 +63,7 @@ public class OrderQueryRepository {
         List<MemberOrderResponse> content = queryFactory.select(new QMemberOrderResponse(order))
                 .from(order).join(order.delivery, delivery).fetchJoin()
                 .where(order.member.id.eq(memberId))
-                .offset(customPageRequest.getPage() - 1)
+                .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .fetch();
 
@@ -91,7 +91,7 @@ public class OrderQueryRepository {
     public CustomPage<AdminOrderResponse> findAdminOrdersWithPaging(CustomPageRequest customPageRequest){
         List<AdminOrderResponse> content = queryFactory.select(new QAdminOrderResponse(order, member.nickname)).from(order)
                 .join(order.delivery, delivery).fetchJoin().join(order.member, member)
-                .offset(customPageRequest.getPage() - 1)
+                .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .orderBy(new OrderSpecifier<>(Order.DESC, order.id))
                 .fetch();

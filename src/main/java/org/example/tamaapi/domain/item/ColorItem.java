@@ -43,4 +43,9 @@ public class ColorItem extends BaseEntity {
         this.item = item;
         this.color = color;
     }
+
+    public void setIdAfterBatch(Long id){
+        this.id = id;
+    }
+
 }

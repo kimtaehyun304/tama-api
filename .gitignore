@@ -29,6 +29,7 @@ application*.yml
 logback-spring.xml
 memo.txt
 src/main/generated
+README.md
 
 ### NetBeans ###
 /nbproject/private/

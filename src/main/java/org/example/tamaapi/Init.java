@@ -87,15 +87,16 @@ public class Init {
         public void initAll() {
             initCategory();
             initColor();
-            initManyItem(100000);
             initMember();
             initMemberAddress();
-            initManyOrder(30000);
-            initManyReview();
+            //initManyItem(100000);
+            //initManyOrder(30000);
+            //initManyReview();
 
-            //initItem();
-            //initOrder();
-            //initReview();
+
+            initItem();
+            initOrder();
+            initReview();
         }
 
         /*

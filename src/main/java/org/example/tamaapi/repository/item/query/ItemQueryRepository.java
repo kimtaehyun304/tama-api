@@ -84,7 +84,7 @@ public class ItemQueryRepository {
                                 .where(colorItem.item.id.eq(item.id), categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
                                         , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut)).exists())
                 .orderBy(categoryItemSort(sort))
-                .offset(customPageRequest.getPage() - 1)
+                .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .fetch();
     }
@@ -135,7 +135,7 @@ public class ItemQueryRepository {
                 .where(categoryIdIn(categoryIds))
                 .groupBy(colorItem.id)
                 .orderBy(orderItem.count.sum().desc())
-                .offset(customPageRequest.getPage() - 1)
+                .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .fetch();
 

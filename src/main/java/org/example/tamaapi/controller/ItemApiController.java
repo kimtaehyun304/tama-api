@@ -150,32 +150,39 @@ public class ItemApiController {
     @PostMapping(value = "/api/items/new", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     @PreAuthentication
     @Secured("ROLE_ADMIN")
-    public SavedColorItemIdResponse saveItems(@Valid @RequestBody SaveItemRequest saveItemReq) {
-        Category category = categoryRepository.findById(saveItemReq.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
+    public SavedColorItemIdResponse saveItems(@Valid @RequestBody SaveItemRequest req) {
+        Category category = categoryRepository.findById(req.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
 
-        Item item = new Item(saveItemReq.getPrice(), saveItemReq.getDiscountedPrice(), saveItemReq.getGender(), saveItemReq.getYearSeason(), saveItemReq.getName(), saveItemReq.getDescription()
-                , saveItemReq.getDateOfManufacture(), saveItemReq.getCountryOfManufacture(), saveItemReq.getManufacturer(), category, saveItemReq.getTextile(), saveItemReq.getPrecaution());
+        Item item = new Item(req.getPrice(), req.getDiscountedPrice(), req.getGender(),
+                req.getYearSeason(), req.getName(), req.getDescription()
+                , req.getDateOfManufacture(), req.getCountryOfManufacture(),
+                req.getManufacturer(), category, req.getTextile(), req.getPrecaution());
 
         //영속성 컨텍스트 업로드
-        List<Long> colorIds = saveItemReq.getColorItems().stream().map(SaveColorItemRequest::getColorId).toList();
+        List<Long> colorIds = req.getColorItems().stream().map(SaveColorItemRequest::getColorId).toList();
+
         List<Color> colors = colorRepository.findAllById(colorIds);
 
         //colorItems 엔티티 생성
-        List<ColorItem> colorItems = saveItemReq.getColorItems().stream().map(ci -> new ColorItem(item
-                , colorRepository.findById(ci.getColorId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_COLOR)))).toList();
-
+        List<ColorItem> colorItems = req.getColorItems().stream().map(ci ->
+                new ColorItem(item
+                , colorRepository.findById(ci.getColorId())
+                        .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_COLOR))
+                )
+        ).toList();
 
         //colorItemSizeStocks 엔티티 생성
         //key: colorId
-        Map<Long, List<SaveSizeStockRequest>> sizeStockMap = saveItemReq.getColorItems().stream().collect(Collectors.toMap(
+        Map<Long, List<SaveSizeStockRequest>> sizeStockMap = req.getColorItems().stream().collect(Collectors.toMap(
                 SaveColorItemRequest::getColorId,  // colorId를 Key로 사용
                 SaveColorItemRequest::getSizeStocks
         ));
 
         List<ColorItemSizeStock> colorItemSizeStocks = colorItems.stream()
                 .flatMap(ci ->
-                        sizeStockMap.get(ci.getColor().getId()).stream()
-                                .map(req -> new ColorItemSizeStock(ci, req.getSize(), req.getStock()))
+                        sizeStockMap.get(ci.getColor().getId())
+                                .stream()
+                                .map(request -> new ColorItemSizeStock(ci, request.getSize(), request.getStock()))
                 )
                 .toList();
 
