@@ -59,6 +59,11 @@ boot, mvc·rest api, valid, security, cache
  <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
  <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
+   회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
+  </a>
+ </li>
 </ul>
 
 인프라
