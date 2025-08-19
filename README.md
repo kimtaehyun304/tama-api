@@ -19,16 +19,16 @@ boot, mvc·rest api, valid, security, cache
 
 상품 검색 쿼리 속도 개선
  <ul>
-  <li>로컬에서 상품 row 십만개 넣고 진행</li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
-   <li>정렬 쿼리 row 중복 제거 방법 변경 (group by 0.8s → distinct 0.3s)</li>
+  <li>로컬db 상품 row 십만개 넣고 진행</li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
+   <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0s)</li>
   </a>
   <ul>
-   <li>최신순 정렬 order by 필드 변경 (created_at → item.id)</li>
-   <li>가격순 정렬 인덱스 적용하려고 컬럼 변경 colasecse(disconted_price, price) → now_price</li>
+   <li>인덱스 적용하려고 order by 필드 변경 (created_at → item.id)</li>
+   <li>인덱스 적용하려고 함수 제거·order by 필드 변경</li>
+   <li>ex) colasecse(disconted_price, price) → now_price</li>
   </ul>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L93">
-    <li>count 쿼리 row 중복 제거 방법 변경 (disticnt 0.8s → exists 0.3s)</li>
   </a>
  </ul><br>
  
@@ -37,11 +37,9 @@ boot, mvc·rest api, valid, security, cache
   <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
   <li>쿼리 여러번 나눠서 하기</li>
   <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
-  <li>이너·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
+  <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
   <li>
-   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb2b2e77c7333109014da4c8daa09b351be30548/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L69">
   동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
-   </a>
  </li>
  </ul><br>
   
@@ -66,7 +64,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 결제·주문 API
 <ul>
  <li>토스페이먼츠·카카오페이·카드 등 PG사 이용</li>
- <li>결제가 올바로 됐는지 확인하고 주문 API 진행시킴</li>
+ <li>결제가 올바로 됐는지 포트원 API로 검증하고 주문 API 진행</li>
  <li>pc·모바일 따로 주문 API 개발</li>
 </ul>
 
