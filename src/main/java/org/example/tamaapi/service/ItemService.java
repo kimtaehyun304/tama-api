@@ -26,10 +26,15 @@ public class ItemService {
 
     public List<Long> saveItem(Item item, List<ColorItem> colorItems, List<ColorItemSizeStock> colorItemSizeStocks) {
         itemRepository.save(item);
-        //PK 채우려고 jdbcTemplate 안씀
-        //colorItemRepository.saveAll(colorItems);
         jdbcTemplateRepository.saveColorItems(colorItems);
 
+        //colorItems는 bulk insert해서 객체에 pk가 없음
+        //colorItemSizeStocks bulk insert하려면 colorItem pk가 필요함
+        //db에서 pk를 조회해서 객체에 넣어주기
+
+        //p.s)
+        //이 메서드를 호출하는 컨트롤러에서 colorItemSizeStock에 colorItem을 넣어둠
+        //colorItem에 pk를 넣으면 자동으로 colorItemSizeStock의 colorItem이 채워짐 (참조 객체)
         List<Long> colorIds = colorItems.stream().map(c -> c.getColor().getId()).toList();
         List<ColorItem> foundColorItems = colorItemRepository.findAllByItemIdAndColorIdIn(item.getId(), colorIds);
 
@@ -47,7 +52,6 @@ public class ItemService {
 
         jdbcTemplateRepository.saveColorItemSizeStocks(colorItemSizeStocks);
         return colorItems.stream().map(ColorItem::getId).toList();
-
     }
 
 
