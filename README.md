@@ -38,8 +38,8 @@ boot, mvc·rest api, valid, security, cache
   <li>쿼리 여러번 나눠서 하기</li>
   <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
   <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
- </ul><br>
-
+ </ul>
+ 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
  상품 저장 쿼리 개선 (insert 쿼리 수 ↓)
 </a>
@@ -48,6 +48,21 @@ boot, mvc·rest api, valid, security, cache
   <li>bulk insert하면 객체에 pk가 없음 → db 조회하여 할당</li>
   <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
  </ul>
+
+기타
+<ul>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
+  </a>
+ </li>
+ <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
+ <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
+ <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
+ <li>동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용</li>
+</ul>
+
+인프라
 
 https 인증서 자동 갱신 (Let`s Encrypt)
 1) 인증서 무중단 자동 갱신 (cerbot 타이머) <br>
@@ -67,18 +82,8 @@ aws 청구 요금 줄이기
  <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 & select절 필드 최소화 </li>
 </ul>
 
-기타
-<ul>
- <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
-   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
-  </a>
- </li>
- <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
- <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
- <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
- <li>동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용</li>
-</ul>
+
+
 
 ### 기능
 상품 API
