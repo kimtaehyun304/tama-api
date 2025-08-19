@@ -37,7 +37,7 @@ boot, mvc·rest api, valid, security, cache
   <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
   <li>쿼리 여러번 나눠서 하기</li>
   <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
-  <li>이너·아우터 조인의 테이블 결합 방향 차이를 알게 됨</li>
+  <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
   <li>
   동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용
  </li>
