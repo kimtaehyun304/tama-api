@@ -59,7 +59,6 @@ boot, mvc·rest api, valid, security, cache
  <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
  <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
  <li>로컬·배포 환경을 스위칭하기 위해 application.yml·application-prod.yml 사용</li>
- <li>동적 쿼리를 한눈에 볼 수 있게 queryDsl 사용</li>
 </ul>
 
 인프라
