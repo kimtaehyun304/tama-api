@@ -32,15 +32,6 @@ boot, mvc·rest api, valid, security, cache
   </a>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
- 상품 저장 쿼리 개선
-</a>
- <ul>
-  <li>data jpa saveAll() → jdbcTemplate bulk insert</li>
-  <li>bulk insert하면 객체에 pk가 없음 → db 조회하여 할당</li>
-  <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
- </ul>
-
 연관관계(1:N - 1:N) 조인 노하우 터득
  <ul>
   <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
@@ -48,7 +39,16 @@ boot, mvc·rest api, valid, security, cache
   <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
   <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
  </ul><br>
- 
+
+<a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
+ 상품 저장 쿼리 개선 (insert 쿼리 수 ↓)
+</a>
+ <ul>
+  <li>data jpa saveAll() → jdbcTemplate bulk insert</li>
+  <li>bulk insert하면 객체에 pk가 없음 → db 조회하여 할당</li>
+  <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
+ </ul>
+
 https 인증서 자동 갱신 (Let`s Encrypt)
 1) 인증서 무중단 자동 갱신 (cerbot 타이머) <br>
    <ul>
