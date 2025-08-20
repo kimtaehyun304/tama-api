@@ -1,6 +1,7 @@
 package org.example.tamaapi.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.user.Authority;
@@ -37,6 +38,8 @@ public class OrderService {
     private final ColorItemSizeStockRepository colorItemSizeStockRepository;
     private final JdbcTemplateRepository jdbcTemplateRepository;
     private final PortOneService portOneService;
+    private final EntityManager em;
+    private final ItemService itemService;
 
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;
@@ -52,11 +55,18 @@ public class OrderService {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
         Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
-        List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
-        Order order = Order.createMemberOrder(paymentId, member, delivery, orderItems);
-        //order 저장후 orderItem 저장해야함
-        orderRepository.save(order);
-        jdbcTemplateRepository.saveOrderItems(orderItems);
+        try {
+            //동시 요청으로 인한 재고 부족 예외 발생 가능
+            List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
+            Order order = Order.createMemberOrder(paymentId, member, delivery, orderItems);
+            orderRepository.save(order);
+            jdbcTemplateRepository.saveOrderItems(orderItems);
+        } catch (Exception e){
+            portOneService.cancelPayment(paymentId, "동시 요청으로 인한 재고 부족");
+        }
+
+
+
     }
 
 
@@ -89,15 +99,19 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (SaveOrderItemRequest saveOrderItemRequest : saveOrderItemRequests) {
-            Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
+            Long colorItemSizeStockId = saveOrderItemRequest.getColorItemSizeStockId();
             //영속성 컨텍스트 재사용
-            ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
+            ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId)
+                    .orElseThrow(() -> new IllegalArgumentException(colorItemSizeStockId + "는 동록되지 않은 상품입니다"));
 
             //가격 변동 or 할인 쿠폰 고려
             Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
             int orderPrice = nowPrice;
 
-            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock)
+                    .orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+
+            itemService.removeStock(colorItemSizeStockId, saveOrderItemRequest.getOrderCount());
             orderItems.add(orderItem);
         }
         return orderItems;
@@ -228,8 +242,6 @@ public class OrderService {
                 .ifPresent(order -> { throw new IllegalArgumentException("이미 사용된 paymentId 입니다."); });
     }
 
-
-
     public void cancelGuestOrder(Long orderId, String reason){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ORDER));
         OrderStatus status = order.getStatus();
@@ -253,6 +265,7 @@ public class OrderService {
         order.cancelOrder();
         portOneService.cancelPayment(order.getPaymentId(), reason);
     }
+
 
 
 }

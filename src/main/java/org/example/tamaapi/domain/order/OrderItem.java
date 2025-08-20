@@ -34,7 +34,7 @@ public class OrderItem {
         this.colorItemSizeStock = colorItemSizeStock;
         this.orderPrice = orderPrice;
         this.count = count;
-        colorItemSizeStock.removeStock(count);
+        //colorItemSizeStock.removeStock(count);
     }
 
 }

@@ -1,19 +1,25 @@
 package org.example.tamaapi.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.ColorItem;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.item.Item;
+import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
+import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.item.ItemRepository;
+import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.example.tamaapi.util.ErrorMessageUtil.*;
 
 @Service
 @Transactional
@@ -23,6 +29,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final JdbcTemplateRepository jdbcTemplateRepository;
     private final ColorItemRepository colorItemRepository;
+    private final EntityManager em;
+    private final ColorItemSizeStockRepository colorItemSizeStockRepository;
 
     public List<Long> saveItem(Item item, List<ColorItem> colorItems, List<ColorItemSizeStock> colorItemSizeStocks) {
         itemRepository.save(item);
@@ -54,11 +62,30 @@ public class ItemService {
         return colorItems.stream().map(ColorItem::getId).toList();
     }
 
-
-
     public void saveColorItemImages(List<ColorItemImage> colorItemImages) {
         jdbcTemplateRepository.saveColorItemImages(colorItemImages);
     }
+
+    //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락 이용
+    public void removeStock(Long colorItemSizeStockId, int quantity){
+        //동시 요청 발생하면 재고 검사 사전에 해도 못 잡음
+        int updated = em.createQuery("update ColorItemSizeStock c set c.stock = c.stock-:quantity " +
+                        "where c.id = :id and c.stock >= :quantity")
+                .setParameter("quantity", quantity)
+                .setParameter("id", colorItemSizeStockId)
+                .executeUpdate();
+
+        //재고보다 주문양이 많으면 업데이튿 된 row 없는 걸 이용
+        if (updated == 0)
+            throw new IllegalArgumentException("재고가 부족합니다.");
+    }
+
+    public void changeStock(Long colorItemSizeStockId, int quantity){
+        ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId)
+                .orElseThrow(()->new IllegalArgumentException(NOT_FOUND_ITEM));
+        colorItemSizeStock.changeStock(quantity);
+    }
+
 
 
 }

@@ -44,12 +44,25 @@ public class ColorItemSizeStock {
         this.stock = stock;
     }
 
+    /* 동시 요청시 재고 음수되는 가능성
     public void removeStock(int quantity) {
         int restStock = this.stock - quantity;
-        if (restStock < 0) {
+        if (restStock < 0)
             throw new MyBadRequestException("재고가 부족합니다.");
-        }
         this.stock = restStock;
+    }
+     */
+
+    public void removeStock(int quantity) {
+        int restStock = this.stock - quantity;
+        if (restStock < 0)
+            throw new MyBadRequestException("재고가 부족합니다.");
+        this.stock = restStock;
+    }
+
+
+    public void changeStock(int quantity) {
+        this.stock = quantity;
     }
 
 }
