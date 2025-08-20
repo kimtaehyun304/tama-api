@@ -114,7 +114,7 @@ https 인증서 자동 갱신 (Let`s Encrypt)
 <ul>
   <li>로그인·회원가입 (oauth2·jwt)</li>
   <li>회원가입에 필요한 인증 문자를 이메일로 전송</li>
-  <li>관리자 확인</li>
+  <li>관리자 확인 (isAdmin)</li>
 </ul>
 
 
