@@ -17,12 +17,13 @@ boot, mvc·rest api, valid, security, cache
 
 ### 프로젝트로 얻은 경험
 
+ <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
 상품 검색 쿼리 속도 개선
+ </a>
  <ul>
   <li>로컬db 상품 row 십만개 넣고 진행</li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
    <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0s)</li>
-  </a>
+
   <ul>
    <li>인덱스 적용하려고 order by 필드 변경 (created_at → item.id)</li>
    <li>인덱스 적용하려고 함수 제거·order by 필드 변경</li>
@@ -33,13 +34,19 @@ boot, mvc·rest api, valid, security, cache
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
- 상품 저장 쿼리 개선 (insert 쿼리 수 ↓)
+ 상품 등록 insert 쿼리 줄이기
 </a>
  <ul>
   <li>data jpa saveAll() → jdbcTemplate bulk insert</li>
   <li>bulk insert하면 객체에 pk가 없음 → db 조회하여 할당</li>
   <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
  </ul>
+
+상품 주문 동시성 문제 해결
+<ul>
+ <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
+ <li>재고 음수 방지를 위해, where c.stock >= :quantity</li>
+</ul>
 
 연관관계(1:N - 1:N) 조인 노하우 터득
  <ul>
