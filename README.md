@@ -32,14 +32,6 @@ boot, mvc·rest api, valid, security, cache
   </a>
 </ul>
 
-연관관계(1:N - 1:N) 조인 노하우 터득
- <ul>
-  <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
-  <li>쿼리 여러번 나눠서 하기</li>
-  <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
-  <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
- </ul>
- 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
  상품 저장 쿼리 개선 (insert 쿼리 수 ↓)
 </a>
@@ -49,6 +41,14 @@ boot, mvc·rest api, valid, security, cache
   <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
  </ul>
 
+연관관계(1:N - 1:N) 조인 노하우 터득
+ <ul>
+  <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
+  <li>쿼리 여러번 나눠서 하기</li>
+  <li>조인·groupBy 또는 서브쿼리 (성능 테스트 필요)</li>
+  <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
+ </ul>
+ 
 기타
 <ul>
  <li>
