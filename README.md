@@ -69,8 +69,6 @@ boot, mvc·rest api, valid, security, cache
    회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
   </a>
   </li>
- <li>빠른 로컬 개발을 위해 in-memory-db(h2) 사용</li>
- <li>로컬·배포 환경을 스위칭하기 위해 application-prod.yml 사용</li>
 </ul>
 
 인프라
