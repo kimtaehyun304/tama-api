@@ -42,7 +42,9 @@ boot, mvc·rest api, valid, security, cache
   <li>p.s) 참조 객체의 외래키 컬럼을 채우기위해 pk 할당</li>
  </ul>
 
-상품 주문 동시성 문제 해결
+<a href="https://github.com/kimtaehyun304/tama-api/blob/abfea2608d69d07772bfe3c2c9a87e9d89f22bd7/src/main/java/org/example/tamaapi/service/ItemService.java#L70">
+ 상품 주문 동시성 문제 해결
+</a>
 <ul>
  <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
  <li>재고 음수 방지를 위해, where c.stock >= :quantity</li>
