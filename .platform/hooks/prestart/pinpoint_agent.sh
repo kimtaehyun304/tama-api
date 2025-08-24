@@ -2,7 +2,7 @@
 set -e
 
 # Pinpoint Agent 설치 경로
-AGENT_DIR="/home/ec2-uer/pinpoint-agent-2.5.1"
+AGENT_DIR="/home/ec2-user/pinpoint-agent-2.5.1"
 PINPOINT_AGENT_ID="tama-agent"
 PINPOINT_APP_NAME="tama"
 PINPOINT_COLLECTOR_IP="43.202.5.63"
