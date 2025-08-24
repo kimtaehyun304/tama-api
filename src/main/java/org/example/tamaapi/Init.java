@@ -89,14 +89,17 @@ public class Init {
             initColor();
             initMember();
             initMemberAddress();
-            //initManyItem(100000);
-            //initManyOrder(30000);
-            //initManyReview();
 
+            initManyItem(100000);
+            initManyOrder(30000);
+            initManyReview();
 
+            /*
             initItem();
             initOrder();
             initReview();
+
+             */
         }
 
         /*

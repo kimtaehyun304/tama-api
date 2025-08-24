@@ -49,20 +49,11 @@ public class ReviewApiController {
 
         sortValidator.validate(sort);
 
-        /*
-        Long itemId = colorItemRepository.findWithItemAndStocksByColorItemId(colorItemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 colorItem을 찾을 수 없습니다")).getItem().getId();
-        Double avgRating = reviewRepository.findAvgRatingByItemId(itemId).orElse(0.0);
-        */
-
-
         Double avgRating = reviewRepository.findAvgRatingByColorItemId(colorItemId).orElse(0.0);
-        //
-        //Sort.Direction direction = TypeConverter.convertStringToDirection(sort.getDirection());
 
         PageRequest pageRequest = PageRequest.of(customPageRequest.getPage()-1, customPageRequest.getSize()
                 , Sort.by(new Sort.Order(sort.getDirection(), sort.getProperty()), new Sort.Order(Sort.Direction.DESC, "id")));
-        Page<Review> reviews = reviewRepository.findAllWithMemberWithItemStockWithColorItemByColorItemId(colorItemId, pageRequest);
+        Page<Review> reviews = reviewRepository.findReviewsByColorItemId(colorItemId, pageRequest);
 
         List<ReviewResponse> reviewResponses = reviews.stream().map(ReviewResponse::new).toList();
         return new MyPageReview<>(avgRating, reviewResponses, reviews.getPageable(), reviews.getTotalPages(), reviews.getTotalElements());
