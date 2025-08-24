@@ -3,7 +3,7 @@
 
 # certbot 설치 여부 확인
 if [ ! -d /etc/letsencrypt/live ]; then
-    echo "Certbot이 설치되어 있지 않아 설치를 진행합니다..."
+    echo "Certbot is not installed, proceeding with installation.."
 
     # certbot 설치
     sudo yum install -y certbot
@@ -29,5 +29,5 @@ EOF
     # Nginx 재시작
     sudo systemctl restart nginx
 else
-    echo "Certbot이 이미 설치되어 있습니다."
+    echo "Certbot is already installed, skipping installation."
 fi
