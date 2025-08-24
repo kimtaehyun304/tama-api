@@ -10,8 +10,7 @@ if [ ! -d /etc/letsencrypt/live ]; then
     sudo yum install -y python3-certbot-nginx
 
     # 인증서 발급
-    sudo certbot certonly --webroot \
-        -w /usr/share/nginx/html \
+    sudo certbot certonly --nginx \
         -d dldm.kr \
         --email kimapbel@gmail.com \
         --agree-tos \
