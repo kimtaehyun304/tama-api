@@ -16,6 +16,6 @@ if [ ! -d /home/ec2-user/pinpoint-agent-2.5.1 ]; then
 
     # 모니터링 서버 IP 변경
     # 여기서 {ip} 부분을 실제 Collector 서버 IP로 바꿔야 함
-    sed -i "s/profiler.transport.grpc.collector.ip=.*/profiler.transport.grpc.collector.ip=$MONITORING_SERVER_IP/" "$CONFIG_PATH"
+    sed -i "s|profiler.transport.grpc.collector.ip=.*|profiler.transport.grpc.collector.ip=$MONITORING_SERVER_IP|" "$CONFIG_PATH"
 
 fi
