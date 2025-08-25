@@ -6,7 +6,7 @@ if [ ! -d PINPOINT_DIRECTORY ]; then
     # Pinpoint Agent 다운로드
     wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz
 
-    # 압축 풀기
+    # 압축 풀기 (beanstalk의 application.jar가 있는 곳)
     tar -zxvf pinpoint-agent-2.5.1.tar.gz -C /var/app/current
 
     # 설정파일 경로
