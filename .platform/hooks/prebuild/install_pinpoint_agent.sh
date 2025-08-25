@@ -15,7 +15,6 @@ if [ ! -d "$PINPOINT_DIRECTORY" ]; then
         exit 1
     }
 
-    sudo chmod -R 755 /home/ec2-user/pinpoint-agent-2.5.1
 
     sudo rm -rf pinpoint-agent-2.5.1.tar.gz;
 
