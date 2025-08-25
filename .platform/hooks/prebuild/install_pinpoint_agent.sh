@@ -9,6 +9,8 @@ if [ ! -d /home/ec2-user/pinpoint-agent-2.5.1 ]; then
     # 압축 풀기
     tar -zxvf pinpoint-agent-2.5.1.tar.gz -C /home/ec2-user/
 
+    chmod 644 /home/ec2-user/pinpoint-agent-2.5.1/pinpoint-bootstrap.jar
+
     # 설정파일 경로
     CONFIG_PATH="/home/ec2-user/pinpoint-agent-2.5.1/profiles/release/pinpoint.config"
 
