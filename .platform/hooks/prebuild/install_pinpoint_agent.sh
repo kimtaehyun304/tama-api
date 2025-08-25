@@ -7,9 +7,8 @@ if [ ! -d /var/app/current/pinpoint-agent-2.5.1 ]; then
     wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz
 
     # 압축 풀기
-    tar -zxvf pinpoint-agent-2.5.1.tar.gz -C /home/ec2-user/
+    tar -zxvf pinpoint-agent-2.5.1.tar.gz -C /var/app/current
 
-    chmod 644 /var/app/current/pinpoint-agent-2.5.1/pinpoint-bootstrap.jar
 
     # 설정파일 경로
     CONFIG_PATH="/home/ec2-user/pinpoint-agent-2.5.1/profiles/release/pinpoint.config"
