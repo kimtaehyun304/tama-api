@@ -12,7 +12,7 @@ if [ ! -d /home/ec2-user/pinpoint-agent-2.5.1 ]; then
     # 설정파일 경로
     CONFIG_PATH="/home/ec2-user/pinpoint-agent-2.5.1/profiles/release/pinpoint.config"
 
-    MONITORING_SERVER_IP="http://43.202.5.63/"
+    MONITORING_SERVER_IP="43.202.5.63"
 
     # 모니터링 서버 IP 변경
     # 여기서 {ip} 부분을 실제 Collector 서버 IP로 바꿔야 함
