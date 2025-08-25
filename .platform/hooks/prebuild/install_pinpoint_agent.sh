@@ -7,7 +7,10 @@ if [ ! -d PINPOINT_DIRECTORY ]; then
     wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz
 
     # 압축 풀기 (beanstalk의 application.jar가 있는 곳)
-    sudo tar -zxvf pinpoint-agent-2.5.1.tar.gz -C /var/app/current
+    sudo tar -zxvf /var/app/current/pinpoint-agent-2.5.1.tar.gz -C /var/app/current >> $LOGFILE 2>&1 || {
+        echo "Failed to extract Pinpoint Agent!" >> $LOGFILE 2>&1
+        exit 1
+    }
 
     # 설정파일 경로
     CONFIG_PATH="$PINPOINT_DIRECTORY/profiles/release/pinpoint.config"
