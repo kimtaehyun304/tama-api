@@ -4,7 +4,7 @@ LOGFILE=/var/log/pinpoint-prestart.log
 # 디렉토리 체크: []와 경로 사이에 공백 필요
 if [ ! -d "$PINPOINT_DIRECTORY" ]; then
 
-    echo "who am i: $(whoami)"
+    echo "현재 실행 계정: $(whoami)" >> $LOGFILE 2>&1
 
     cd /home/ec2-user
 
@@ -21,7 +21,7 @@ if [ ! -d "$PINPOINT_DIRECTORY" ]; then
     sudo rm -rf pinpoint-agent-2.5.1.tar.gz;
 
     # 설정파일 경로
-    CONFIG_PATH="pinpoint-agent-2.5.1/profiles/release/pinpoint-root.config"
+    CONFIG_PATH="pinpoint-agent-2.5.1/profiles/release/pinpoint.config"
 
     MONITORING_SERVER_IP="43.202.5.63"
 
