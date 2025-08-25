@@ -4,6 +4,8 @@ LOGFILE=/var/log/pinpoint-prestart.log
 # 디렉토리 체크: []와 경로 사이에 공백 필요
 if [ ! -d "$PINPOINT_DIRECTORY" ]; then
 
+    echo "who am i: $(whoami)"
+
     cd /home/ec2-user
 
     # Pinpoint Agent 다운로드
