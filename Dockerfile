@@ -4,16 +4,16 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # 필요한 패키지 설치
-RUN apt-get update && apt-get install -y wget tar
+RUN apt-get update && apt-get install -y wget tar && rm -rf /var/lib/apt/lists/*
 
-# Pinpoint Agent 다운로드 및 압축 풀기
-RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz && \
-    tar -zxvf pinpoint-agent-2.5.1.tar.gz && \
-    rm pinpoint-agent-2.5.1.tar.gz
-
-# 설정파일 IP 변경
-RUN sed -i "s|profiler.transport.grpc.collector.ip=.*|profiler.transport.grpc.collector.ip=43.202.5.63|" \
-    /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config
+# Pinpoint Agent 다운로드 및 설정파일 수정 (이미 있으면 스킵)
+RUN if [ ! -d /app/pinpoint-agent-2.5.1 ]; then \
+        wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz && \
+        tar -zxvf pinpoint-agent-2.5.1.tar.gz && \
+        rm pinpoint-agent-2.5.1.tar.gz && \
+        sed -i "s|profiler.transport.grpc.collector.ip=.*|profiler.transport.grpc.collector.ip=43.202.5.63|" \
+            /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config; \
+    fi
 
 # 애플리케이션 JAR 복사
 COPY application.jar ./
