@@ -21,8 +21,8 @@ COPY application.jar ./
 EXPOSE 5000
 
 # Pinpoint Agent와 함께 실행 (bash 환경 적용)
-CMD ["java",
-     "-javaagent:/app/pinpoint-agent-2.5.1/pinpoint-bootstrap.jar",
-     "-Dpinpoint.agentId=tama-agent",
-     "-Dpinpoint.applicationName=tama",
+CMD ["java", \
+     "-javaagent:pinpoint-agent-2.5.1/pinpoint-bootstrap.jar", \
+     "-Dpinpoint.agentId=tama-agent", \
+     "-Dpinpoint.applicationName=tama", \
      "-jar", "application.jar"]
