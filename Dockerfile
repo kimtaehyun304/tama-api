@@ -6,17 +6,6 @@ WORKDIR /app
 # 필요한 패키지 설치 (wget, tar, procps, bash, bash-completion, curl)
 RUN apt-get update && apt-get install -y wget tar procps bash bash-completion curl
 
-# Docker CLI bash-completion 설치
-RUN curl -L https://raw.githubusercontent.com/docker/cli/master/contrib/completion/bash/docker/etc/bash_completion/docker.sh
-
-# bash-completion 적용
-RUN echo "if ! shopt -oq posix; then" >> /etc/bash.bashrc && \
-    echo "  if [ -f /usr/share/bash-completion/bash_completion ]; then" >> /etc/bash.bashrc && \
-    echo "    . /usr/share/bash-completion/bash_completion" >> /etc/bash.bashrc && \
-    echo "  elif [ -f /etc/bash_completion ]; then" >> /etc/bash.bashrc && \
-    echo "    . /etc/bash_completion" >> /etc/bash.bashrc && \
-    echo "  fi" >> /etc/bash.bashrc && \
-    echo "fi" >> /etc/bash.bashrc
 
 
 # Pinpoint Agent 다운로드 및 설정
@@ -34,4 +23,4 @@ COPY application.jar ./
 EXPOSE 5000
 
 # Pinpoint Agent와 함께 실행 (bash 환경 적용)
-CMD ["bash", "-c", "source /etc/bash.bashrc && java -javaagent:pinpoint-agent-2.5.1/pinpoint-bootstrap.jar -Dpinpoint.agentId=tama-agent -Dpinpoint.applicationName=tama -jar application.jar"]
+CMD ["java -javaagent:pinpoint-agent-2.5.1/pinpoint-bootstrap.jar -Dpinpoint.agentId=tama-agent -Dpinpoint.applicationName=tama -jar application.jar"]
