@@ -4,7 +4,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # 필요한 패키지 설치
-RUN apt-get update && apt-get install -y wget tar && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget tar
 
 # Pinpoint Agent 다운로드 및 설정파일 수정 (이미 있으면 스킵)
 RUN if [ ! -d /app/pinpoint-agent-2.5.1 ]; then \
