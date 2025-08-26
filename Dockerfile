@@ -14,7 +14,7 @@ RUN if [ ! -d /app/pinpoint-agent-2.5.1 ]; then \
         rm pinpoint-agent-2.5.1.tar.gz && \
         sed -i "s|profiler.transport.grpc.collector.ip=.*|profiler.transport.grpc.collector.ip=43.202.5.63|" \
             /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config && \
-        sed -i "s|profiler.sampling.rate=.*|profiler.sampling.rate=100|" \
+        sed -i "s|profiler.sampling.rate=.*|profiler.sampling.rate=1|" \
             /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config; \
     fi
 
