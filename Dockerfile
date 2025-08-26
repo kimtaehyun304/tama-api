@@ -14,7 +14,7 @@ RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpo
     rm pinpoint-agent-2.5.1.tar.gz && \
     sed -i "s|profiler.transport.grpc.collector.ip=.*|profiler.transport.grpc.collector.ip=43.202.5.63|" \
             /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config && \
-    sed -i "s|profiler.sampling.rate=.*|profiler.sampling.counting.sampling-rate=1|" \
+    sed -i "s|profiler.sampling.counting.sampling-rate=.*|profiler.sampling.counting.sampling-rate=1|" \
             /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config
 
 # 애플리케이션 JAR 복사
