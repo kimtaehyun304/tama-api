@@ -7,7 +7,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y wget tar procps bash bash-completion curl
 
 # Docker CLI bash-completion 설치
-RUN curl -L https://raw.githubusercontent.com/docker/cli/master/contrib/completion/bash/docker -o /etc/bash_completion.d/docker.sh
+RUN curl -L https://raw.githubusercontent.com/docker/cli/master/contrib/completion/bash/docker/etc/bash_completion/docker.sh
 
 # bash-completion 적용
 RUN echo "if ! shopt -oq posix; then" >> /etc/bash.bashrc && \
