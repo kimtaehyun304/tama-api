@@ -6,8 +6,6 @@ WORKDIR /app
 # 필요한 패키지 설치 (wget, tar, procps, bash, bash-completion, curl)
 RUN apt-get update && apt-get install -y wget tar procps bash bash-completion curl
 
-
-
 # Pinpoint Agent 다운로드 및 설정
 RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz && \
     tar -zxvf pinpoint-agent-2.5.1.tar.gz && \
@@ -23,4 +21,8 @@ COPY application.jar ./
 EXPOSE 5000
 
 # Pinpoint Agent와 함께 실행 (bash 환경 적용)
-CMD ["java -javaagent:pinpoint-agent-2.5.1/pinpoint-bootstrap.jar -Dpinpoint.agentId=tama-agent -Dpinpoint.applicationName=tama -jar application.jar"]
+CMD ["java",
+     "-javaagent:/app/pinpoint-agent-2.5.1/pinpoint-bootstrap.jar",
+     "-Dpinpoint.agentId=tama-agent",
+     "-Dpinpoint.applicationName=tama",
+     "-jar", "application.jar"]
