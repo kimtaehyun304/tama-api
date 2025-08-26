@@ -18,6 +18,8 @@ RUN sed -i "s|profiler.transport.grpc.collector.ip=.*|profiler.transport.grpc.co
 # 애플리케이션 JAR 복사
 COPY application.jar ./
 
+EXPOSE 5000
+
 # Pinpoint Agent와 함께 실행
 CMD ["java", \
      "-javaagent:pinpoint-agent-2.5.1/pinpoint-bootstrap.jar", \
