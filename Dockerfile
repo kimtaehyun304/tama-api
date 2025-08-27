@@ -4,11 +4,6 @@ FROM amazonlinux:2023
 
 WORKDIR /app
 
-# 필요한 패키지 설치 (wget, tar, procps, bash, bash-completion, curl)
-RUN dnf -y update && \
-    dnf install -y java-17-amazon-corretto wget tar procps-ng curl && \
-    dnf clean all
-
 # Pinpoint Agent 다운로드 및 설정
 RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz && \
     tar -zxvf pinpoint-agent-2.5.1.tar.gz && \
@@ -22,8 +17,6 @@ RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpo
 COPY application.jar ./
 
 EXPOSE 5000
-
-ENV LC_ALL ko_KR.UTF-8
 
 # Pinpoint Agent와 함께 실행 (bash 환경 적용)
 CMD ["java", \
