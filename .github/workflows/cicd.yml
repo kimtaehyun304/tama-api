@@ -56,8 +56,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: tama-api-server
-          environment_name: Tama-api-server-env
+          application_name: tama-api-2
+          environment_name: Tama-api-2-env
           version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
           region: ap-northeast-2
           deployment_package: ${{ env.artifact }}
