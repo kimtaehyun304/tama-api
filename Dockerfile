@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 필요한 패키지 설치 (wget, tar, procps, bash, bash-completion, curl)
 RUN dnf -y update && \
-    dnf install -y java-17-openjdk wget tar && \
+    dnf install -y java-17-amazon-corretto wget tar && \
     dnf clean all
 
 # Pinpoint Agent 다운로드 및 설정
