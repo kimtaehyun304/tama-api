@@ -15,6 +15,8 @@ RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpo
     sed -i "s|profiler.sampling.counting.sampling-rate=.*|profiler.sampling.counting.sampling-rate=1|" \
         /app/pinpoint-agent-2.5.1/profiles/release/pinpoint.config
 
+RUN sudo sysctl -w net.core.somaxconn=8192
+
 # 애플리케이션 JAR 복사
 COPY application.jar ./
 
