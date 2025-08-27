@@ -1,10 +1,10 @@
 # 베이스 이미지
-FROM openjdk:17-jdk-slim
+FROM amazonlinux:2023
 
 WORKDIR /app
 
 # 필요한 패키지 설치 (wget, tar, procps, bash, bash-completion, curl)
-RUN apt-get update && apt-get install -y wget tar procps curl
+RUN dnf install -y java-17-amazon-corretto wget tar procps curl && \ dnf clean all
 
 # Pinpoint Agent 다운로드 및 설정
 RUN wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz && \
