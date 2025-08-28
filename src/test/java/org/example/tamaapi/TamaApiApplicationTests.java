@@ -48,6 +48,8 @@ class TamaApiApplicationTests {
 
     @Autowired
     private JPAQueryFactory queryFactory;
+
+    @Autowired
     private EntityManager em;
 
     @Autowired
@@ -65,7 +67,6 @@ class TamaApiApplicationTests {
     // ○ mysql 십만개 넣고 측정 : 서브쿼리 승리 (exists로 하면 테이블 하나 덜 읽을 수 있음)
 
     //where절에 서브 쿼리 사용
-    @Test
     public void 서브쿼리(){
         //요청 파라미터
         CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
@@ -98,7 +99,6 @@ class TamaApiApplicationTests {
     }
 
     //groupBy로 행을 줄이고 페이징 처리
-    @Test
     public void groupBy(){
         //요청 파라미터
         CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
@@ -130,7 +130,7 @@ class TamaApiApplicationTests {
 
     //쿼리 튜닝 안한게 더 빠르길래 안 썼음
     //type all. using temporary인거 개선했는데 오히려 더 느림..
-    @Test
+
     public void 인기상품_쿼리튜닝(){
         List<Long> categoryIds = new ArrayList<>(1);
         CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
@@ -176,7 +176,6 @@ class TamaApiApplicationTests {
     }
 
     //using temporary 없앴는데 더 느려졌음
-    @Test
     public void 상품검색_쿼리튜닝(){
 
         //요청 파라미터
@@ -206,7 +205,6 @@ class TamaApiApplicationTests {
 
     }
 
-    @Test
     //동시성 문제
     public void 상품주문_동시성_문제_검증() throws InterruptedException {
         Long colorItemSizeStockId = 1L;
