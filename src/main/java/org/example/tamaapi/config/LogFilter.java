@@ -1,12 +1,8 @@
 package org.example.tamaapi.config;
 
 import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
-import java.util.List;
 
 @Component
 public class LogFilter implements Filter {
@@ -18,6 +14,7 @@ public class LogFilter implements Filter {
             throws IOException, ServletException {
         System.out.println("cnt = " + cnt);
         cnt++;
+        chain.doFilter(req, res);
     }
 
     @Override
