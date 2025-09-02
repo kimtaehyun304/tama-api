@@ -15,7 +15,7 @@ if [ ! -d "$PINPOINT_DIRECTORY" ]; then
         exit 1
     }
 
-    sudo rm -rf pinpoint-agent-2.5.1.tar.gz;
+    rm -rf pinpoint-agent-2.5.1.tar.gz;
 
     # 설정파일 경로
     CONFIG_PATH="pinpoint-agent-2.5.1/profiles/release/pinpoint.config"
