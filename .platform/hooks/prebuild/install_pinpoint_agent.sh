@@ -1,9 +1,10 @@
 #!/bin/bash
-PINPOINT_DIRECTORY="/home/ec2-user/pinpoint-agent-2.5.1"
+# PINPOINT_DIRECTORY="/home/ec2-user/pinpoint-agent-2.5.1"
+PINPOINT_DIRECTORY="/var/app/current/pinpoint-agent-2.5.1"
 LOGFILE=/var/log/pinpoint-prestart.log
 if [ ! -d "$PINPOINT_DIRECTORY" ]; then
 
-    cd /home/ec2-user
+    cd /var/app/current
 
     # Pinpoint Agent 다운로드
     wget https://github.com/pinpoint-apm/pinpoint/releases/download/v2.5.1/pinpoint-agent-2.5.1.tar.gz
