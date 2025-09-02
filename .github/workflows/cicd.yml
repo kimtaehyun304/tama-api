@@ -45,6 +45,7 @@ jobs:
           cp build/libs/*.jar deploy/application.jar
           cp -r .platform deploy/.platform
           cp Dockerfile deploy
+          cp Procfile deploy
           cd deploy && zip -r deploy.zip .
 
       - name: Set artifact path
