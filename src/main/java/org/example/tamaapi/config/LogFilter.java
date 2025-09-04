@@ -10,12 +10,11 @@ public class LogFilter implements Filter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        System.out.println("lemon");
         chain.doFilter(req, res);
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig filterConfig)  {}
 
     @Override
     public void destroy() {}

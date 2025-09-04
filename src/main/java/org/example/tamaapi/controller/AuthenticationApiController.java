@@ -10,7 +10,7 @@ import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
 import org.example.tamaapi.dto.responseDto.IsAdminResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
-import org.example.tamaapi.jwt.TokenProvider;
+
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.EmailService;
@@ -31,12 +31,12 @@ public class AuthenticationApiController {
     private final EmailService emailService;
 
     @PostMapping("/api/auth/access-token")
-    public ResponseEntity<AccessTokenResponse> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {;
-        String accessToken = (String) cacheService.get(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
+    public ResponseEntity<AccessTokenResponse> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
+        String accessToken = (String) cacheService.get(MyCacheType.SIGN_IN_TEMP_TOKEN.getName(), tokenRequest.getTempToken());
         if(!StringUtils.hasText(accessToken))
             throw new IllegalArgumentException("일치하는 accessToken이 없습니다.");
 
-        cacheService.evict(MyCacheType.TOKEN.getName(), tokenRequest.getTempToken());
+        cacheService.evict(MyCacheType.SIGN_IN_TEMP_TOKEN.getName(), tokenRequest.getTempToken());
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
 
@@ -46,13 +46,13 @@ public class AuthenticationApiController {
             throw new IllegalArgumentException("이미 가입된 이메일입니다");
         });
         String authString = RandomStringGenerator.generateRandomString(6);
-        cacheService.save(MyCacheType.AUTHSTRING.getName(), emailRequest.getEmail(), authString);
+        cacheService.save(MyCacheType.SIGN_UP_AUTH_STRING.getName(), emailRequest.getEmail(), authString);
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }
 
     @GetMapping("/api/isAdmin")
-    public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal CustomPrincipal principal) {;
+    public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal CustomPrincipal principal) {
         Authority authority = memberRepository.findAuthorityById(principal.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
 

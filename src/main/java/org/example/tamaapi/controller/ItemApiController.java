@@ -2,6 +2,8 @@ package org.example.tamaapi.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.cache.BestItem;
+import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
@@ -22,17 +24,16 @@ import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.*;
 import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
 import org.example.tamaapi.repository.item.query.dto.CategoryItemQueryDto;
+import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.util.FileStore;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static org.example.tamaapi.util.ErrorMessageUtil.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -50,6 +51,7 @@ public class ItemApiController {
     private final SortValidator sortValidator;
     private final ItemService itemService;
     private final FileStore fileStore;
+    private final CacheService cacheService;
 
     @GetMapping("/api/colorItems/{colorItemId}")
     //select 필드 너무 많아서 dto 조회 개선 필요
@@ -126,19 +128,24 @@ public class ItemApiController {
     @GetMapping("/api/items/best")
     public List<CategoryBestItemQueryResponse> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
 
+        BestItem bestItem = BestItem.ALL_BEST_ITEM;
         //상위 카테고리인지 확인
         List<Long> categoryIds = new ArrayList<>();
         if (categoryId != null) {
             Category category = categoryRepository.findWithChildrenById(categoryId)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 category를 찾을 수 없습니다"));
-            //상위 카테고리일경우 하위를 함께 보여줌
-            if (category.getChildren().isEmpty())
-                categoryIds.add(categoryId);
-            else
-                categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
+            categoryIds.add(categoryId);
+            categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
+
+             bestItem = switch (categoryId.intValue()){
+                case 1 -> BestItem.OUTER_BEST_ITEM;
+                case 5 -> BestItem.TOP_BEST_ITEM;
+                case 11 -> BestItem.BOTTOM_BEST_ITEM;
+                default -> throw new IllegalStateException("카테고리는 전체, 아우터, 상의, 하의 중 하나만 제공됩니다.");
+             };
         }
 
-        return itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
+        return (List<CategoryBestItemQueryResponse>) cacheService.get(MyCacheType.BEST_ITEM.getName(), String.valueOf(bestItem));
     }
 
     //S3 도입 전에 쓰던 거

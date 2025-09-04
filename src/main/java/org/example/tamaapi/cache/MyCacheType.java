@@ -5,12 +5,19 @@ import lombok.Getter;
 @Getter
 public enum MyCacheType {
 
-    TOKEN("token", 60*3, 10000),
-    AUTHSTRING("AUTHSTRING", 60*3, 10000);
+    //JWT 토큰과 바꾸기 위한 임시 토큰
+    SIGN_IN_TEMP_TOKEN("SIGN_IN_TEMP_TOKEN", 60*3, 10000),
+
+    //회원가입시 이메일로 전송되는 인증 문자
+    SIGN_UP_AUTH_STRING("SIGN_UP_AUTH_STRING", 60*3, 10000),
+
+    //부하 테스트 결과, TPS 14 길래 캐시 적용
+    BEST_ITEM("BEST_ITEM", 60*60*24, 10000);
 
     private final String name;
     private final int expireAfterWrite;
     private final int maximumSize;
+
 
     MyCacheType(String name, int expireAfterWrite, int maximumSize) {
         this.name = name;
@@ -18,10 +25,4 @@ public enum MyCacheType {
         this.maximumSize = maximumSize;
     }
 
-    /*
-    static class ConstConfig {
-        static final int DEFAULT_TTL_SEC = 180;
-        static final int DEFAULT_MAX_SIZE = 10000;
-    }
-    */
 }

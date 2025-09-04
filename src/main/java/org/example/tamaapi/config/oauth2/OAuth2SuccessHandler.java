@@ -37,13 +37,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String FRONTEND_URL;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Member member = memberRepository.findByEmail((String) oAuth2User.getAttributes().get("email")).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         String tempToken = UUID.randomUUID().toString();
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
-        cacheService.save(MyCacheType.TOKEN.getName(), tempToken, accessToken);
+        cacheService.save(MyCacheType.SIGN_IN_TEMP_TOKEN.getName(), tempToken, accessToken);
 
         String targetUrl = getTargetUrl(tempToken);
 
