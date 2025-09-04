@@ -32,11 +32,11 @@ public class AuthenticationApiController {
 
     @PostMapping("/api/auth/access-token")
     public ResponseEntity<AccessTokenResponse> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
-        String accessToken = (String) cacheService.get(MyCacheType.SIGN_IN_TEMP_TOKEN.getName(), tokenRequest.getTempToken());
+        String accessToken = (String) cacheService.get(MyCacheType.SIGN_IN_TEMP_TOKEN.name(), tokenRequest.getTempToken());
         if(!StringUtils.hasText(accessToken))
             throw new IllegalArgumentException("일치하는 accessToken이 없습니다.");
 
-        cacheService.evict(MyCacheType.SIGN_IN_TEMP_TOKEN.getName(), tokenRequest.getTempToken());
+        cacheService.evict(MyCacheType.SIGN_IN_TEMP_TOKEN.name(), tokenRequest.getTempToken());
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
 
@@ -46,7 +46,7 @@ public class AuthenticationApiController {
             throw new IllegalArgumentException("이미 가입된 이메일입니다");
         });
         String authString = RandomStringGenerator.generateRandomString(6);
-        cacheService.save(MyCacheType.SIGN_UP_AUTH_STRING.getName(), emailRequest.getEmail(), authString);
+        cacheService.save(MyCacheType.SIGN_UP_AUTH_STRING.name(), emailRequest.getEmail(), authString);
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }

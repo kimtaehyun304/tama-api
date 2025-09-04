@@ -145,7 +145,7 @@ public class ItemApiController {
              };
         }
 
-        return (List<CategoryBestItemQueryResponse>) cacheService.get(MyCacheType.BEST_ITEM.getName(), String.valueOf(bestItem));
+        return (List<CategoryBestItemQueryResponse>) cacheService.get(MyCacheType.BEST_ITEM.name(), bestItem.name());
     }
 
     //S3 도입 전에 쓰던 거

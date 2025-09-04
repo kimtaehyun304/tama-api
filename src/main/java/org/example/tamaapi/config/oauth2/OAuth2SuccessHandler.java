@@ -43,7 +43,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String tempToken = UUID.randomUUID().toString();
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
-        cacheService.save(MyCacheType.SIGN_IN_TEMP_TOKEN.getName(), tempToken, accessToken);
+        cacheService.save(MyCacheType.SIGN_IN_TEMP_TOKEN.name(), tempToken, accessToken);
 
         String targetUrl = getTargetUrl(tempToken);
 

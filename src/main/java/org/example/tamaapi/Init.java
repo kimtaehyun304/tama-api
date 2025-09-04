@@ -780,10 +780,10 @@ public class Init {
             List<CategoryBestItemQueryResponse> bottomBestItems = itemQueryRepository.findCategoryBestItemWithPaging(bottomCategoryIds, customPageRequest);
 
             //캐시 저장
-            cacheService.save(MyCacheType.BEST_ITEM.getName(), String.valueOf(BestItem.ALL_BEST_ITEM), allBestItems);
-            cacheService.save(MyCacheType.BEST_ITEM.getName(), String.valueOf(BestItem.OUTER_BEST_ITEM), outerBestItems);
-            cacheService.save(MyCacheType.BEST_ITEM.getName(), String.valueOf(BestItem.TOP_BEST_ITEM), topBestItems);
-            cacheService.save(MyCacheType.BEST_ITEM.getName(), String.valueOf(BestItem.BOTTOM_BEST_ITEM), bottomBestItems);
+            cacheService.save(MyCacheType.BEST_ITEM.name(), String.valueOf(BestItem.ALL_BEST_ITEM), allBestItems);
+            cacheService.save(MyCacheType.BEST_ITEM.name(), String.valueOf(BestItem.OUTER_BEST_ITEM), outerBestItems);
+            cacheService.save(MyCacheType.BEST_ITEM.name(), String.valueOf(BestItem.TOP_BEST_ITEM), topBestItems);
+            cacheService.save(MyCacheType.BEST_ITEM.name(), String.valueOf(BestItem.BOTTOM_BEST_ITEM), bottomBestItems);
         }
 
     }
