@@ -21,7 +21,7 @@ boot, mvc·rest api, valid, security, cache
 상품 검색 쿼리 속도 개선
  </a>
  <ul>
-  <li>로컬db 상품 row 십만개 넣고 진행</li>
+  <li>상품 테이블 row 십만개 넣고 진행</li>
    <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0s)</li>
 
   <ul>
@@ -33,31 +33,31 @@ boot, mvc·rest api, valid, security, cache
   </a>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/abfea2608d69d07772bfe3c2c9a87e9d89f22bd7/src/main/java/org/example/tamaapi/service/ItemService.java#L70">
- 상품 주문 동시성 문제 해결
+<a href="https://github.com/kimtaehyun304/tama-api/blob/0130e7c2b935cdd39a3afe7f908184db51f9b3f5/src/main/java/org/example/tamaapi/controller/ItemApiController.java#L126">
+ 인기 상품 API 응답 속도 개선 (5000ms → 80ms)
 </a>
 <ul>
- <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
- <li>재고 음수 방지를 위해, where c.stock >= :quantity</li>
+ <li>SQL SUM 함수를 사용하므로, 동시에 요청 오면 느린 걸 확인</li>
+ <li>캐시에 저장하는 걸로 변경 (24시간 마다 캐시 갱신)</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/6ba8cf6e1f71c04aef0b6cc8f0fe36355cf7788a/src/main/java/org/example/tamaapi/service/ItemService.java#L27"> 
- 상품 등록 insert 쿼리 줄이기
+<a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L33"> 
+ bulk insert PK 누락 문제 해결
 </a>
  <ul>
-  <li>data jpa saveAll() → jdbcTemplate bulk insert</li>
+  <li>insert 쿼리를 줄이기 위해, data jpa saveAll() → jdbcTemplate bulk insert</li>
   <li>bulk insert는 PK가 안 채워짐 → 해당 PK를 외래키로 쓰는 엔티티 저장 시 문제 발생</li>
   <li>bulk insert 이후 DB 조회하여 PK 채움</li>
  </ul>
 
-연관관계(1:N - 1:N) 조인 노하우 터득
- <ul>
-  <li>ex) 상품 공통 정보 -&lt; 색상 -&lt; 사이즈·재고</li>
-  <li>쿼리 여러번 나눠서 하기</li>
-  <li>조인·groupBy 또는 서브쿼리 (속도 측정 필요)</li>
-  <li>이너·아우터 조인의 테이블 결합 차이를 알게 됨</li>
- </ul>
- 
+<a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L67">
+ 상품 주문 동시성 문제 해결
+</a>
+<ul>
+ <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
+ <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
+</ul>
+
 기타
 <ul>
  <li>
