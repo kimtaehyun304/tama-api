@@ -48,7 +48,7 @@ public class MemberApiController {
 
     @PostMapping("/api/member/new")
     public ResponseEntity<Object> signUp(@Valid @RequestBody SignUpMemberRequest request) {
-        String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING.name(), request.getEmail());
+        String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         if (authString == null || authString.isEmpty())
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("유효하지 않는 인증문자"));
@@ -56,7 +56,7 @@ public class MemberApiController {
         if(!request.getAuthString().equals(authString))
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("인증문자 불일치"));
 
-        cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING.name(), request.getEmail());
+        cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
         String password = bCryptPasswordEncoder.encode(request.getPassword());
         Member member = Member.builder().email(request.getEmail()).phone(request.getPhone()).nickname(request.getNickname()).password(password).provider(Provider.LOCAL).build();
         memberRepository.save(member);

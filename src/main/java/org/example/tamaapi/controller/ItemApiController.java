@@ -27,11 +27,9 @@ import org.example.tamaapi.repository.item.query.dto.CategoryItemQueryDto;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.ItemService;
 import org.example.tamaapi.util.FileStore;
-import org.springframework.core.io.UrlResource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import java.net.MalformedURLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import static org.example.tamaapi.util.ErrorMessageUtil.*;
@@ -127,16 +125,17 @@ public class ItemApiController {
 
     @GetMapping("/api/items/best")
     public List<CategoryBestItemQueryResponse> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
-
         BestItem bestItem = BestItem.ALL_BEST_ITEM;
-        //상위 카테고리인지 확인
+
         List<Long> categoryIds = new ArrayList<>();
         if (categoryId != null) {
             Category category = categoryRepository.findWithChildrenById(categoryId)
                     .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
             categoryIds.add(categoryId);
+            //상위 카테고리의 자식 포함
             categoryIds.addAll(category.getChildren().stream().map(Category::getId).toList());
 
+            //카테고리 분류
              bestItem = switch (categoryId.intValue()){
                 case 1 -> BestItem.OUTER_BEST_ITEM;
                 case 5 -> BestItem.TOP_BEST_ITEM;
@@ -145,14 +144,16 @@ public class ItemApiController {
              };
         }
 
-        return (List<CategoryBestItemQueryResponse>) cacheService.get(MyCacheType.BEST_ITEM.name(), bestItem.name());
+        return (List<CategoryBestItemQueryResponse>) cacheService.get(MyCacheType.BEST_ITEM, bestItem.name());
     }
 
     //S3 도입 전에 쓰던 거
+    /*
     @GetMapping("/api/images/items/{storedFileName}")
     public UrlResource itemImage(@PathVariable String storedFileName) throws MalformedURLException {
         return new UrlResource("file:"+fileStore.getFullPath(storedFileName));
     }
+    */
 
     @PostMapping(value = "/api/items/new", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     @PreAuthentication

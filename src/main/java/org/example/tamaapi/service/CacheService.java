@@ -2,6 +2,7 @@ package org.example.tamaapi.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.cache.MyCacheType;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -17,29 +18,28 @@ public class CacheService {
 
     private final CacheManager cacheManager;
 
-    public void save(String cacheName, String key, Object value) {
-        Cache cache = cacheManager.getCache(cacheName);
+    public void save(MyCacheType cacheName, String key, Object value) {
+        Cache cache = getCache(cacheName);
         //덮어 씌움
-        if (cache != null) {
-            cache.put(key, value);
-        }
+        if (cache != null) cache.put(key, value);
     }
 
-    public Object get(String cacheName, String key) {
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            return cache.get(key, Object.class);
-        }
+    public Object get(MyCacheType cacheName, String key) {
+        Cache cache = getCache(cacheName);
+        if (cache != null) return cache.get(key, Object.class);
         return null;
     }
 
-    public void evict(String cacheName, String key) {
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.evict(key);
-        }
+    public void evict(MyCacheType cacheName, String key) {
+        Cache cache = getCache(cacheName);
+        if (cache != null) cache.evict(key);
     }
 
+    private Cache getCache(MyCacheType cacheName){
+        return cacheManager.getCache(cacheName.name());
+    }
+
+    //테스트 용도
     public Map<String, Map<Object, Object>> getAllCachesWithContents() {
         Map<String, Map<Object, Object>> allCaches = new HashMap<>();
 
