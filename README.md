@@ -37,7 +37,7 @@ boot, mvc·rest api, valid, security, cache, mysql
 </a>
 <ul>
  <li>SQL SUM 함수를 사용하므로, 동시에 요청 오면 느린 걸 확인</li>
- <li>캐시에 저장하는 걸로 변경 (24시간 마다 캐시 갱신)</li>
+ <li>카페인 캐시에 저장하는 걸로 변경 (24시간 마다 캐시 갱신)</li>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L33"> 
