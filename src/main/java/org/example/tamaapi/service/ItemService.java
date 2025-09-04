@@ -64,16 +64,19 @@ public class ItemService {
         jdbcTemplateRepository.saveColorItemImages(colorItemImages);
     }
 
-    //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락으로 예방
     public void removeStock(Long colorItemSizeStockId, int quantity){
-        //동시에 요청 오면, UPDATE 전에 재고 조회하는 게 의미가 없음 -> 재고 조회 제거
+        //동시에 요청 오면, UPDATE 전에 재고 조회하는 게 의미가 없음
+        //단일 요청이면 의미 있긴한데, 밑에 update 쿼리만으로 재고 부족 예외 throw 가능
+        //그래서 if(db.stock - quantity < 0) throw 로직 제거
+
+        //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락으로 예방
         int updated = em.createQuery("update ColorItemSizeStock c set c.stock = c.stock-:quantity " +
                         "where c.id = :id and c.stock >= :quantity")
                 .setParameter("quantity", quantity)
                 .setParameter("id", colorItemSizeStockId)
                 .executeUpdate();
 
-        //재고보다 주문양이 많으면 업데이튿 된 row 없는 걸 이용
+        //재고보다 주문양이 많으면 업데이트 된 row 없는 걸 이용
         if (updated == 0)
             throw new IllegalArgumentException("재고가 부족합니다.");
     }
@@ -83,7 +86,5 @@ public class ItemService {
                 .orElseThrow(()->new IllegalArgumentException(NOT_FOUND_ITEM));
         colorItemSizeStock.changeStock(quantity);
     }
-
-
 
 }

@@ -3,7 +3,7 @@ package org.example.tamaapi.domain.order;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.domain.item.Review;
+
 
 @Entity
 @Getter @Setter
@@ -34,6 +34,7 @@ public class OrderItem {
         this.colorItemSizeStock = colorItemSizeStock;
         this.orderPrice = orderPrice;
         this.count = count;
+        //변경감지는 동시성 문제 있음 → 직접 update로 변경
         //colorItemSizeStock.removeStock(count);
     }
 
