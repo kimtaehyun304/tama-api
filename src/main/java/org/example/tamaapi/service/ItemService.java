@@ -6,12 +6,10 @@ import org.example.tamaapi.domain.item.ColorItem;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.item.Item;
-import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.item.ItemRepository;
-import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,25 +32,25 @@ public class ItemService {
 
     public List<Long> saveItem(Item item, List<ColorItem> colorItems, List<ColorItemSizeStock> colorItemSizeStocks) {
         itemRepository.save(item);
+        //colorItems 객체는 bulk insert해서 PK 없는 상태
         jdbcTemplateRepository.saveColorItems(colorItems);
 
-        //colorItems는 bulk insert해서 객체에 pk가 없음
-        //colorItemSizeStocks bulk insert하려면 colorItem pk가 필요함
-        //db에서 pk를 조회해서 객체에 넣어주기
-
-        //p.s)
-        //이 메서드를 호출하는 컨트롤러에서 colorItemSizeStock에 colorItem을 넣어둠
-        //colorItem에 pk를 넣으면 자동으로 colorItemSizeStock의 colorItem이 채워짐 (참조 객체)
+        //colorItem PK를 외래키로 쓰는 colorItemSizeStock을 저장하려면 PK 필요
+        //colorItemSizeStock은 colorItem의 주소 값을 갖는 상태
+        //즉, colorItem PK를 채우면 colorItemSizeStock 외래키도 채워짐
         List<Long> colorIds = colorItems.stream().map(c -> c.getColor().getId()).toList();
+
+        //방금 bulk insert한 colorItem PK 조회
         List<ColorItem> foundColorItems = colorItemRepository.findAllByItemIdAndColorIdIn(item.getId(), colorIds);
 
-        //K:ColorId, V:colorItemId
+        //KEY:ColorId, VALUE:colorItemId
         Map<Long, Long> map = foundColorItems.stream()
                 .collect(Collectors.toMap(
                         ci -> ci.getColor().getId(),
                         ColorItem::getId
                 ));
 
+        //colorItem PK 채우기
         for (ColorItem colorItem : colorItems) {
             Long savedColorItemId = map.get(colorItem.getColor().getId());
             colorItem.setIdAfterBatch(savedColorItemId);
@@ -66,9 +64,9 @@ public class ItemService {
         jdbcTemplateRepository.saveColorItemImages(colorItemImages);
     }
 
-    //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락 이용
+    //변경 감지는 갱실 분실 문제 발생 -> 직접 update로 배타적 락으로 예방
     public void removeStock(Long colorItemSizeStockId, int quantity){
-        //동시 요청 발생하면 재고 검사 사전에 해도 못 잡음
+        //동시에 요청 오면, UPDATE 전에 재고 조회하는 게 의미가 없음 -> 재고 조회 제거
         int updated = em.createQuery("update ColorItemSizeStock c set c.stock = c.stock-:quantity " +
                         "where c.id = :id and c.stock >= :quantity")
                 .setParameter("quantity", quantity)
