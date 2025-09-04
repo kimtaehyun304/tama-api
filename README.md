@@ -72,26 +72,6 @@ boot, mvc·rest api, valid, security, cache, mysql
   </li>
 </ul>
 
-인프라
-
-aws 청구 요금 줄이기
-<ul>
- <li>저장소 요금을 줄이기위해 CloudWatch로 수집한 로그를 주기적으로 S3로 옮김</li>
- <li>이미지 조회 요금을 줄이기 위해 S3 앞에 cloudFront 배치</li>
- <li>네트워크 요금을 줄이기 위해 ec2·rds 가용 영역 일치 시킴 & select절 필드 최소화 </li>
-</ul>
-
-https 인증서 자동 갱신 (Let`s Encrypt)
-1) 인증서 무중단 자동 갱신 (cerbot 타이머) <br>
-   <ul>
-      <li>갱신 중 서비스가 중단되지 않게 하기 위해 인증 방식을 standalone → webroot로 변경</li>
-      <li>webroot로 변경하기 위해 nginx 추가</li>
-   </ul>
-2) 새로운 인증서 자동 적용 (certbot reload hook)<br>
-   <ul>
-      <li>certbot reload hook은 nginx를 재시작하는 기능</li>
-   </ul>
-
 ### 기능
 상품 API
 <ul>
