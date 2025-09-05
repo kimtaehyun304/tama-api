@@ -20,7 +20,7 @@ if [ ! -d /etc/letsencrypt/live ]; then
     # 인증서 갱신 후 Nginx 재시작 스크립트 생성
     sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh > /dev/null <<'EOF'
 #!/bin/bash
-echo "인증서 갱신 후 Nginx를 재시작합니다..."
+echo "Restarting Nginx after renewing the certificate..."
 /usr/sbin/nginx -s reload
 EOF
 
