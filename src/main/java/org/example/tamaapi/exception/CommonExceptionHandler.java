@@ -104,4 +104,9 @@ public class CommonExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new SimpleResponse(exception.getMessage()));
     }
 
+    @ExceptionHandler(NotEnoughStockException.class)
+    public ResponseEntity<SimpleResponse> NotEnoughStockException(NotEnoughStockException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new SimpleResponse(exception.getMessage()));
+    }
+
 }

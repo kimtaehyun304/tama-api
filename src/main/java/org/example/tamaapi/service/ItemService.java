@@ -6,6 +6,7 @@ import org.example.tamaapi.domain.item.ColorItem;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.item.Item;
+import org.example.tamaapi.exception.NotEnoughStockException;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
@@ -78,7 +79,7 @@ public class ItemService {
 
         //재고보다 주문양이 많으면 업데이트 된 row 없는 걸 이용
         if (updated == 0)
-            throw new IllegalArgumentException("재고가 부족합니다.");
+            throw new NotEnoughStockException();
     }
 
     public void changeStock(Long colorItemSizeStockId, int quantity){

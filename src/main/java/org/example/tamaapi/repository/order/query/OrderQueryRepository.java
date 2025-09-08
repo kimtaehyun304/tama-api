@@ -65,6 +65,7 @@ public class OrderQueryRepository {
                 .where(order.member.id.eq(memberId))
                 .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
+                .orderBy(new OrderSpecifier<>(Order.DESC, order.id))
                 .fetch();
 
         Long count = queryFactory.select(order.count()).from(order).where(order.member.id.eq(memberId)).fetchOne();

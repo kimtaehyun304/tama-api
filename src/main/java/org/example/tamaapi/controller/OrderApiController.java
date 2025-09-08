@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -63,23 +64,19 @@ public class OrderApiController {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
 
-        if (principal == null) {
-            String cancelMsg = (paymentId == null)
-                    ? "구매자 PK 누락되어 주문 거절. paymentId 누락 되어 결제 취소 불가"
-                    : "구매자 PK 누락되어 주문 거절. 결제 취소";
+        Long memberId = principal.getMemberId();
 
-            if (paymentId == null)
-                log.error("[{}] {}", cancelMsg, saveOrderRequest);
-            else
+        //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
+        if (memberId == null && StringUtils.hasText(paymentId)) {
+            String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
+            if(StringUtils.hasText(paymentId))
                 portOneService.cancelPayment(paymentId, cancelMsg);
 
+            log.error("[{}] {}", cancelMsg, saveOrderRequest);
             throw new IllegalArgumentException(cancelMsg);
         }
 
         orderService.validateSaveOrderRequest(saveOrderRequest);
-
-        Long memberId = principal.getMemberId();
-
         orderService.saveMemberOrder(
                 saveOrderRequest.getPaymentId(),
                 memberId,
@@ -106,22 +103,19 @@ public class OrderApiController {
 
         SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
 
-        if (principal == null) {
-            String cancelMsg = (paymentId == null)
-                    ? "구매자 PK 누락되어 주문 거절. paymentId 누락 되어 결제 취소 불가"
-                    : "구매자 PK 누락되어 주문 거절. 결제 취소";
+        Long memberId = principal.getMemberId();
 
-            if (paymentId == null)
-                log.error("[{}] {}", cancelMsg, saveOrderRequest);
-            else
+        //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
+        if (memberId == null && StringUtils.hasText(paymentId)) {
+            String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
+            if(StringUtils.hasText(paymentId))
                 portOneService.cancelPayment(paymentId, cancelMsg);
 
+            log.error("[{}] {}", cancelMsg, saveOrderRequest);
             throw new IllegalArgumentException(cancelMsg);
         }
 
         orderService.validateSaveOrderRequest(saveOrderRequest);
-
-        Long memberId = principal.getMemberId();
         orderService.saveMemberOrder(
                 saveOrderRequest.getPaymentId(),
                 memberId,

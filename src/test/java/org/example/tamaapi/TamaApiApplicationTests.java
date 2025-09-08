@@ -15,6 +15,7 @@ import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.CustomSort;
 import org.example.tamaapi.exception.MyBadRequestException;
+import org.example.tamaapi.exception.NotEnoughStockException;
 import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
@@ -24,6 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.hasText;
 
 @SpringBootTest
+@Transactional
 @Slf4j
 class TamaApiApplicationTests {
 
@@ -205,10 +209,10 @@ class TamaApiApplicationTests {
 
     }
 
-    //동시성 문제
+    @Test
+    // 멀티쓰레드라 removeStock 테스트 롤백 안됨 -> 수동 테스트 할 것!
     public void 상품주문_동시성_문제_검증() throws InterruptedException {
         Long colorItemSizeStockId = 1L;
-        itemService.changeStock(colorItemSizeStockId, 10);
 
         // 스레드 풀 생성
         ExecutorService executorService = Executors.newFixedThreadPool(32);
@@ -219,7 +223,7 @@ class TamaApiApplicationTests {
             executorService.submit(() -> {
                 try {
                     itemService.removeStock(colorItemSizeStockId, 1);
-                } catch (Exception e) {
+                } catch (NotEnoughStockException e) {
                     log.error(String.valueOf(e));
                 } finally {
                     // 테스트 종료를 위해 반드시 실행되야 해서 finally
@@ -227,8 +231,6 @@ class TamaApiApplicationTests {
                 }
             });
         }
-
-
 
         countDownLatch.await();
         int nowStock = colorItemSizeStockRepository.findById(colorItemSizeStockId).get().getStock();
