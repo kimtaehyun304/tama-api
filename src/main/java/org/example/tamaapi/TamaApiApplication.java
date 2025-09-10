@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
@@ -13,6 +15,8 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @EnableScheduling
 @EnableJpaAuditing
 @EnableCaching
+@EnableAsync
+@EnableRetry
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class TamaApiApplication {
 

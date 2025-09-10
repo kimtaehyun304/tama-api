@@ -37,9 +37,6 @@ public class PortOneService {
 
     }
 
-
-
-
     public void cancelPayment(String paymentId, String reason) {
         RestClient.create().post()
                 .uri("https://api.portone.io/payments/{paymentId}/cancel", paymentId)
@@ -49,7 +46,7 @@ public class PortOneService {
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     String format = String.format("[%s] [포트원 결제 취소 API 호출 실패] 결제번호:%s", reason, paymentId);
                     log.error(format);
-                    throw new IllegalArgumentException("포트원 결제 취소 API 호출 실패");
+                    throw new IllegalArgumentException(format);
                 })
                 .toBodilessEntity();
     }

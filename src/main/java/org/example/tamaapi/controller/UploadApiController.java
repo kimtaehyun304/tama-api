@@ -50,7 +50,6 @@ public class UploadApiController {
                         }
                 ));
 
-
         List<ColorItemImage> colorItemImages = colorItems.stream()
                 .flatMap(ci -> {
                     List<UploadFile> uploadFiles = uploadFileMap.get(ci.getId());

@@ -2,6 +2,7 @@ package org.example.tamaapi.config;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.config.filter.TokenAuthenticationFilter;
 import org.example.tamaapi.config.oauth2.OAuth2FailureHandler;
 
 

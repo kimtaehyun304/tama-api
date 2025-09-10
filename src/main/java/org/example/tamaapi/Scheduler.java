@@ -1,6 +1,8 @@
-package org.example.tamaapi.cache;
+package org.example.tamaapi;
 
 import lombok.RequiredArgsConstructor;
+import org.example.tamaapi.cache.BestItem;
+import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.item.Category;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.repository.item.CategoryRepository;
@@ -41,7 +43,8 @@ public class Scheduler {
             List<CategoryBestItemQueryResponse> bestItems = itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
             cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
         }
-
     }
+
+    //사용하지 않는 이미지를 주기적으로 제거하려했는데, 이미지 수정할 때 비동기로 지워주면 됨!
 
 }

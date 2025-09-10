@@ -1,4 +1,4 @@
-package org.example.tamaapi.config;
+package org.example.tamaapi.config.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

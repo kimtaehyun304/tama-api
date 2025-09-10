@@ -166,12 +166,12 @@ public class ItemApiController {
                 , req.getDateOfManufacture(), req.getCountryOfManufacture(),
                 req.getManufacturer(), category, req.getTextile(), req.getPrecaution());
 
-        //영속성 컨텍스트 업로드
+        //영속성 컨텍스트 등록
         List<Long> colorIds = req.getColorItems().stream().map(SaveColorItemRequest::getColorId).toList();
-
         List<Color> colors = colorRepository.findAllById(colorIds);
 
         //colorItems 엔티티 생성
+        //영속성 컨텍스트에서 꺼냄
         List<ColorItem> colorItems = req.getColorItems().stream().map(ci ->
                 new ColorItem(item
                 , colorRepository.findById(ci.getColorId())
