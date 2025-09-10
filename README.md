@@ -33,11 +33,16 @@ boot, mvc·rest api, valid, security, cache, mysql
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/0130e7c2b935cdd39a3afe7f908184db51f9b3f5/src/main/java/org/example/tamaapi/controller/ItemApiController.java#L126">
- 인기 상품 API 응답 속도 개선 (5000ms → 80ms)
+ 인기 상품 API 응답 속도 개선 
 </a>
 <ul>
  <li>SQL SUM 함수를 사용하므로, 동시에 요청 오면 느린 걸 확인</li>
- <li>카페인 캐시에 저장하는 걸로 변경 (스케줄러로 24시간 마다 교체)</li>
+ <li>카페인 캐시에 저장하는 걸로 변경 
+<a href="https://github.com/kimtaehyun304/tama-api/blob/3ceffeb519f348f45d99b6b03a8ec11bf9405803/src/main/java/org/example/tamaapi/Scheduler.java#L27">
+  (스케줄러로 24시간 마다 교체)
+</a>
+ </li>
+  <li>5분간 진행한 전·후: 평균 응답 5000ms → 80ms, TPS 15 → 2470</li>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L33"> 
@@ -57,16 +62,13 @@ boot, mvc·rest api, valid, security, cache, mysql
  <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L67">
- 이메일 전송을 비동기로 실행
+<a href="https://github.com/kimtaehyun304/tama-api/blob/3ceffeb519f348f45d99b6b03a8ec11bf9405803/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L141">
+ 이메일 전송을 비동기로 분리
 </a>
 <ul>
- <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
- <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
+ <li>외부 이메일 서버 장애를 격리 시키키 위해 분리</li>
+ <li>더불어, 주문 완료 응답 속도 개선 4000ms → 400ms</li>
 </ul>
-
-
-
 
 기타
 <ul>
