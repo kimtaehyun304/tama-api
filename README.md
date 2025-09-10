@@ -37,7 +37,7 @@ boot, mvc·rest api, valid, security, cache, mysql
 </a>
 <ul>
  <li>SQL SUM 함수를 사용하므로, 동시에 요청 오면 느린 걸 확인</li>
- <li>카페인 캐시에 저장하는 걸로 변경 (24시간 마다 캐시 갱신)</li>
+ <li>카페인 캐시에 저장하는 걸로 변경 (스케줄러로 24시간 마다 캐시 갱신)</li>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L33"> 
@@ -56,6 +56,17 @@ boot, mvc·rest api, valid, security, cache, mysql
  <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
  <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
 </ul>
+
+<a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L67">
+ 이메일 전송을 비동기로 실행
+</a>
+<ul>
+ <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
+ <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
+</ul>
+
+
+
 
 기타
 <ul>
