@@ -66,7 +66,7 @@ boot, mvc·rest api, valid, security, cache, mysql
  이메일 전송을 비동기로 분리
 </a>
 <ul>
- <li>외부 이메일 서버 장애를 격리 시키키 위해 분리</li>
+ <li>외부 이메일 서버 장애를 격리하기 위해 분리</li>
  <li>주문 완료 응답 속도 개선 4000ms → 400ms</li>
 </ul>
 
