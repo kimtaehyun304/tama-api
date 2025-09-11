@@ -64,26 +64,23 @@ public class OrderApiController {
     @PostMapping("/api/orders/member")
     public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
-        PortOnePaymentStatus portOnePaymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
+        PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
+        SaveOrderRequest saveOrderRequest = portOneService.convertCustomData((String) paymentResponse.get("customData"));
+        int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
-        if(portOnePaymentStatus.equals(PortOnePaymentStatus.FAILED))
-            throw new IllegalArgumentException("포트원 결제 실패로 인한 주문 진행 불가");
-
-        SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
+        portOneService.validate(paymentStatus, saveOrderRequest);
+        orderService.validate(saveOrderRequest, clientTotal);
 
         Long memberId = principal.getMemberId();
-
         //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
         if (memberId == null && StringUtils.hasText(paymentId)) {
             String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
             if(StringUtils.hasText(paymentId))
                 portOneService.cancelPayment(paymentId, cancelMsg);
-
             log.error("[{}] {}", cancelMsg, saveOrderRequest);
             throw new IllegalArgumentException(cancelMsg);
         }
 
-        orderService.validateSaveOrderRequest(saveOrderRequest);
         orderService.saveMemberOrder(
                 saveOrderRequest.getPaymentId(),
                 memberId,
@@ -139,17 +136,15 @@ public class OrderApiController {
 
     //비로그인 주문 저장
     @PostMapping("/api/orders/guest")
-    @LogExecutionTime
+    //@LogExecutionTime
     public ResponseEntity<SimpleResponse> saveGuestOrder(@RequestParam String paymentId) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
-        PortOnePaymentStatus portOnePaymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
+        PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
+        SaveOrderRequest saveOrderRequest = portOneService.convertCustomData((String) paymentResponse.get("customData"));
+        int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
-        if(portOnePaymentStatus.equals(PortOnePaymentStatus.FAILED))
-            throw new IllegalArgumentException("포트원 결제 실패로 인한 주문 진행 불가");
-
-        SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
-
-        orderService.validateSaveOrderRequest(saveOrderRequest);
+        portOneService.validate(paymentStatus, saveOrderRequest);
+        orderService.validate(saveOrderRequest, clientTotal);
 
         Long newOrderId = orderService.saveGuestOrder(
                 saveOrderRequest.getPaymentId(),

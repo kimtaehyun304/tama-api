@@ -93,7 +93,7 @@ public class OrderService {
         Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
 
         try {
-            List<OrderItem> orderItems = createOrderItem(paymentId, saveOrderItemRequests);
+            List<OrderItem> orderItems = createOrderItem(saveOrderItemRequests);
             Order order = (member != null)
                     ? Order.createMemberOrder(paymentId, member, delivery, orderItems)
                     : Order.createGuestOrder(paymentId, guest, delivery, orderItems);
@@ -109,9 +109,7 @@ public class OrderService {
     }
 
     //saveOrder 공통 로직
-    private List<OrderItem> createOrderItem(String paymentId, List<SaveOrderItemRequest> saveOrderItemRequests) {
-        validateTotalPrice(paymentId);
-        validatePaymentId(paymentId);
+    private List<OrderItem> createOrderItem(List<SaveOrderItemRequest> saveOrderItemRequests) {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (SaveOrderItemRequest saveOrderItemRequest : saveOrderItemRequests) {
@@ -144,9 +142,8 @@ public class OrderService {
     }
 
     //클라이언트 위변조 검증
-    private void validateTotalPrice(String paymentId) {
-        Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
-        SaveOrderRequest saveOrderRequest = portOneService.extractCustomData((String) paymentResponse.get("customData"));
+    private void validateTotalPrice(SaveOrderRequest saveOrderRequest, int clientTotal) {
+        String paymentId = saveOrderRequest.getPaymentId();
         List<SaveOrderItemRequest> orderItems = saveOrderRequest.getOrderItems();
         List<Long> colorItemSizeStockIds = orderItems.stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
         List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
@@ -157,8 +154,6 @@ public class OrderService {
             idPriceMap.put(colorItemSizeStock.getId(), nowPrice);
         }
 
-        Map<String, Object> amountMap = (Map<String, Object>) paymentResponse.get("amount");
-        int clientTotal = (int) amountMap.get("total");
         int serverTotal = orderItems.stream().mapToInt(i -> idPriceMap.get(i.getColorItemSizeStockId()) * i.getOrderCount()).sum();
 
         if (clientTotal != serverTotal) {
@@ -172,46 +167,10 @@ public class OrderService {
 
     //개발 단계에서만 일어날 법한 상황인데, 출시 버전에도 필요한가?
     //-> 브라우저를 거치는 게 아니고, 포스트맨으로 요청 할 수 있어서 필요
-    public void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest) {
+    public void validate(SaveOrderRequest saveOrderRequest, int clientTotal) {
         String paymentId = saveOrderRequest.getPaymentId();
-
-        //결제는 됐는데 paymentId가 첨부 안된 경우
-        if (!StringUtils.hasText(paymentId)) {
-            String cancelMsg = "paymentId가 누락되어 결제를 취소할 수 없습니다. 고객센터에 문의해주세요.";
-            log.error("[{}] {}", cancelMsg, saveOrderRequest);
-            throw new IllegalArgumentException(cancelMsg);
-        }
-
-        for (Field field : SaveOrderRequest.class.getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                Object value = field.get(saveOrderRequest);
-                if (value == null || (value instanceof String && !StringUtils.hasText((String) value))) {
-                    String cancelMsg = String.format("[%s] 값이 누락되어 결제를 취소합니다.", field.getName());
-                    portOneService.cancelPayment(paymentId, cancelMsg);
-                    throw new IllegalArgumentException(cancelMsg);
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        for (int i = 0; i < saveOrderRequest.getOrderItems().size(); i++) {
-            SaveOrderItemRequest item = saveOrderRequest.getOrderItems().get(i);
-
-            if (item.getColorItemSizeStockId() == null) {
-                String cancelMsg = String.format("orderItems[%d].colorItemSizeStockId 값이 누락되어 결제를 취소합니다.", i);
-                portOneService.cancelPayment(paymentId, cancelMsg);
-                throw new IllegalArgumentException(cancelMsg);
-            }
-
-            if (item.getOrderCount() == null) {
-                String cancelMsg = String.format("orderItems[%d].orderCount 값이 누락되어 결제를 취소합니다.", i);
-                portOneService.cancelPayment(paymentId, cancelMsg);
-                throw new IllegalArgumentException(cancelMsg);
-            }
-        }
-
+        validateTotalPrice(saveOrderRequest, clientTotal);
+        validatePaymentId(paymentId);
     }
 
     private void validatePaymentId(String paymentId) {
