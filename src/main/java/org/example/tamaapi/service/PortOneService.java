@@ -28,15 +28,17 @@ public class PortOneService {
 
     //결제내역 단건 조회
     public Map<String, Object> findByPaymentId(String paymentId) {
-       return  RestClient.create().get()
-               .uri("https://api.portone.io/payments/{paymentId}", paymentId)
-               .header("Authorization", "PortOne " + PORT_ONE_SECRET)
-               .retrieve()
-               .onStatus(HttpStatusCode::isError, (req, res) -> {
-                   throw new IllegalArgumentException("포트원 결제내역 단건조회 API 호출 실패");
-               })
-               .body(new ParameterizedTypeReference<>() {
-               });
+        return RestClient.create().get()
+                .uri("https://api.portone.io/payments/{paymentId}", paymentId)
+                .header("Authorization", "PortOne " + PORT_ONE_SECRET)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, (req, res) -> {
+                    String format = String.format("포트원 결제내역 단건조회 API 호출 실패 / paymentId=%s, res=%s", paymentId, res);
+                    log.error(format);
+                    throw new IllegalArgumentException(format);
+                })
+                .body(new ParameterizedTypeReference<>() {
+                });
 
     }
 
@@ -47,23 +49,23 @@ public class PortOneService {
                 .body(Map.of("reason", reason)) // 문자열로 JSON 전달
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    String format = String.format("[%s] [포트원 결제 취소 API 호출 실패] 결제번호:%s", reason, paymentId);
+                    String format = String.format("포트원 결제 취소 API 호출 실패 / paymentId=%s, res=%s", paymentId, res);
                     log.error(format);
                     throw new IllegalArgumentException(format);
                 })
                 .toBodilessEntity();
     }
 
-    public SaveOrderRequest convertCustomData(String customData)  {
+    public SaveOrderRequest convertCustomData(String customData) {
         try {
             return objectMapper.readValue(customData, SaveOrderRequest.class);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new IllegalArgumentException("extractCustomData 실패");
         }
     }
 
     //내부 리파지토리 안 쓰는 메소드라 orderService 에 안 넣음
-    public void validate(PortOnePaymentStatus paymentStatus, SaveOrderRequest saveOrderRequest){
+    public void validate(PortOnePaymentStatus paymentStatus, SaveOrderRequest saveOrderRequest) {
         validateIsEmpty(saveOrderRequest);
         validatePaymentStatus(paymentStatus);
     }
@@ -77,6 +79,7 @@ public class PortOneService {
             throw new IllegalArgumentException(cancelMsg);
         }
 
+        //리플렉션으로 클래스 필드값 가져옴
         for (Field field : SaveOrderRequest.class.getDeclaredFields()) {
             field.setAccessible(true);
             try {
@@ -109,7 +112,7 @@ public class PortOneService {
     }
 
     private void validatePaymentStatus(PortOnePaymentStatus paymentStatus) {
-        if(!paymentStatus.equals(PortOnePaymentStatus.PAID))
+        if (!paymentStatus.equals(PortOnePaymentStatus.PAID))
             throw new IllegalArgumentException("포트원 결제 실패로 인한 주문 진행 불가");
     }
 
