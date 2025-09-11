@@ -42,7 +42,7 @@ boot, mvc·rest api, valid, security, cache, mysql
   (스케줄러로 24시간 마다 교체)
 </a>
  </li>
-  <li>5분간 진행한 전·후: 평균 응답 5000ms → 80ms, TPS 15 → 2470</li>
+  <li>5분간 부하 평균 응답 5000ms → 80ms, TPS 15 → 2470</li>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L33"> 
@@ -68,6 +68,14 @@ boot, mvc·rest api, valid, security, cache, mysql
 <ul>
  <li>외부 이메일 서버 장애를 격리하기 위해 분리</li>
  <li>주문 완료 응답 속도 개선 4000ms → 400ms</li>
+</ul>
+
+<a href="https://github.com/kimtaehyun304/tama-api/blob/0cf01c81ecdf1c5bb9872ebc667aaa8bcdb1ad6f/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L61">
+ 안정적인 결제 API 개발
+</a>
+<ul>
+ <li>주문 中 예외 발생 → DB 롤백, 결제 취소</li>
+ <li>주문 전에 결제 금액 위변조 및 결제 결과 확인</li>
 </ul>
 
 기타
