@@ -74,7 +74,11 @@ boot, mvc·rest api, valid, security, cache, mysql
  안정적인 결제 API 개발
 </a>
 <ul>
- <li>주문 中 예외 발생 → DB 롤백, 결제 취소</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/748cd836b1dd52bae1d66e30b07ef29103b59e94/src/main/java/org/example/tamaapi/service/OrderService.java#L82">
+  주문 中 예외 발생 → DB 롤백, 결제 취소
+  </a>
+ </li>
  <li>주문 전에 결제 금액 위변조 및 결제 결과 확인</li>
 </ul>
 
