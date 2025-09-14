@@ -112,7 +112,7 @@ boot, mvc·rest api, valid, security, cache, mysql
 주문 API
 <ul>
  <li>주문 조회</li>
- <li>상품 주문 (포트원 연동) (pc·모바일 API 분리)</li>
+ <li>상품 주문 (포트원 연동)</li>
  <li>자주 쓰는 배송지 조회·등록</li>
 </ul>
 
