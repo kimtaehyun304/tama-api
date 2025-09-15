@@ -79,7 +79,7 @@ boot, mvc·rest api, valid, security, cache, mysql
   주문 中 예외 발생 → DB 롤백, 결제 취소
   </a>
  </li>
- <li>주문 전에 결제 금액 위변조 및 결제 결과 확인</li>
+ <li>주문 전에 결제 금액 위변조, 결제 결과 확인</li>
 </ul>
 
 기타
