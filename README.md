@@ -26,7 +26,7 @@ boot, mvc·rest api, valid, security, cache, mysql
   <ul>
    <li>groupBy or subQuery or distinct 0.8s → exists 0.3s</li>
   </ul>
-  <li>정렬 쿼리 복합 인덱스 적용 (0.5s → 0s)</li>
+  <li>정렬 쿼리 복합 인덱스 적용 (0.3s → 0s)</li>
   <ul>
    <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
    <li>가격순) 함수는 인덱스 불가 → 함수를 안 쓰려고 테이블 컬럼 변경</li>
