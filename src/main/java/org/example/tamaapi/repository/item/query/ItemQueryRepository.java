@@ -71,7 +71,6 @@ public class ItemQueryRepository {
 
     //카테고리 아이템 부모
     private List<CategoryItemQueryDto> findCategoryItemsParent(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-
         return queryFactory
                 .selectDistinct(new QCategoryItemQueryDto(
                         item.id,
@@ -91,7 +90,7 @@ public class ItemQueryRepository {
                         genderIn(genders),
                         isContainSoldOut(isContainSoldOut)
                 )
-                .orderBy(categoryItemSort(sort)) // ORDER BY i1_0.item_id DESC
+                .orderBy(categoryItemSort(sort))
                 .offset((long) (customPageRequest.getPage() - 1) * customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .fetch();
