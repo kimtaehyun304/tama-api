@@ -24,7 +24,7 @@ boot, mvc·rest api, valid, security, cache, mysql
   <li>상품 테이블 row 십만개 넣고 진행</li>
   <li>카운트 쿼리 중복 row 제거 방법 변경 
   <ul>
-   <li>distinct 0.8s → exists 0.3s</li>
+   <li>groupBy or subQuery or distinct 0.8s → exists 0.3s</li>
   </ul>
   <li>정렬 쿼리 복합 인덱스 적용 (0.5s → 0s)</li>
   <ul>
