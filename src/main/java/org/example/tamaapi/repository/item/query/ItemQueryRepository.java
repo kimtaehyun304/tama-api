@@ -63,8 +63,9 @@ public class ItemQueryRepository {
         Map<Long, List<RelatedColorItemResponse>> childrenMap = findCategoryItemsChildrenMap(pagedItemIds, colorIds, isContainSoldOut);
         paging.forEach(p -> p.setRelatedColorItems(childrenMap.get(p.getItemId())));
 
-        //커스텀 페이징 변환
         Long rowCount = countCategoryItems(categoryIds, itemName, minPrice, maxPrice, colorIds, genders, isContainSoldOut);
+
+        //커스텀 페이징 변환
         return new CustomPage<>(paging, customPageRequest, rowCount);
     }
 
@@ -72,29 +73,38 @@ public class ItemQueryRepository {
     private List<CategoryItemQueryDto> findCategoryItemsParent(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
 
         return queryFactory
-                .select(new QCategoryItemQueryDto(
+                .selectDistinct(new QCategoryItemQueryDto(
                         item.id,
                         item.name,
                         item.originalPrice,
                         item.nowPrice
                 ))
                 .from(item)
+                .join(item.colorItems, colorItem)
+                .join(colorItem.colorItemSizeStocks, colorItemSizeStock)
                 .where(
-                        JPAExpressions.selectOne().from(colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
-                                .where(colorItem.item.id.eq(item.id), categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
-                                        , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut)).exists())
-                .orderBy(categoryItemSort(sort))
-                .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
+                        categoryIdIn(categoryIds),
+                        itemNameContains(itemName),
+                        minPriceGoe(minPrice),
+                        maxPriceLoe(maxPrice),
+                        colorIdIn(colorIds),
+                        genderIn(genders),
+                        isContainSoldOut(isContainSoldOut)
+                )
+                .orderBy(categoryItemSort(sort)) // ORDER BY i1_0.item_id DESC
+                .offset((long) (customPageRequest.getPage() - 1) * customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .fetch();
     }
 
     //카테고리 아이템 COUNT (최적화를 위해 따로 분리)
     private Long countCategoryItems(List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
-        return queryFactory.select(item.count()).from(item).where(
-                JPAExpressions.selectOne().from(colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
+        return queryFactory.select(item.count()).from(item)
+                .where(JPAExpressions
+                        .selectOne().from(colorItem).join(colorItem.colorItemSizeStocks, colorItemSizeStock)
                         .where(colorItem.item.id.eq(item.id), categoryIdIn(categoryIds), itemNameContains(itemName), minPriceGoe(minPrice), maxPriceLoe(maxPrice)
-                                , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut)).exists())
+                                , colorIdIn(colorIds), genderIn(genders), isContainSoldOut(isContainSoldOut))
+                        .exists())
                 .fetchOne();
     }
 
@@ -127,8 +137,8 @@ public class ItemQueryRepository {
 
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     //★카테고리 베스트 아이템 (인기 상품 조회)
+    //SQL SUM 함수 때문에 느려서 캐시 사용
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
-        // 개선 방법 없어서, 캐시 써야함 (아직 안느려서 괜찮)
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
                         (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.originalPrice, item.nowPrice)).from(orderItem)
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)

@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 //그룹바이에 복합 인덱스 적용하려면 PK도 같이 있어야함
 @Table(indexes = {
-        @Index(name = "idx_gender", columnList = "gender"),
         @Index(name = "idx_nowPrice", columnList = "nowPrice"),
+        //@Index(name = "idx_gender", columnList = "gender"),
+        //@Index(name = "idx_name_original_now_price", columnList = "name, originalPrice, nowPrice")
         //@Index(name = "idx_gender_nowPrice", columnList = "gender, nowPrice"),
         //@Index(name = "idx_category_gender", columnList = "category_id, gender"),
         //@Index(name = "idx_category_nowPrice", columnList = "category_id, nowPrice"),
