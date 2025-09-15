@@ -22,14 +22,16 @@ boot, mvc·rest api, valid, security, cache, mysql
  </a>
  <ul>
   <li>상품 테이블 row 십만개 넣고 진행</li>
-   <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0s)</li>
+  <li>카운트 쿼리 중복 row 제거 방법 변경 
   <ul>
-   <li>기존 인덱스 재사용하려고 order by 필드 변경 (created_at → item.id)</li>
-   <li>함수에 인덱스 적용 실패 → 함수를 안 쓰려고 테이블 컬럼 변경</li>
+   <li>groupBy or subQuery 0.8s → exists 0.3s</li>
+  </ul>
+  <li>정렬 쿼리 복합 인덱스 적용 (0.5s → 0s)</li>
+  <ul>
+   <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
+   <li>가격순) 함수는 인덱스 불가 → 함수를 안 쓰려고 테이블 컬럼 변경</li>
    <li>ex) colasecse(disconted_price, price) → now_price</li>
   </ul>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L93">
-  </a>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/0130e7c2b935cdd39a3afe7f908184db51f9b3f5/src/main/java/org/example/tamaapi/controller/ItemApiController.java#L126">
