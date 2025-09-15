@@ -17,7 +17,7 @@ boot, mvc·rest api, valid, security, cache, mysql
 
 ### 프로젝트로 얻은 경험
 
- <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
+ <a href="https://github.com/kimtaehyun304/tama-api/blob/180628544c098dc074be2c34929a40bc9431f2d3/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L56">
 상품 검색 쿼리 속도 개선
  </a>
  <ul>
