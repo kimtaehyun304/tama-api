@@ -24,9 +24,9 @@ boot, mvc·rest api, valid, security, cache, mysql
   <li>상품 테이블 row 십만개 넣고 진행</li>
    <li>row 중복 제거 방법 변경 (groupBy or distinct 0.8s → exists 0s)</li>
   <ul>
-   <li>인덱스 적용하려고 order by 필드 변경 (created_at → item.id)</li>
-   <li>인덱스 적용하려고 함수 제거·order by 필드 변경</li>
-   <li>ex) colasecse(disconted_price, price) → now_price</li>
+   <li>기존 인덱스 재사용하려고 order by 필드 변경 (created_at → item.id)</li>
+   <li>인덱스 적용하려고 함수 제거·컬럼 변경</li>
+   <li>colasecse(disconted_price, price) → now_price</li>
   </ul>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/cb50646c2ef04d401ab52845a18e1406d1cf00ed/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L93">
   </a>
