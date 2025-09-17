@@ -26,7 +26,7 @@ boot, mvc·rest api, valid, security, cache, mysql
   <li>정렬 쿼리 row 제거 방법 변경 (exists 1s → distinct 0s)</li>
   <ul>
    <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
-   <li>가격순) 함수는 인덱스 불가 → 함수를 안 쓰려고 테이블 컬럼 변경</li>
+   <li>가격순) 인덱스 적용을 위해, 함수 제거 및 테이블 컬럼 변경</li>
    <li>ex) colasecse(disconted_price, price) → now_price</li>
   </ul>
 </ul>
