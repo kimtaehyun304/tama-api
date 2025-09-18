@@ -17,16 +17,16 @@ boot, mvc·rest api, valid, security, cache, mysql
 
 ### 프로젝트로 얻은 경험
 
- <a href="https://github.com/kimtaehyun304/tama-api/blob/7a5a44d62ad6b30551c4ee44c4728ddc22c83bfd/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L72">
+ <a href="https://github.com/kimtaehyun304/tama-api/blob/180628544c098dc074be2c34929a40bc9431f2d3/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L56">
 상품 검색 쿼리 속도 개선
  </a>
  <ul>
   <li>상품 테이블 row 십만개 넣고 진행</li>
   <li>카운트 쿼리 중복 row 제거 방법 변경 (distinct 0.9s → exists 0.6s)</li>
-  <li>정렬 쿼리 row 제거 방법 변경 (exists 1s → distinct 0s)</li>
+  <li>정렬 쿼리 row 제거 방법 변경 (exists 0.6s → distinct 0s)</li>
   <ul>
    <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
-   <li>가격순) 함수는 인덱스 불가 → 함수를 안 쓰려고 테이블 컬럼 변경</li>
+   <li>가격순) 인덱스 적용을 위해, 함수 제거 및 테이블 컬럼 변경</li>
    <li>ex) colasecse(disconted_price, price) → now_price</li>
   </ul>
 </ul>
