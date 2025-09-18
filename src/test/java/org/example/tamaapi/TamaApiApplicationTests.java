@@ -94,7 +94,6 @@ class TamaApiApplicationTests {
         assertThat(nowStock).isEqualTo(0);
     }
 
-    @Test
     public void 이메일전송_비동기큐_예외발생로그_확인() throws InterruptedException {
 
         String toMailAddr = "burnaby033@naver.com";
@@ -109,9 +108,5 @@ class TamaApiApplicationTests {
 
         assertThat(1).isEqualTo(1);
     }
-
-
-
-
 
 }

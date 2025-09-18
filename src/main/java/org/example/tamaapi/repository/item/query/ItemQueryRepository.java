@@ -71,24 +71,33 @@ public class ItemQueryRepository {
 
     //카테고리 아이템 부모
     private List<CategoryItemQueryDto> findCategoryItemsParent(CustomPageRequest customPageRequest, CustomSort sort, List<Long> categoryIds, String itemName, Integer minPrice, Integer maxPrice, List<Long> colorIds, List<Gender> genders, Boolean isContainSoldOut) {
+        QItem itemSub = new QItem("itemSub");
+
         return queryFactory
-                .selectDistinct(new QCategoryItemQueryDto(
+                .select(new QCategoryItemQueryDto(
                         item.id,
                         item.name,
                         item.originalPrice,
                         item.nowPrice
                 ))
                 .from(item)
-                .join(item.colorItems, colorItem)
-                .join(colorItem.colorItemSizeStocks, colorItemSizeStock)
                 .where(
-                        categoryIdIn(categoryIds),
-                        itemNameContains(itemName),
-                        minPriceGoe(minPrice),
-                        maxPriceLoe(maxPrice),
-                        colorIdIn(colorIds),
-                        genderIn(genders),
-                        isContainSoldOut(isContainSoldOut)
+                        item.id.in(
+                                JPAExpressions
+                                        .selectDistinct(itemSub.id)
+                                        .from(itemSub)
+                                        .join(itemSub.colorItems, colorItem)
+                                        .join(colorItem.colorItemSizeStocks, colorItemSizeStock)
+                                        .where(
+                                                categoryIdIn(categoryIds),
+                                                itemNameContains(itemName),
+                                                minPriceGoe(minPrice),
+                                                maxPriceLoe(maxPrice),
+                                                colorIdIn(colorIds),
+                                                genderIn(genders),
+                                                isContainSoldOut(isContainSoldOut)
+                                        )
+                        )
                 )
                 .orderBy(categoryItemSort(sort))
                 .offset((long) (customPageRequest.getPage() - 1) * customPageRequest.getSize())
