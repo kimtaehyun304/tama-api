@@ -162,7 +162,7 @@ public class OrderApiController {
 
     //게스트 주문 취소
     @PutMapping("/api/orders/guest/cancel")
-    public ResponseEntity<Object> cancelGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public ResponseEntity<SimpleResponse> cancelGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
 
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
         if (authHeader == null || !authHeader.startsWith("Basic "))

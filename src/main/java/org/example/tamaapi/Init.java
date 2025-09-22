@@ -485,13 +485,13 @@ public class Init {
         private void initMember() {
             String password = bCryptPasswordEncoder.encode("test");
 
-            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("test@tama.com").phone("01022223333").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
+            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("test@tama.com").phone("01011111111").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
             memberRepository.save(admin);
 
-            Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011112222").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
+            Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011111112").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
             memberRepository.save(OAUTH2_MEMBER);
 
-            Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER).email("pyb0402@tama.com").phone("01022223333").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
+            Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER).email("pyb0402@tama.com").phone("01011111113").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
             memberRepository.save(ORIGINAL_MEMBER);
         }
 

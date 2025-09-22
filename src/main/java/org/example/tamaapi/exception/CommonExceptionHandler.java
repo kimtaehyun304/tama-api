@@ -33,9 +33,11 @@ public class CommonExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleResponse("404 Not Found"));
     }
 
+    // Column 'authority' cannot be null
+    // unique 등
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<SimpleResponse> DataIntegrityViolationException() {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("중복된 데이터는 저장할 수 없습니다"));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("데이터 저장 실패"));
     }
 
     /* 스프링이 처리 못해서 try-catch 필요

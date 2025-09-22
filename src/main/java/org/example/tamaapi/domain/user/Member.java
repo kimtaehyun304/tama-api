@@ -22,9 +22,11 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
+    //oauth 계정은 전화번호가 없을 수도 있음
+    @Column(unique = true)
     private String phone;
 
     private String password;

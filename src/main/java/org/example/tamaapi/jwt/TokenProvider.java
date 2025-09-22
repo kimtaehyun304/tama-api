@@ -19,16 +19,15 @@ import java.util.Date;
 public class TokenProvider {
 
     private final JwtProperties jwtProperties;
-    private final MemberRepository memberRepository;
 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
 
 
-    public String generateToken(Member member, Duration expiredAt) {
+    public String generateToken(Member member) {
         Date now = new Date();
-        return makeToken(member, new Date(now.getTime() + expiredAt.toMillis()));
+        return makeToken(member, new Date(now.getTime() + ACCESS_TOKEN_DURATION.toMillis()));
     }
 
     private String makeToken(Member member, Date expiry) {
@@ -61,18 +60,7 @@ public class TokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
-
-        //String stringMemberId = claims.getSubject();
         Long memberId = Long.valueOf(claims.getSubject());
-
-        //Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-
-        //member.getAuthority().getAuthority() : ADMIN -> ROLE_ADMIN 변환
-        //Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().getAuthority()));
-        //org.springframework.security.core.userdetails.User securityUser = new org.springframework.security.core.userdetails.User(stringMemberId, ", null);
-        //CustomUserDetails securityUser = new CustomUserDetails(memberId, null);
-        //CustomUserDetails securityUser = new CustomUserDetails(memberId, member.getEmail(), member.getPhone(), member.getPassword(), member.getNickname(), member.getGender(), member.getHeight(), member.getWeight(), member.getProvider(), member.getAuthority());
-
         CustomPrincipal customPrincipal = new CustomPrincipal(memberId, null);
         return new UsernamePasswordAuthenticationToken(customPrincipal, token);
     }

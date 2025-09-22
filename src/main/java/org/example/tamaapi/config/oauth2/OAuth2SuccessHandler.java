@@ -42,7 +42,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Member member = memberRepository.findByEmail((String) oAuth2User.getAttributes().get("email")).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         String tempToken = UUID.randomUUID().toString();
-        String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
+        String accessToken = tokenProvider.generateToken(member);
         cacheService.save(MyCacheType.SIGN_IN_TEMP_TOKEN, tempToken, accessToken);
 
         String targetUrl = getTargetUrl(tempToken);

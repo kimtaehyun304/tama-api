@@ -21,7 +21,8 @@ public class MemberService {
 
     //개인정보 업데이트
     public void updateMemberInformation(Long memberId, Integer height, Integer weight) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
         member.changeInformation(height, weight);
     }
 

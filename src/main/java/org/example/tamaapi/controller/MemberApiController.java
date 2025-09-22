@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.user.MemberAddress;
 import org.example.tamaapi.domain.user.Provider;
@@ -18,6 +19,7 @@ import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
 
+import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 
@@ -28,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,30 +50,34 @@ public class MemberApiController {
     private final MemberAddressRepository memberAddressRepository;
 
     @PostMapping("/api/member/new")
-    public ResponseEntity<Object> signUp(@Valid @RequestBody SignUpMemberRequest request) {
+    public ResponseEntity<SimpleResponse> signUp(@Valid @RequestBody SignUpMemberRequest request) {
         String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
-        if (authString == null || authString.isEmpty())
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("유효하지 않는 인증문자"));
+        if (!StringUtils.hasText(authString))
+            throw new IllegalArgumentException("유효하지 않는 인증문자");
 
         if(!request.getAuthString().equals(authString))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("인증문자 불일치"));
+            throw new IllegalArgumentException("인증문자 불일치");
 
         cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
         String password = bCryptPasswordEncoder.encode(request.getPassword());
-        Member member = Member.builder().email(request.getEmail()).phone(request.getPhone()).nickname(request.getNickname()).password(password).provider(Provider.LOCAL).build();
+        Member member = Member.builder()
+                .email(request.getEmail()).phone(request.getPhone())
+                .nickname(request.getNickname()).password(password)
+                .provider(Provider.LOCAL).authority(Authority.MEMBER)
+                .build();
         memberRepository.save(member);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("회원가입 성공"));
     }
 
     @PostMapping("/api/member/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         if(!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword()))
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("로그인 실패"));
+            throw new IllegalArgumentException("로그인 실패");
 
-        String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
+        String accessToken = tokenProvider.generateToken(member);
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
 
@@ -100,7 +107,6 @@ public class MemberApiController {
     //개인정보
     @GetMapping("/api/member/information")
     public ResponseEntity<MemberInformationResponse> memberInformation(@AuthenticationPrincipal CustomPrincipal principal) {
-
         if(principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
@@ -135,7 +141,7 @@ public class MemberApiController {
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         memberService.saveMemberAddress(principal.getMemberId(), request.getAddressName(), request.getReceiverNickname(), request.getReceiverPhone(), request.getZipCode(), request.getStreetAddress(), request.getDetailAddress());
-        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("배송지 저장 성공"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("배송지 저장 성공"));
     }
 
     //마이페이지 배송지
