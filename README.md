@@ -65,7 +65,7 @@ boot, mvc·rest api, valid, security, cache, mysql
  <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/3ceffeb519f348f45d99b6b03a8ec11bf9405803/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L141">
+<a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L159">
  이메일 전송을 비동기로 분리
 </a>
 <ul>
@@ -73,7 +73,7 @@ boot, mvc·rest api, valid, security, cache, mysql
  <li>주문 완료 응답 속도 개선 4000ms → 400ms</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/0cf01c81ecdf1c5bb9872ebc667aaa8bcdb1ad6f/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L61">
+<a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L62">
  안정적인 결제 API 개발
 </a>
 <ul>
@@ -98,6 +98,7 @@ boot, mvc·rest api, valid, security, cache, mysql
    회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
   </a>
   </li>
+ <li>테스트 코드 작성</li>
 </ul>
 
 ### 기능
