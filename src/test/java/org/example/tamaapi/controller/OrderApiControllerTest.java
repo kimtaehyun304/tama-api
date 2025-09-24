@@ -13,8 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class OrderApiControllerTest {
 
+    //브라우저에서 클릭 방식으로만 결제 가능 -> @BeforeEach로 결제 생성 못함
     @Test
     void saveMemberOrder() {
+
     }
 
     @Test

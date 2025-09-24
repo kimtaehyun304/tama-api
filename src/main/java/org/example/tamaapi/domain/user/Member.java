@@ -50,10 +50,10 @@ public class Member extends BaseEntity {
     private Authority authority;
 
     @OneToMany(mappedBy = "member")
-    List<MemberAddress> addresses= new ArrayList<>();
+    private List<MemberAddress> addresses= new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    List<Order> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 
     @Builder
     public Member(String email, String phone, String password, String nickname, Gender gender, Integer height, Integer weight, Provider provider, Authority authority) {

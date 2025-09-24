@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaveOrderItemRequest {
 
     //colorItemSizeStockId

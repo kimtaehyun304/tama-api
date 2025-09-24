@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Table(indexes = {
+        //추가해도 속도 동일
         //@Index(name = "idx_colorItemId_stock", columnList = "color_item_id, stock"),
-        //이게 더 explain filterd 지수 높음
-        @Index(name = "idx_stock", columnList = "stock"),
+        //@Index(name = "idx_stock", columnList = "stock"),
 })
 @Entity
 @Getter

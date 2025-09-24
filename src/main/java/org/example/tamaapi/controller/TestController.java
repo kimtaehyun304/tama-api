@@ -3,12 +3,16 @@ package org.example.tamaapi.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.item.ColorItemImage;
+import org.example.tamaapi.domain.item.Item;
 import org.example.tamaapi.dto.CharacterCreateRequest;
 import org.example.tamaapi.dto.CharacterRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
 import org.example.tamaapi.dto.responseDto.item.ItemImageDto;
 import org.example.tamaapi.repository.item.ColorItemImageRepository;
+import org.example.tamaapi.repository.item.ItemRepository;
 import org.example.tamaapi.service.PortOneService;
+import org.example.tamaapi.util.ErrorMessageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +27,7 @@ public class TestController {
 
     private final ColorItemImageRepository colorItemImageRepository;
     private final PortOneService portOneService;
+    private final ItemRepository itemRepository;
     /*
     @PostMapping(value = "/api/v1/character")
     public void saveCharacter(@RequestBody CharacterCreateRequest request) {
@@ -67,4 +72,13 @@ public class TestController {
         return  saveOrderRequest;
     }
     */
+
+    @GetMapping(value = "/test")
+    public String find() {
+        String name = "여 코듀로이 와이드 팬츠0";
+        Item item = itemRepository.findWithColorItemByName(name)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ITEM));
+        return "OK";
+    }
+
 }

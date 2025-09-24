@@ -76,8 +76,7 @@ public class Item extends BaseEntity {
     private String precaution;
 
     @OneToMany(mappedBy = "item")
-    @BatchSize(size = 1000)
-    private final List<ColorItem> colorItems = new ArrayList<>();
+    private List<ColorItem> colorItems = new ArrayList<>();
 
     @Builder
     public Item(Integer originalPrice, Integer nowPrice, Gender gender, String yearSeason, String name, String description, LocalDate dateOfManufacture, String countryOfManufacture, String manufacturer, Category category, String textile, String precaution) {

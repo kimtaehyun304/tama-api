@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.tamaapi.domain.item.ColorItem;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,5 +17,6 @@ public class SaveColorItemRequest {
     private Long colorId;
 
     private List<SaveSizeStockRequest> sizeStocks;
+
 
 }

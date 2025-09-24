@@ -32,11 +32,11 @@ public class ColorItem extends BaseEntity {
 
     @OneToMany(mappedBy = "colorItem")
     @BatchSize(size = 1000)
-    private final List<ColorItemImage> images = new ArrayList<>();
+    private List<ColorItemImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "colorItem")
     @BatchSize(size = 1000)
-    private final List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
+    private List<ColorItemSizeStock> colorItemSizeStocks = new ArrayList<>();
 
     @Builder
     public ColorItem(Item item, Color color) {

@@ -86,7 +86,6 @@ class MemberApiControllerTest {
         String authString = "123456";
         cacheService.save(MyCacheType.SIGN_UP_AUTH_STRING, EMAIL, authString);
 
-
         Member member = Member.builder()
                 .email(EMAIL).password(encodedPassword).phone(phone).nickname(nickname)
                 .authority(Authority.MEMBER).provider(Provider.LOCAL)

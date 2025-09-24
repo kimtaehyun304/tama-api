@@ -32,7 +32,7 @@ public class Color {
     private Color parent;
 
     @OneToMany(mappedBy = "parent")
-    private final List<Color> children = new ArrayList<>();
+    private List<Color> children = new ArrayList<>();
 
     @Builder
     public Color(String name, String hexCode, Color parent) {

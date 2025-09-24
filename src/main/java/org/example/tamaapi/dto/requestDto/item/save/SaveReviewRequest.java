@@ -19,7 +19,7 @@ public class SaveReviewRequest {
     @NotNull @Positive
     private Long orderItemId;
 
-    @NotNull @Positive
+    @NotNull @Positive @Max(5)
     private Integer rating;
 
     @NotBlank

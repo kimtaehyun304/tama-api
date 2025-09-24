@@ -68,7 +68,8 @@ public class ReviewApiController {
         if(!Objects.equals(orderItem.getOrder().getMember().getId(), principal.getMemberId()))
             throw new IllegalArgumentException("주문자가 아닙니다.");
 
-        Member member = memberRepository.findById(principal.getMemberId()).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
+        Member member = memberRepository.findById(principal.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
         Review newReview = new Review(orderItem, member, saveReviewRequest.getRating(), saveReviewRequest.getComment(), saveReviewRequest.getHeight(), saveReviewRequest.getWeight());
         reviewRepository.save(newReview);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("저장 완료"));

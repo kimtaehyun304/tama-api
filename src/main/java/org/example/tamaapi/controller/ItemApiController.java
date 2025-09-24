@@ -1,5 +1,6 @@
 package org.example.tamaapi.controller;
 
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.BestItem;
@@ -18,6 +19,7 @@ import org.example.tamaapi.dto.responseDto.item.ColorItemDetailDto;
 import org.example.tamaapi.dto.responseDto.ShoppingBagDto;
 import org.example.tamaapi.dto.responseDto.item.RelatedColorItemDto;
 import org.example.tamaapi.dto.responseDto.item.SavedColorItemIdResponse;
+import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
 import org.example.tamaapi.dto.validator.SortValidator;
 import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.item.*;
@@ -26,7 +28,10 @@ import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryRespon
 import org.example.tamaapi.repository.item.query.dto.CategoryItemQueryDto;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.ItemService;
+import org.example.tamaapi.util.ErrorMessageUtil;
 import org.example.tamaapi.util.FileStore;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -48,8 +53,9 @@ public class ItemApiController {
     private final ColorRepository colorRepository;
     private final SortValidator sortValidator;
     private final ItemService itemService;
-    private final FileStore fileStore;
     private final CacheService cacheService;
+    private final ItemRepository itemRepository;
+    private final EntityManager em;
 
     @GetMapping("/api/colorItems/{colorItemId}")
     //select 필드 너무 많아서 dto 조회 개선 필요
@@ -158,10 +164,10 @@ public class ItemApiController {
     @PostMapping(value = "/api/items/new", consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE})
     @PreAuthentication
     @Secured("ROLE_ADMIN")
-    public SavedColorItemIdResponse saveItems(@Valid @RequestBody SaveItemRequest req) {
+    public ResponseEntity<SavedColorItemIdResponse> saveItems(@Valid @RequestBody SaveItemRequest req) {
         Category category = categoryRepository.findById(req.getCategoryId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_CATEGORY));
 
-        Item item = new Item(req.getPrice(), req.getDiscountedPrice(), req.getGender(),
+        Item item = new Item(req.getOriginalPrice(), req.getNowPrice(), req.getGender(),
                 req.getYearSeason(), req.getName(), req.getDescription()
                 , req.getDateOfManufacture(), req.getCountryOfManufacture(),
                 req.getManufacturer(), category, req.getTextile(), req.getPrecaution());
@@ -195,7 +201,8 @@ public class ItemApiController {
                 .toList();
 
         List<Long> savedColorItemIds = itemService.saveItem(item, colorItems, colorItemSizeStocks);
-        return new SavedColorItemIdResponse(savedColorItemIds);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SavedColorItemIdResponse(savedColorItemIds));
     }
 
 }

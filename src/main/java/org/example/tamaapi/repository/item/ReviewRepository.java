@@ -22,14 +22,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("select ROUND(avg(r.rating),1) from Review r join r.orderItem oi join oi.colorItemSizeStock isk join isk.colorItem ci where ci.id =:colorItemId")
     Optional<Double> findAvgRatingByColorItemId(Long colorItemId);
 
-    /*
-    //다대일 조인이라 페이징 문제 없음
-    //추천순 정렬은 복잡해서 안함
-    @Query("select r from Review r join fetch r.member join fetch r.orderItem oi join fetch oi.colorItemSizeStock isk join fetch isk.colorItem ci where ci.item.id =:itemId")
-    Page<Review> findAllWithMemberWithItemStockWithColorItemByItemId(Long itemId, Pageable pageable);
-
-    @Query("select ROUND(avg(r.rating),1) from Review r join r.orderItem oi join oi.colorItemSizeStock isk join isk.colorItem ci where ci.item.id =:itemId")
-    Optional<Double> findAvgRatingByItemId(Long itemId);
-    */
+    Optional<Review> findByOrderItemId(Long orderItemId);
 
 }

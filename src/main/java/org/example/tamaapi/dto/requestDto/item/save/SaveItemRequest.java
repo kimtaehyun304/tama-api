@@ -25,10 +25,10 @@ public class SaveItemRequest {
     private Long categoryId;
 
     @NotNull
-    private Integer price;
+    private Integer originalPrice;
 
     @NotNull
-    private Integer discountedPrice;
+    private Integer nowPrice;
 
     @NotNull
     private Gender gender;
