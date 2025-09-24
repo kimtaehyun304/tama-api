@@ -23,7 +23,11 @@ boot, mvc·rest api, valid, security, cache, mysql
  <ul>
   <li>상품 테이블 row 십만개 넣고 진행</li>
   <li>카운트 쿼리 중복 row 제거 방법 변경 (distinct 0.9s → exists 0.6s)</li>
-  <li>정렬 쿼리 row 제거 방법 변경 (exists 0.6s → subQuery 0s)</li>
+  <li>
+   <a href="https://velog.io/@hyungman304/%EC%B9%B4%EC%9A%B4%ED%8A%B8%EC%A0%95%EB%A0%AC-%EC%BF%BC%EB%A6%AC-%ED%8A%9C%EB%8B%9D-with-%EC%9D%B8%EB%8D%B1%EC%8A%A4#exists-06s-1">
+   정렬 쿼리 row 제거 방법 변경 (exists 0.6s → subQuery 0s)
+   </a>
+  </li>
   <ul>
    <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
    <li>가격순) 인덱스 적용을 위해, 함수 제거 및 테이블 컬럼 변경</li>
