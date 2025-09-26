@@ -12,8 +12,8 @@
 
 <p>https://dlta.kr</p>
 
-### 프로젝트 스킬 (스프링 부트3)
-mvc·rest api, valid, security, cache, mysql
+### 프로젝트 스킬
+스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql
 
 ### 프로젝트로 얻은 경험
 
