@@ -130,5 +130,5 @@
 
 ### erd
 <p align="center">
-<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
+<img src="https://github.com/user-attachments/assets/9011057d-cb83-41bc-8784-0d4d352f92ed"/>
 </p>
