@@ -128,8 +128,7 @@
   <li>관리자인지 확인 (isAdmin)</li>
 </ul>
 
-
-<h1>erd</h1>
+### erd
 <p align="center">
 <img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
 </p>
