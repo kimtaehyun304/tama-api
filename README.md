@@ -83,6 +83,9 @@
   </a>
  </li>
  <li>주문 전에 결제 금액 위변조, 결제 결과 확인</li>
+ <li>종속성을 줄이기 위해, 외부 서비스(PortOne) 검증과 내부 DB 검증을 분리</li>
+ <li>PC·모바일 API 하나로 합체</li>
+ <li>회원·비회원 API 간 공통 로직 메서드화 → 중복 코드 제거</li>
 </ul>
 
 기타
@@ -98,7 +101,12 @@
    회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
   </a>
   </li>
- <li>테스트 코드 작성</li>
+ <li>ouath2·jwt 기반 인증</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
+  테스트 코드 작성
+  </a>
+ </li>
 </ul>
 
 ### API
