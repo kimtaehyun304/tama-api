@@ -18,16 +18,11 @@ import java.time.LocalDateTime;
 @Setter
 public abstract class BaseEntity {
 
-    //@CreatedDate
-    //@Column(updatable = false)
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) createdAt = LocalDateTime.now();
-    }
 
 }

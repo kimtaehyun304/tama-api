@@ -107,9 +107,8 @@ public class OrderApiController {
     @GetMapping("/api/orders/guest")
     public GuestOrderResponse guestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
-        if (authHeader == null || !authHeader.startsWith("Basic ")) {
+        if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new IllegalArgumentException(INVALID_HEADER);
-        }
 
         String base64Credentials = authHeader.substring(6); // "Basic " 이후의 값 추출
         String decodedCredentials = new String(Base64.getDecoder().decode(base64Credentials), StandardCharsets.UTF_8);

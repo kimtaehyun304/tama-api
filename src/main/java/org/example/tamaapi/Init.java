@@ -102,13 +102,11 @@ public class Init {
             initManyOrder(30000);
             initManyReview();
 
-            initBestItemCache();
             /*
             initItem();
             initOrder();
             initReview();
              */
-
         }
 
         /*
@@ -402,7 +400,10 @@ public class Init {
 
             List<Item> items = new ArrayList<>();
 
+            LocalDate dateOfManufacture = LocalDate.parse("2010-01-01");
+            LocalDateTime createdDate = LocalDateTime.parse("2011-01-01T00:00:00");
             for(int i=0; i<ITEM_COUNT; i++) {
+                createdDate = createdDate.plusHours(1);
                 Item item = new Item(
                         49900+i,
                         39900+i,
@@ -410,13 +411,14 @@ public class Init {
                         "24 F/W",
                         "여 코듀로이 와이드 팬츠"+i,
                         "무형광 원단입니다. 전 년 상품 자주히트와 동일한 소재이며, 네이밍이변경되었습니다.",
-                        LocalDate.parse("2024-08-01").plusDays(i),
+                        dateOfManufacture,
                         "방글라데시",
                         "(주)신세계인터내셔날",
                         category,
                         "폴리에스터 94%, 폴리우레탄 6% (상표,장식,무늬,자수,밴드,심지,보강재 제외)",
                         "세제는 중성세제를 사용하고 락스 등의 표백제는 사용을 금합니다. 세탁 시 삶아 빨 경우 섬유의 특성이 소멸되어 수축 및 물빠짐의 우려가 있으므로 미온 세탁하시기 바랍니다.");
-                item.setCreatedAt(LocalDateTime.parse("2025-06-01T00:00:00"));
+                item.setCreatedAt(createdDate);
+                item.setUpdatedAt(createdDate);
                 items.add(item);
             }
 
@@ -485,7 +487,7 @@ public class Init {
         private void initMember() {
             String password = bCryptPasswordEncoder.encode("test");
 
-            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("test@tama.com").phone("01011111111").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
+            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("admin@tama.com").phone("01011111111").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
             memberRepository.save(admin);
 
             Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011111112").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
@@ -503,56 +505,6 @@ public class Init {
             Member member3 = memberRepository.findById(3L).get();
             memberService.saveMemberAddress(member3.getId(), "우리집", member3.getNickname(), member3.getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
             memberService.saveMemberAddress(member3.getId(), "회사", member3.getNickname(), member3.getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
-        }
-
-        private void initReview() {
-            List<Member> members = memberRepository.findAll();
-            Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
-                    .orderItem(orderItemRepository.findById(1L).get())
-                    //.colorItemSizeStock(colorItemSizeStockRepository.findById(1L).get())
-                    .rating(2)
-                    .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());
-            reviewRepository.save(r1);
-            reviewService.updateCreatedAt(r1.getId());
-
-            reviewRepository.save(Review.builder().member(members.get(1))
-                    .orderItem(orderItemRepository.findById(2L).get())
-                    .rating(4)
-                    .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
-        }
-
-        private void initManyReview() {
-            log.info("initManyReview 실행 중");
-
-            ArrayList<String> texts = new ArrayList<>(List.of(
-                    "원단이 부드럽고 착용감이 정말 좋아요.",
-                    "색상이 사진이랑 거의 똑같아서 만족합니다.",
-                    "생각보다 얇아서 여름에 입기 딱이에요.",
-                    "사이즈가 조금 작게 나온 것 같아요. 한 치수 크게 사세요.",
-                    "디자인이 예쁘고 마감도 깔끔합니다.",
-                    "빨아도 변형이 없어서 오래 입을 수 있을 것 같아요.",
-                    "겨울에 입기에는 조금 얇아서 아쉬워요.",
-                    "가격 대비 품질이 좋아서 추천합니다.",
-                    "재질이 탄탄해서 모양이 잘 잡혀요.",
-                    "배송이 빨랐고 포장도 깔끔했습니다."
-            ));
-
-
-            List<Review> reviews = new ArrayList<>();
-            List<OrderItem> orderItems = orderItemRepository.findAllWithOrderWithMember();
-
-            for (OrderItem orderItem : orderItems) {
-                Review review = Review.builder().member(orderItem.getOrder().getMember())
-                            .orderItem(orderItem)
-                            .rating(2)
-                            .comment(texts.get(0))
-                            .build();
-                review.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(orderItem.getId()));
-                review.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(orderItem.getId()));
-                reviews.add(review);
-            }
-
-            jdbcTemplateRepository.saveReviews(reviews);
         }
 
         private void initOrder() {
@@ -666,6 +618,7 @@ public class Init {
             Member woman = memberRepository.findById(3L).get();
             int count = 0;
 
+            LocalDateTime createdDate = LocalDateTime.parse("2020-01-01T00:00:00");
             for (ColorItemSizeStock colorItemSizeStock : foundColorItemSizeStocks) {
                 //반복문 안에서만 쓸 리스트
                 List<OrderItem> orderItems = new ArrayList<>();
@@ -687,9 +640,11 @@ public class Init {
                     member = woman;
                 }
 
-                Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
-                delivery.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
-                delivery.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
+                Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage()
+                        , request.getReceiverNickname(), request.getReceiverPhone());
+                createdDate = createdDate.plusHours(1);
+                delivery.setCreatedAt(createdDate);
+                delivery.setUpdatedAt(createdDate);
                 deliveries.add(delivery);
 
                 for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
@@ -704,8 +659,8 @@ public class Init {
                 }
 
                 Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
-                order.setCreatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
-                order.setUpdatedAt(LocalDateTime.parse("2024-08-01T00:00:00").plusDays(id));
+                order.setCreatedAt(createdDate);
+                order.setUpdatedAt(createdDate);
                 newOrders.add(order);
 
                 orderItems.clear();
@@ -745,6 +700,59 @@ public class Init {
 
             jdbcTemplateRepository.saveOrderItems(newOrderItems);
         }
+
+        private void initReview() {
+            List<Member> members = memberRepository.findAll();
+            Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
+                    .orderItem(orderItemRepository.findById(1L).get())
+                    .rating(2)
+                    .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());
+            reviewRepository.save(r1);
+            reviewService.updateCreatedAt(r1.getId());
+
+            reviewRepository.save(Review.builder().member(members.get(1))
+                    .orderItem(orderItemRepository.findById(2L).get())
+                    .rating(4)
+                    .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
+        }
+
+        private void initManyReview() {
+            log.info("initManyReview 실행 중");
+
+            ArrayList<String> texts = new ArrayList<>(List.of(
+                    "원단이 부드럽고 착용감이 정말 좋아요.",
+                    "색상이 사진이랑 거의 똑같아서 만족합니다.",
+                    "생각보다 얇아서 여름에 입기 딱이에요.",
+                    "사이즈가 조금 작게 나온 것 같아요. 한 치수 크게 사세요.",
+                    "디자인이 예쁘고 마감도 깔끔합니다.",
+                    "빨아도 변형이 없어서 오래 입을 수 있을 것 같아요.",
+                    "겨울에 입기에는 조금 얇아서 아쉬워요.",
+                    "가격 대비 품질이 좋아서 추천합니다.",
+                    "재질이 탄탄해서 모양이 잘 잡혀요.",
+                    "배송이 빨랐고 포장도 깔끔했습니다."
+            ));
+
+
+            List<Review> reviews = new ArrayList<>();
+            List<OrderItem> orderItems = orderItemRepository.findAllWithOrderWithMember();
+
+            LocalDateTime createdDate = LocalDateTime.parse("2020-01-01T00:00:00");
+            for (OrderItem orderItem : orderItems) {
+                Review review = Review.builder().member(orderItem.getOrder().getMember())
+                        .orderItem(orderItem)
+                        .rating(2)
+                        .comment(texts.get(0))
+                        .build();
+
+                createdDate = createdDate.plusHours(1);
+                review.setCreatedAt(createdDate);
+                review.setUpdatedAt(createdDate);
+                reviews.add(review);
+            }
+
+            jdbcTemplateRepository.saveReviews(reviews);
+        }
+
 
         public void initBestItemCache(){
             CustomPageRequest customPageRequest = new CustomPageRequest(1,10);

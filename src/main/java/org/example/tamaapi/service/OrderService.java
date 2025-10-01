@@ -90,7 +90,7 @@ public class OrderService {
                            String message,
                            List<SaveOrderItemRequest> saveOrderItemRequests) {
 
-        Delivery delivery = createDelivery(receiverNickname, receiverPhone, zipCode, streetAddress, detailAddress, message);
+        Delivery delivery = new Delivery(zipCode, streetAddress, detailAddress, message, receiverNickname, receiverPhone);
 
         try {
             List<OrderItem> orderItems = createOrderItem(saveOrderItemRequests);
@@ -129,16 +129,6 @@ public class OrderService {
             orderItems.add(orderItem);
         }
         return orderItems;
-    }
-
-    //saveOrder 공통 로직
-    private Delivery createDelivery(String receiverNickname,
-                                    String receiverPhone,
-                                    String zipCode,
-                                    String streetAddress,
-                                    String detailAddress,
-                                    String message) {
-        return new Delivery(zipCode, streetAddress, detailAddress, message, receiverNickname, receiverPhone);
     }
 
     //클라이언트 위변조 검증
