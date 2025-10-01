@@ -12,8 +12,8 @@
 
 <p>https://dlta.kr</p>
 
-### 프로젝트 스킬 (스프링)
-boot, mvc·rest api, valid, security, cache, mysql
+### 프로젝트 스킬
+스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql
 
 ### 프로젝트로 얻은 경험
 
@@ -23,7 +23,11 @@ boot, mvc·rest api, valid, security, cache, mysql
  <ul>
   <li>상품 테이블 row 십만개 넣고 진행</li>
   <li>카운트 쿼리 중복 row 제거 방법 변경 (distinct 0.9s → exists 0.6s)</li>
-  <li>정렬 쿼리 row 제거 방법 변경 (exists 0.6s → distinct 0s)</li>
+  <li>
+   <a href="https://velog.io/@hyungman304/%EC%B9%B4%EC%9A%B4%ED%8A%B8%EC%A0%95%EB%A0%AC-%EC%BF%BC%EB%A6%AC-%ED%8A%9C%EB%8B%9D-with-%EC%9D%B8%EB%8D%B1%EC%8A%A4#exists-06s-1">
+   정렬 쿼리 row 제거 방법 변경 (exists 0.6s → subQuery 0s)
+   </a>
+  </li>
   <ul>
    <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
    <li>가격순) 인덱스 적용을 위해, 함수 제거 및 테이블 컬럼 변경</li>
@@ -61,7 +65,7 @@ boot, mvc·rest api, valid, security, cache, mysql
  <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/3ceffeb519f348f45d99b6b03a8ec11bf9405803/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L141">
+<a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L159">
  이메일 전송을 비동기로 분리
 </a>
 <ul>
@@ -69,7 +73,7 @@ boot, mvc·rest api, valid, security, cache, mysql
  <li>주문 완료 응답 속도 개선 4000ms → 400ms</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/0cf01c81ecdf1c5bb9872ebc667aaa8bcdb1ad6f/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L61">
+<a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L62">
  안정적인 결제 API 개발
 </a>
 <ul>
@@ -79,6 +83,9 @@ boot, mvc·rest api, valid, security, cache, mysql
   </a>
  </li>
  <li>주문 전에 결제 금액 위변조, 결제 결과 확인</li>
+ <li>종속성을 줄이기 위해, 외부 서비스(PortOne) 검증과 내부 DB 검증을 분리</li>
+ <li>PC·모바일 API 하나로 합체</li>
+ <li>회원·비회원 API 간 공통 로직 메서드화 → 중복 코드 제거</li>
 </ul>
 
 기타
@@ -94,17 +101,24 @@ boot, mvc·rest api, valid, security, cache, mysql
    회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
   </a>
   </li>
+ <li>ouath2·jwt 기반 인증</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
+  테스트 코드 작성
+  </a>
+ </li>
 </ul>
 
-### 기능
+### API
 상품 API
 <ul>
+ <li>상품 상세</li>
  <li>상품 검색</li>
+ <li>상품 등록·이미지 업로드</li>
  <li>인기 상품 조회</li>
  <li>장바구니에 담긴 상품 조회</li>
  <li>카테고리 조회</li>
  <li>색상 조회</li>
- <li>상품 등록·이미지 업로드</li>
  <li>리뷰 조회·등록</li>
 </ul>
 
@@ -122,8 +136,7 @@ boot, mvc·rest api, valid, security, cache, mysql
   <li>관리자인지 확인 (isAdmin)</li>
 </ul>
 
-
-<h1>erd</h1>
+### erd
 <p align="center">
 <img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
 </p>
