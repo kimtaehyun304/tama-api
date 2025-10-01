@@ -2,12 +2,17 @@
 # beanstalk EC2 재생성되면 certbot, let's encrypt 삭제돼서 다시 인증서 만들어야 함
 
 # certbot 설치 여부 확인
-if [ ! -d /etc/letsencrypt/live ]; then
+if [ ! -d /etc/letsencrypt ]; then
     echo "Certbot is not installed, proceeding with installation.."
 
     # certbot 설치
     sudo yum install -y certbot
     sudo yum install -y python3-certbot-nginx
+fi
+
+# 인증서 있는지 확인
+if [ ! -d /etc/letsencrypt/live ]; then
+    echo "No certificate found, issuing a new one.."
 
     # 인증서 발급
     sudo certbot --nginx \
@@ -25,9 +30,6 @@ echo "Restarting Nginx after renewing the certificate..."
 EOF
 
     sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
-
-    # Nginx 재시작
-    sudo systemctl restart nginx
-else
-    echo "Certbot is already installed, skipping installation."
+    # 인증서 적용
+    sudo nginx -s reload
 fi
