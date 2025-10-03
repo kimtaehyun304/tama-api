@@ -20,13 +20,16 @@ public class MemberOrderSetUpResponse {
 
     private String phone;
 
+    private int point;
+
     private List<MemberAddressesResponse> addresses = new ArrayList<>();
 
     public MemberOrderSetUpResponse(Member member) {
-        this.id = member.getId();
-        this.nickname = member.getNickname();
-        this.email = member.getEmail();
-        this.phone = member.getPhone();
+        id = member.getId();
+        nickname = member.getNickname();
+        email = member.getEmail();
+        phone = member.getPhone();
+        point = member.getPoint();
         addresses.addAll(member.getAddresses().stream().map(MemberAddressesResponse::new).toList());
     }
 }

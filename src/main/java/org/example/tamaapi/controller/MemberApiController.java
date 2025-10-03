@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.domain.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.user.MemberAddress;
@@ -14,6 +15,7 @@ import org.example.tamaapi.dto.requestDto.member.SignUpMemberRequest;
 import org.example.tamaapi.dto.requestDto.member.UpdateMemberDefaultAddressRequest;
 import org.example.tamaapi.dto.requestDto.member.UpdateMemberInformationRequest;
 import org.example.tamaapi.dto.responseDto.AccessTokenResponse;
+import org.example.tamaapi.dto.responseDto.MemberCouponResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
@@ -23,6 +25,7 @@ import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 
+import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.MemberService;
@@ -48,6 +51,7 @@ public class MemberApiController {
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
     private final MemberAddressRepository memberAddressRepository;
+    private final MemberCouponRepository memberCouponRepository;
 
     @PostMapping("/api/member/new")
     public ResponseEntity<SimpleResponse> signUp(@Valid @RequestBody SignUpMemberRequest request) {
@@ -79,29 +83,6 @@ public class MemberApiController {
 
         String accessToken = tokenProvider.generateToken(member);
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
-    }
-
-    /*
-    //포트원 결제 내역에 저장할 멤버 정보
-    @GetMapping("/api/member/payment-setup")
-    public ResponseEntity<MemberPaymentSetUpResponse> member(Principal principal) {
-        if (principal == null || !StringUtils.hasText(principal.getName()))
-            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
-
-        Long memberId = Long.parseLong(principal.getName());
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-        return ResponseEntity.status(HttpStatus.OK).body(new MemberPaymentSetUpResponse(member));
-    }
-    */
-
-    //포트원 결제 내역에 저장할 멤버 정보
-    @GetMapping("/api/member/order-setup")
-    public ResponseEntity<MemberOrderSetUpResponse> member(@AuthenticationPrincipal CustomPrincipal principal) {
-        if(principal == null)
-            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
-
-        Member member = memberRepository.findWithAddressesById(principal.getMemberId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-        return ResponseEntity.status(HttpStatus.OK).body(new MemberOrderSetUpResponse(member));
     }
 
     //개인정보
@@ -152,6 +133,16 @@ public class MemberApiController {
 
         memberService.updateMemberDefaultAddress(principal.getMemberId(), request.getAddressId());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("기본 배송지 변경 성공"));
+    }
+
+    //마이페이지 배송지
+    @GetMapping("/api/member/coupon")
+    public List<MemberCouponResponse> memberCoupon(@AuthenticationPrincipal CustomPrincipal principal) {
+        if(principal == null)
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        List<MemberCoupon> memberCoupons = memberCouponRepository.findNotExpiredAndUnusedCouponsByMemberId(principal.getMemberId());
+        return memberCoupons.stream().map(MemberCouponResponse::new).toList();
     }
 
 }

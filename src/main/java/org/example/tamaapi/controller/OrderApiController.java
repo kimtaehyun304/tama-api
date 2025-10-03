@@ -7,10 +7,13 @@ import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.PortOnePaymentStatus;
 import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.*;
 import org.example.tamaapi.dto.responseDto.CustomPage;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
+import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
+import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.order.query.dto.GuestOrderResponse;
 import org.example.tamaapi.repository.order.query.dto.MemberOrderResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
@@ -33,8 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
-import static org.example.tamaapi.util.ErrorMessageUtil.INVALID_HEADER;
-import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_ORDER;
+import static org.example.tamaapi.util.ErrorMessageUtil.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ public class OrderApiController {
     private final EmailService emailService;
     private final OrderQueryRepository orderQueryRepository;
     private final PortOneService portOneService;
+    private final MemberRepository memberRepository;
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
@@ -205,4 +208,14 @@ public class OrderApiController {
         return orderQueryRepository.findAdminOrdersWithPaging(customPageRequest);
     }
 
+    //포트원 결제 내역에 저장할 멤버 정보
+    @GetMapping("/api/order/setup")
+    public ResponseEntity<MemberOrderSetUpResponse> member(@AuthenticationPrincipal CustomPrincipal principal) {
+        if(principal == null)
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        Member member = memberRepository.findWithAddressesById(principal.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+        return ResponseEntity.status(HttpStatus.OK).body(new MemberOrderSetUpResponse(member));
+    }
 }

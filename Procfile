@@ -1,1 +1,0 @@
-web:java -javaagent:/home/ec2-user/pinpoint-agent-2.5.1/pinpoint-bootstrap.jar -Dpinpoint.agentId=tama-agent -Dpinpoint.applicationName=tama -jar application.jar

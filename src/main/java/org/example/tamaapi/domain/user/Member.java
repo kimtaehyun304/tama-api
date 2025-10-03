@@ -34,12 +34,15 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
+    private int point;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     private Integer height;
 
     private Integer weight;
+
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -56,11 +59,12 @@ public class Member extends BaseEntity {
     private List<Order> orders = new ArrayList<>();
 
     @Builder
-    public Member(String email, String phone, String password, String nickname, Gender gender, Integer height, Integer weight, Provider provider, Authority authority) {
+    public Member(String email, String phone, String password, String nickname, int point, Gender gender, Integer height, Integer weight, Provider provider, Authority authority) {
         this.email = email;
         this.phone = phone;
         this.password = password;
         this.nickname = nickname;
+        this.point = point;
         this.gender = gender;
         this.height = height;
         this.weight = weight;

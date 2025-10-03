@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.cache.BestItem;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.*;
+import org.example.tamaapi.domain.coupon.Coupon;
+import org.example.tamaapi.domain.coupon.CouponType;
+import org.example.tamaapi.domain.coupon.MemberCoupon;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
@@ -49,10 +52,12 @@ public class Init {
 
     @PostConstruct
     public void init() {
-        String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto", "none");
+        String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto");
 
-        if(!ddlAuto.equals("none"))
-            initService.initAll();
+        if(!ddlAuto.equals("none")){
+            initService.initCommon();
+            initService.initSmallData();
+        }
 
         //캐시 메모리에 올려두는 거라 매번 초기화 해야함
         initService.initBestItemCache();
@@ -81,33 +86,8 @@ public class Init {
         private final DeliveryRepository deliveryRepository;
         private final ItemQueryRepository itemQueryRepository;
         private final CacheService cacheService;
-
-        public boolean isNotInit() {
-            return colorItemSizeStockRepository.count() == 0 &&
-                    categoryRepository.count() == 0 &&
-                    memberRepository.count() == 0 &&
-                    colorRepository.count() == 0 &&
-                    reviewRepository.count() == 0 &&
-                    orderRepository.count() == 0 &&
-                    orderItemRepository.count() == 0;
-        }
-
-        public void initAll() {
-            initCategory();
-            initColor();
-            initMember();
-            initMemberAddress();
-
-            initManyItem(100000);
-            initManyOrder(30000);
-            initManyReview();
-
-            /*
-            initItem();
-            initOrder();
-            initReview();
-             */
-        }
+        private final CouponRepository couponRepository;
+        private final MemberCouponRepository memberCouponRepository;
 
         /*
         private void crawlItem(){
@@ -127,6 +107,36 @@ public class Init {
             new Item("")
         }
          */
+
+        public boolean isNotInit() {
+            return colorItemSizeStockRepository.count() == 0 &&
+                    categoryRepository.count() == 0 &&
+                    memberRepository.count() == 0 &&
+                    colorRepository.count() == 0 &&
+                    reviewRepository.count() == 0 &&
+                    orderRepository.count() == 0 &&
+                    orderItemRepository.count() == 0;
+        }
+
+        public void initCommon() {
+            initCategory();
+            initColor();
+            initMember();
+            initMemberAddress();
+            initCoupon();
+        }
+
+        public void initSmallData() {
+            initItem();
+            initOrder();
+            initReview();
+        }
+
+        public void initBigData() {
+            initManyItem(100000);
+            initManyOrder(30000);
+            initManyReview();
+        }
 
         private void initCategory() {
             Category outer = Category.builder().name("아우터").build();
@@ -394,6 +404,172 @@ public class Init {
             colorItemImages.clear();
         }
 
+        private void initMember() {
+            String password = bCryptPasswordEncoder.encode("test");
+
+            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("admin@tama.com")
+                    .phone("01011111111").password(password).nickname("박유빈")
+                    .height(170).weight(60).gender(Gender.FEMALE).build();
+            memberRepository.save(admin);
+
+            Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER)
+                    .email("kimapbel@gmail.com").phone("01011111112").password(password).nickname("김참정")
+                    .height(160).weight(50).gender(Gender.MALE).point(500000).build();
+            memberRepository.save(OAUTH2_MEMBER);
+
+            Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("pyb0402@tama.com").phone("01011111113").password(password).nickname("박유빈")
+                    .height(170).weight(60).gender(Gender.FEMALE).point(500000).build();
+            memberRepository.save(ORIGINAL_MEMBER);
+        }
+
+        private void initMemberAddress() {
+            Member member2 = memberRepository.findById(2L).get();
+            memberService.saveMemberAddress(member2.getId(), "우리집", member2.getNickname(), member2.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
+            memberService.saveMemberAddress(member2.getId(), "회사", member2.getNickname(), member2.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
+
+            Member member3 = memberRepository.findById(3L).get();
+            memberService.saveMemberAddress(member3.getId(), "우리집", member3.getNickname(), member3.getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
+            memberService.saveMemberAddress(member3.getId(), "회사", member3.getNickname(), member3.getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
+        }
+
+        private void initCoupon() {
+            Coupon percentCoupon = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(3));
+            Coupon fixedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(3));
+            Coupon expiredCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().minusDays(7));
+            Coupon usedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(3));
+
+            couponRepository.save(percentCoupon);
+            couponRepository.save(fixedCoupon);
+            couponRepository.save(expiredCoupon);
+            couponRepository.save(usedCoupon);
+
+            List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
+            memberCouponRepository.save(new MemberCoupon(percentCoupon, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(0), true));
+
+            memberCouponRepository.save(new MemberCoupon(percentCoupon, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(1), true));
+        }
+
+
+        private void initOrder() {
+            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(2L, 2)
+            ));
+            createMemberOrder(1L, request);
+
+            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(3L, 2),
+                    new SaveOrderItemRequest(4L, 1)
+            ));
+            createMemberOrder(1L, request2);
+
+
+            /*
+            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(3L, 3)
+            ));
+            createMemberOrder(1L, request);
+
+            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "김성원", "01021347851", "57353"
+                    , "전라남도 담양군 금성면 금성공단길 87 (금성면)", "금성 정육점", "가게 앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(5L, 1),
+                    new SaveOrderItemRequest(2L, 1)
+            ));
+            createMemberOrder(1L, request2);
+
+            SaveGuestOrderRequest saveGuestOrderRequest = new SaveGuestOrderRequest(UUID.randomUUID().toString(), "김수현", "ksh@tama.com", "01013249512", "김성원", "01021347851", "57353"
+                    , "전라남도 담양군 금성면 금성공단길 87 (금성면)", "금성 정육점", "가게 앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(4L, 1),
+                    new SaveOrderItemRequest(6L, 1)
+            ));
+            createGuestOrder(saveGuestOrderRequest);
+
+             */
+        }
+
+        private void initReview() {
+            List<Member> members = memberRepository.findAll();
+            Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
+                    .orderItem(orderItemRepository.findById(1L).get())
+                    .rating(2)
+                    .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());
+            reviewRepository.save(r1);
+            reviewService.updateCreatedAt(r1.getId());
+
+            reviewRepository.save(Review.builder().member(members.get(1))
+                    .orderItem(orderItemRepository.findById(2L).get())
+                    .rating(4)
+                    .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
+        }
+
+
+        private void createMemberOrder(Long memberId, SaveMemberOrderRequest request) {
+            Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
+            Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
+            List<OrderItem> orderItems = new ArrayList<>();
+
+            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
+            List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
+
+            for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
+                Long colorItemSizeStockId = saveOrderItemRequest.getColorItemSizeStockId();
+                //영속성 컨텍스트 재사용
+                ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId).orElseThrow(() -> new IllegalArgumentException(colorItemSizeStockId + "는 동록되지 않은 상품입니다"));
+
+                //가격 변동 or 할인 쿠폰 고려
+                Integer price = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
+                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+                int orderPrice = discountedPrice != null ? discountedPrice : price;
+
+                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+                orderItems.add(orderItem);
+            }
+
+            Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
+
+            //order 저장후 orderItem 저장해야함
+            orderRepository.save(order);
+            jdbcTemplateRepository.saveOrderItems(orderItems);
+        }
+
+        private void createGuestOrder(SaveGuestOrderRequest request) {
+            Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
+            List<OrderItem> orderItems = new ArrayList<>();
+
+            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
+            List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
+
+            for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
+                Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
+                //영속성 컨텍스트 재사용
+                ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
+
+                //가격 변동 or 할인 쿠폰 고려
+                Integer price = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
+                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+                int orderPrice = discountedPrice != null ? discountedPrice : price;
+
+                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+                orderItems.add(orderItem);
+            }
+            Guest guest = new Guest(request.getSenderNickname(), request.getSenderEmail());
+            Order order = Order.createGuestOrder(request.getPaymentId(), guest, delivery, orderItems);
+            //order 저장후 orderItem 저장해야함
+            orderRepository.save(order);
+            jdbcTemplateRepository.saveOrderItems(orderItems);
+        }
+
         private void initManyItem(int ITEM_COUNT) {
             log.info("initManyItem 실행 중");
             Category category = categoryRepository.findByName("팬츠").get();
@@ -482,126 +658,6 @@ public class Init {
 
             jdbcTemplateRepository.saveColorItemSizeStocks(colorItemSizeStocks);
             jdbcTemplateRepository.saveColorItemImages(colorItemImages);
-        }
-
-        private void initMember() {
-            String password = bCryptPasswordEncoder.encode("test");
-
-            Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("admin@tama.com").phone("01011111111").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
-            memberRepository.save(admin);
-
-            Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER).email("kimapbel@gmail.com").phone("01011111112").password(password).nickname("김참정").height(160).weight(50).gender(Gender.MALE).build();
-            memberRepository.save(OAUTH2_MEMBER);
-
-            Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER).email("pyb0402@tama.com").phone("01011111113").password(password).nickname("박유빈").height(170).weight(60).gender(Gender.FEMALE).build();
-            memberRepository.save(ORIGINAL_MEMBER);
-        }
-
-        private void initMemberAddress() {
-            Member member2 = memberRepository.findById(2L).get();
-            memberService.saveMemberAddress(member2.getId(), "우리집", member2.getNickname(), member2.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
-            memberService.saveMemberAddress(member2.getId(), "회사", member2.getNickname(), member2.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
-
-            Member member3 = memberRepository.findById(3L).get();
-            memberService.saveMemberAddress(member3.getId(), "우리집", member3.getNickname(), member3.getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
-            memberService.saveMemberAddress(member3.getId(), "회사", member3.getNickname(), member3.getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
-        }
-
-        private void initOrder() {
-            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(1L, 2),
-                    new SaveOrderItemRequest(2L, 2)
-            ));
-            createMemberOrder(1L, request);
-
-            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(3L, 2),
-                    new SaveOrderItemRequest(4L, 1)
-            ));
-            createMemberOrder(1L, request2);
-
-
-            /*
-            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(1L, 2),
-                    new SaveOrderItemRequest(3L, 3)
-            ));
-            createMemberOrder(1L, request);
-
-            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "김성원", "01021347851", "57353"
-                    , "전라남도 담양군 금성면 금성공단길 87 (금성면)", "금성 정육점", "가게 앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(5L, 1),
-                    new SaveOrderItemRequest(2L, 1)
-            ));
-            createMemberOrder(1L, request2);
-
-            SaveGuestOrderRequest saveGuestOrderRequest = new SaveGuestOrderRequest(UUID.randomUUID().toString(), "김수현", "ksh@tama.com", "01013249512", "김성원", "01021347851", "57353"
-                    , "전라남도 담양군 금성면 금성공단길 87 (금성면)", "금성 정육점", "가게 앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(4L, 1),
-                    new SaveOrderItemRequest(6L, 1)
-            ));
-            createGuestOrder(saveGuestOrderRequest);
-
-             */
-        }
-
-        private void createMemberOrder(Long memberId, SaveMemberOrderRequest request) {
-            Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
-            Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
-            List<OrderItem> orderItems = new ArrayList<>();
-
-            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
-            List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
-
-            for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
-                Long colorItemSizeStockId = saveOrderItemRequest.getColorItemSizeStockId();
-                //영속성 컨텍스트 재사용
-                ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId).orElseThrow(() -> new IllegalArgumentException(colorItemSizeStockId + "는 동록되지 않은 상품입니다"));
-
-                //가격 변동 or 할인 쿠폰 고려
-                Integer price = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
-                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
-                int orderPrice = discountedPrice != null ? discountedPrice : price;
-
-                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
-                orderItems.add(orderItem);
-            }
-
-            Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
-
-            //order 저장후 orderItem 저장해야함
-            orderRepository.save(order);
-            jdbcTemplateRepository.saveOrderItems(orderItems);
-        }
-
-        private void createGuestOrder(SaveGuestOrderRequest request) {
-            Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
-            List<OrderItem> orderItems = new ArrayList<>();
-
-            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
-            List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
-
-            for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
-                Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
-                //영속성 컨텍스트 재사용
-                ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
-
-                //가격 변동 or 할인 쿠폰 고려
-                Integer price = colorItemSizeStock.getColorItem().getItem().getOriginalPrice();
-                Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
-                int orderPrice = discountedPrice != null ? discountedPrice : price;
-
-                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
-                orderItems.add(orderItem);
-            }
-            Guest guest = new Guest(request.getSenderNickname(), request.getSenderEmail());
-            Order order = Order.createGuestOrder(request.getPaymentId(), guest, delivery, orderItems);
-            //order 저장후 orderItem 저장해야함
-            orderRepository.save(order);
-            jdbcTemplateRepository.saveOrderItems(orderItems);
         }
 
         private void initManyOrder(int ORDER_COUNT) {
@@ -699,21 +755,6 @@ public class Init {
             }
 
             jdbcTemplateRepository.saveOrderItems(newOrderItems);
-        }
-
-        private void initReview() {
-            List<Member> members = memberRepository.findAll();
-            Review r1 = reviewRepository.save(Review.builder().member(members.get(0))
-                    .orderItem(orderItemRepository.findById(1L).get())
-                    .rating(2)
-                    .comment("S사이즈로 아주 약간 큰 편이지만 키에 거의 딱 맞는거 같아요. 땀듯해서 입기 좋습니다ㅎㅎ").build());
-            reviewRepository.save(r1);
-            reviewService.updateCreatedAt(r1.getId());
-
-            reviewRepository.save(Review.builder().member(members.get(1))
-                    .orderItem(orderItemRepository.findById(2L).get())
-                    .rating(4)
-                    .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
         }
 
         private void initManyReview() {
