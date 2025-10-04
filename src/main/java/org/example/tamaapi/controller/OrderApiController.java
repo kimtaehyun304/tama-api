@@ -68,30 +68,36 @@ public class OrderApiController {
         SaveOrderRequest saveOrderRequest = portOneService.convertCustomData((String) paymentResponse.get("customData"));
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
-        portOneService.validate(paymentStatus, saveOrderRequest);
-        orderService.validate(saveOrderRequest, clientTotal);
 
-        Long memberId = principal.getMemberId();
-        //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
-        if (memberId == null && StringUtils.hasText(paymentId)) {
-            String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
-            if(StringUtils.hasText(paymentId))
-                portOneService.cancelPayment(paymentId, cancelMsg);
-            log.error("[{}] {}", cancelMsg, saveOrderRequest);
-            throw new IllegalArgumentException(cancelMsg);
-        }
+            portOneService.validate(paymentStatus, saveOrderRequest);
+            orderService.validate(saveOrderRequest, clientTotal, principal.getMemberId());
 
-        orderService.saveMemberOrder(
-                saveOrderRequest.getPaymentId(),
-                memberId,
-                saveOrderRequest.getReceiverNickname(),
-                saveOrderRequest.getReceiverPhone(),
-                saveOrderRequest.getZipCode(),
-                saveOrderRequest.getStreetAddress(),
-                saveOrderRequest.getDetailAddress(),
-                saveOrderRequest.getDeliveryMessage(),
-                saveOrderRequest.getOrderItems()
-        );
+            Long memberId = principal.getMemberId();
+            //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
+            if (memberId == null && StringUtils.hasText(paymentId)) {
+                String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
+                if (StringUtils.hasText(paymentId))
+                    portOneService.cancelPayment(paymentId, cancelMsg);
+                log.warn("[{}] {}", cancelMsg, saveOrderRequest);
+                throw new IllegalArgumentException(cancelMsg);
+            }
+
+            orderService.saveMemberOrder(
+                    saveOrderRequest.getPaymentId(),
+                    memberId,
+                    saveOrderRequest.getReceiverNickname(),
+                    saveOrderRequest.getReceiverPhone(),
+                    saveOrderRequest.getZipCode(),
+                    saveOrderRequest.getStreetAddress(),
+                    saveOrderRequest.getDetailAddress(),
+                    saveOrderRequest.getDeliveryMessage(),
+                    saveOrderRequest.getMemberCouponId(),
+                    saveOrderRequest.getPoint(),
+                    saveOrderRequest.getOrderItems()
+            );
+
+
+
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
 
@@ -143,8 +149,7 @@ public class OrderApiController {
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
         portOneService.validate(paymentStatus, saveOrderRequest);
-        orderService.validate(saveOrderRequest, clientTotal);
-
+        orderService.validate(saveOrderRequest, clientTotal, null);
         Long newOrderId = orderService.saveGuestOrder(
                 saveOrderRequest.getPaymentId(),
                 saveOrderRequest.getSenderNickname(),

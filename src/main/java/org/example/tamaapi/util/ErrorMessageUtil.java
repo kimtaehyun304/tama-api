@@ -13,6 +13,8 @@ public class ErrorMessageUtil {
    public static String NOT_FOUND_ITEM = "존재하지 않는 상품입니다";
    public static String NOT_FOUND_COLOR = "존재하지 않는 색상입니다";
    public static String NOT_FOUND_IMAGE = "존재하지 않는 이미지입니다";
+
+   public static String NOT_FOUND_COUPON = "존재하지 않는 쿠폰입니다";
    public static String INVALID_HEADER = "유효하지 않은 헤더 또는 양식입니다";
    public static String NOT_AUTHENTICATED = "인증되지 않았습니다";
 

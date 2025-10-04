@@ -36,5 +36,9 @@ public class SaveOrderRequest {
 
     private String deliveryMessage;
 
+    private Long memberCouponId;
+
+    private Integer point;
+
     private List<SaveOrderItemRequest> orderItems = new ArrayList<>();
 }

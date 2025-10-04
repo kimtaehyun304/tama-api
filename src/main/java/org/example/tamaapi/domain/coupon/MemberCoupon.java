@@ -38,4 +38,8 @@ public class MemberCoupon extends BaseEntity {
         this.member = member;
         this.isUsed = isUsed;
     }
+
+    public void changeIsUsed(boolean isUsed){
+        this.isUsed = isUsed;
+    }
 }
