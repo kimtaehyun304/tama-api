@@ -53,7 +53,7 @@ public class OrderApiController {
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
     public CustomPage<MemberOrderResponse> orders(@AuthenticationPrincipal CustomPrincipal principal, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         //조회라 굳이 멤버 존재 체크 안필요
@@ -68,34 +68,32 @@ public class OrderApiController {
         SaveOrderRequest saveOrderRequest = portOneService.convertCustomData((String) paymentResponse.get("customData"));
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
+        portOneService.validate(paymentStatus, saveOrderRequest);
+        orderService.validate(saveOrderRequest, clientTotal, principal.getMemberId());
 
-            portOneService.validate(paymentStatus, saveOrderRequest);
-            orderService.validate(saveOrderRequest, clientTotal, principal.getMemberId());
+        Long memberId = principal.getMemberId();
+        //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
+        if (memberId == null && StringUtils.hasText(paymentId)) {
+            String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
+            if (StringUtils.hasText(paymentId))
+                portOneService.cancelPayment(paymentId, cancelMsg);
+            log.warn("[{}] {}", cancelMsg, saveOrderRequest);
+            throw new IllegalArgumentException(cancelMsg);
+        }
 
-            Long memberId = principal.getMemberId();
-            //개발 단계를 제외하고는 누락될 일이 없지만, 돈 관련된 거라 if문 넣어 둠.
-            if (memberId == null && StringUtils.hasText(paymentId)) {
-                String cancelMsg = "memberId가 누락되어 주문을 진행할 수 없습니다. 결제는 자동으로 취소됩니다.";
-                if (StringUtils.hasText(paymentId))
-                    portOneService.cancelPayment(paymentId, cancelMsg);
-                log.warn("[{}] {}", cancelMsg, saveOrderRequest);
-                throw new IllegalArgumentException(cancelMsg);
-            }
-
-            orderService.saveMemberOrder(
-                    saveOrderRequest.getPaymentId(),
-                    memberId,
-                    saveOrderRequest.getReceiverNickname(),
-                    saveOrderRequest.getReceiverPhone(),
-                    saveOrderRequest.getZipCode(),
-                    saveOrderRequest.getStreetAddress(),
-                    saveOrderRequest.getDetailAddress(),
-                    saveOrderRequest.getDeliveryMessage(),
-                    saveOrderRequest.getMemberCouponId(),
-                    saveOrderRequest.getPoint(),
-                    saveOrderRequest.getOrderItems()
-            );
-
+        orderService.saveMemberOrder(
+                saveOrderRequest.getPaymentId(),
+                memberId,
+                saveOrderRequest.getReceiverNickname(),
+                saveOrderRequest.getReceiverPhone(),
+                saveOrderRequest.getZipCode(),
+                saveOrderRequest.getStreetAddress(),
+                saveOrderRequest.getDetailAddress(),
+                saveOrderRequest.getDeliveryMessage(),
+                saveOrderRequest.getMemberCouponId(),
+                saveOrderRequest.getUsedPoint(),
+                saveOrderRequest.getOrderItems()
+        );
 
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
@@ -105,7 +103,7 @@ public class OrderApiController {
     @PutMapping("/api/orders/member/cancel")
     public ResponseEntity<SimpleResponse> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal CustomPrincipal principal) {
 
-        if(principal == null)
+        if (principal == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
         orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId(), "구매자 취소 요청");
@@ -133,7 +131,7 @@ public class OrderApiController {
         GuestOrderResponse guestOrderResponse = orderQueryRepository.findGuestOrder(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
 
-        if(!guestOrderResponse.getGuestName().equals(buyerName))
+        if (!guestOrderResponse.getGuestName().equals(buyerName))
             throw new IllegalArgumentException(NOT_FOUND_ORDER);
 
         return guestOrderResponse;
@@ -188,7 +186,7 @@ public class OrderApiController {
 
         Order order = orderRepository.findAllWithOrderItemAndDeliveryByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
         //사용자 검증
-        if(!order.getGuest().getNickname().equals(buyerName))
+        if (!order.getGuest().getNickname().equals(buyerName))
             throw new IllegalArgumentException(NOT_FOUND_ORDER);
 
         orderService.cancelGuestOrder(orderId, "구매자 취소 요청");
@@ -216,7 +214,7 @@ public class OrderApiController {
     //포트원 결제 내역에 저장할 멤버 정보
     @GetMapping("/api/order/setup")
     public ResponseEntity<MemberOrderSetUpResponse> member(@AuthenticationPrincipal CustomPrincipal principal) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         Member member = memberRepository.findWithAddressesById(principal.getMemberId())

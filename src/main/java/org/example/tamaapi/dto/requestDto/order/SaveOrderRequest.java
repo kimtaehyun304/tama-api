@@ -28,7 +28,6 @@ public class SaveOrderRequest {
     // 우편번호
     private String zipCode;
 
-    // 도로명 주소
     private String streetAddress;
 
     // 상세 주소
@@ -38,7 +37,7 @@ public class SaveOrderRequest {
 
     private Long memberCouponId;
 
-    private Integer point;
+    private int usedPoint;
 
     private List<SaveOrderItemRequest> orderItems = new ArrayList<>();
 }

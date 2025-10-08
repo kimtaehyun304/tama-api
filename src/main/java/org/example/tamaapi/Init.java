@@ -458,20 +458,36 @@ public class Init {
 
 
         private void initOrder() {
+            Member member1 = memberRepository.findAllByAuthority(Authority.MEMBER).get(0);
             SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
                     new SaveOrderItemRequest(1L, 2),
                     new SaveOrderItemRequest(2L, 2)
             ));
-            createMemberOrder(1L, request);
+            createMemberOrder(member1.getId(), request);
 
             SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
                     new SaveOrderItemRequest(3L, 2),
                     new SaveOrderItemRequest(4L, 1)
             ));
-            createMemberOrder(1L, request2);
+            createMemberOrder(member1.getId(), request2);
 
+
+            Member member2 = memberRepository.findAllByAuthority(Authority.MEMBER).get(1);
+            SaveMemberOrderRequest request3 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(2L, 2)
+            ));
+            createMemberOrder(member2.getId(), request3);
+
+            SaveMemberOrderRequest request4 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+                    new SaveOrderItemRequest(3L, 2),
+                    new SaveOrderItemRequest(4L, 1)
+            ));
+            createMemberOrder(member2.getId(), request4);
 
             /*
             SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.order.PortOnePaymentStatus;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
 import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
+import org.example.tamaapi.exception.OrderFailException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -85,9 +86,9 @@ public class PortOneService {
             try {
                 Object value = field.get(saveOrderRequest);
                 if (value == null || (value instanceof String && !StringUtils.hasText((String) value))) {
-                    String cancelMsg = String.format("[%s] 값이 누락되어 결제를 취소합니다.", field.getName());
+                    String cancelMsg = String.format("[%s] 값 누락", field.getName());
                     cancelPayment(paymentId, cancelMsg);
-                    throw new IllegalArgumentException(cancelMsg);
+                    throw new OrderFailException(cancelMsg);
                 }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
@@ -98,19 +99,20 @@ public class PortOneService {
             SaveOrderItemRequest item = saveOrderRequest.getOrderItems().get(i);
 
             if (item.getColorItemSizeStockId() == null) {
-                String cancelMsg = String.format("orderItems[%d].colorItemSizeStockId 값이 누락되어 결제를 취소합니다.", i);
+                String cancelMsg = String.format("orderItems[%d].colorItemSizeStockId 값 누락", i);
                 cancelPayment(paymentId, cancelMsg);
-                throw new IllegalArgumentException(cancelMsg);
+                throw new OrderFailException(cancelMsg);
             }
 
             if (item.getOrderCount() == null) {
-                String cancelMsg = String.format("orderItems[%d].orderCount 값이 누락되어 결제를 취소합니다.", i);
+                String cancelMsg = String.format("orderItems[%d].orderCount 값 누락", i);
                 cancelPayment(paymentId, cancelMsg);
-                throw new IllegalArgumentException(cancelMsg);
+                throw new OrderFailException(cancelMsg);
             }
         }
     }
 
+    //어짜피 결제 실패했기 때문에, 결제 취소 안해도 됨
     private void validatePaymentStatus(PortOnePaymentStatus paymentStatus) {
         if (!paymentStatus.equals(PortOnePaymentStatus.PAID))
             throw new IllegalArgumentException("포트원 결제 실패로 인한 주문 진행 불가");

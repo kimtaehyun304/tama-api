@@ -1,9 +1,9 @@
 package org.example.tamaapi.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -19,6 +19,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 
 
 @RestControllerAdvice
+@Slf4j
 //필터에서 발생한 예외는 못잡음
 public class CommonExceptionHandler {
 
@@ -109,6 +110,12 @@ public class CommonExceptionHandler {
     @ExceptionHandler(NotEnoughStockException.class)
     public ResponseEntity<SimpleResponse> NotEnoughStockException(NotEnoughStockException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new SimpleResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(OrderFailException.class)
+    public ResponseEntity<SimpleResponse> OrderCancelException(OrderFailException exception) {
+        log.warn(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
     }
 
 }
