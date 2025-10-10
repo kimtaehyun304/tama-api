@@ -15,17 +15,23 @@ public class Delivery extends BaseEntity {
     private Long id;
 
     // 우편번호
+    @Column(nullable = false)
     private String zipCode;
 
     // 도로명 주소
+    @Column(nullable = false)
     private String street;
 
+    @Column(nullable = false)
     private String detail;
 
+    @Column(nullable = false)
     private String message;
 
+    @Column(nullable = false)
     private String receiverNickname;
 
+    @Column(nullable = false)
     private String receiverPhone;
 
     public Delivery(String zipCode, String street, String detail, String message, String receiverNickname, String receiverPhone) {

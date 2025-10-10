@@ -32,6 +32,7 @@ public class ColorItemSizeStock {
     @Column(nullable = false)
     private String size;
 
+    @Column(nullable = false)
     private int stock;
 
     @OneToMany(mappedBy = "colorItemSizeStock")

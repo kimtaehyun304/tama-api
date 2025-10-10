@@ -29,6 +29,7 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String phone;
 
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -82,6 +83,12 @@ public class Member extends BaseEntity {
         this.height = height;
         this.weight = weight;
     }
+    public void plusPoint(int point){
+        this.point += point;
+    }
 
+    public void minusPoint(int point){
+        this.point -= point;
+    }
 
 }

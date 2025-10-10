@@ -114,7 +114,6 @@ public class CommonExceptionHandler {
 
     @ExceptionHandler(OrderFailException.class)
     public ResponseEntity<SimpleResponse> OrderCancelException(OrderFailException exception) {
-        log.warn(exception.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
     }
 

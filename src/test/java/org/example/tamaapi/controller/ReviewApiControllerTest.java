@@ -88,6 +88,8 @@ class ReviewApiControllerTest {
                 streetAddress,
                 detailAddress,
                 deliveryMessage,
+                null,
+                0,
                 orderItems
         );
     }

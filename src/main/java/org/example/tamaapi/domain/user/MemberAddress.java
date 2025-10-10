@@ -22,25 +22,32 @@ public class MemberAddress extends BaseEntity {
     private Long id;
 
     //ex)우리집
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String receiverNickName;
 
+    @Column(nullable = false)
     private String receiverPhone;
 
     // 우편번호
+    @Column(nullable = false)
     private String zipCode;
 
     // 도로명 주소
+    @Column(nullable = false)
     private String street;
 
     // 상세 주소
+    @Column(nullable = false)
     private String detail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Column(nullable = false)
     private boolean isDefault;
 
     public MemberAddress(String name, String receiverNickName, String receiverPhone, String zipCode, String street, String detail, Member member, Boolean isDefault) {

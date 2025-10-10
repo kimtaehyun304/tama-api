@@ -17,9 +17,9 @@ import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.domain.user.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
-import org.example.tamaapi.dto.requestDto.order.SaveGuestOrderRequest;
-import org.example.tamaapi.dto.requestDto.order.SaveMemberOrderRequest;
+
 import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
+import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.ItemQueryRepository;
@@ -37,6 +37,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -54,7 +55,7 @@ public class Init {
     public void init() {
         String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto");
 
-        if(!ddlAuto.equals("none")){
+        if (!ddlAuto.equals("none")) {
             initService.initCommon();
             initService.initSmallData();
         }
@@ -456,62 +457,51 @@ public class Init {
             memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(1), true));
         }
 
-
         private void initOrder() {
             Member member1 = memberRepository.findAllByAuthority(Authority.MEMBER).get(0);
-            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+            MemberAddress member1DefaultAddress = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), true).get();
+            createMemberOrder(member1.getId(), new SaveOrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
+                    , member1.getPhone(), member1DefaultAddress.getZipCode(), member1DefaultAddress.getStreet(), member1DefaultAddress.getDetail(), "현관문 앞에 놔주세요",
+                    null, 0, List.of(
                     new SaveOrderItemRequest(1L, 2),
                     new SaveOrderItemRequest(2L, 2)
-            ));
-            createMemberOrder(member1.getId(), request);
+            )));
 
-            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(3L, 2),
-                    new SaveOrderItemRequest(4L, 1)
-            ));
-            createMemberOrder(member1.getId(), request2);
+            MemberAddress member1Address = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), false).get();
+            createMemberOrder(member1.getId(), new SaveOrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
+                    , member1.getPhone(), member1Address.getZipCode(), member1Address.getStreet(), member1Address.getDetail(), "회사 복도에 놔주세요",
+                    null, 0, List.of(
+                    new SaveOrderItemRequest(1L, 2),
+                    new SaveOrderItemRequest(2L, 2)
+            )));
 
-
+            //-------------------------------------
             Member member2 = memberRepository.findAllByAuthority(Authority.MEMBER).get(1);
-            SaveMemberOrderRequest request3 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+            MemberAddress member2DefaultAddress = memberAddressRepository.findByMemberIdAndIsDefault(member2.getId(), true).get();
+
+            createMemberOrder(member2.getId(),
+                    new SaveOrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
+                            , member2.getPhone(), member2DefaultAddress.getZipCode(), member2DefaultAddress.getStreet(), member2DefaultAddress.getDetail(), "현관문 앞에 놔주세요",
+                            null, 0, List.of(
+                            new SaveOrderItemRequest(1L, 2),
+                            new SaveOrderItemRequest(2L, 2))));
+
+            MemberAddress member2Address = memberAddressRepository.findByMemberIdAndIsDefault(member2.getId(), false).get();
+            createMemberOrder(member2.getId(), new SaveOrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
+                    , member2.getPhone(), member2Address.getZipCode(), member2Address.getStreet(), member2Address.getDetail(), "현관문 앞에 놔주세요",
+                    null, 0, List.of(
                     new SaveOrderItemRequest(1L, 2),
                     new SaveOrderItemRequest(2L, 2)
-            ));
-            createMemberOrder(member2.getId(), request3);
-
-            SaveMemberOrderRequest request4 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
+            )));
+            //-------------------------------------
+            String guestName = "장재일";
+            SaveOrderRequest guestRequest = new SaveOrderRequest(UUID.randomUUID().toString(), guestName, "burnaby033@naver.com", guestName, "010111122222", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요",
+                    null, 0, List.of(
                     new SaveOrderItemRequest(3L, 2),
                     new SaveOrderItemRequest(4L, 1)
             ));
-            createMemberOrder(member2.getId(), request4);
-
-            /*
-            SaveMemberOrderRequest request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "장재일", "01012349876", "05763"
-                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(1L, 2),
-                    new SaveOrderItemRequest(3L, 3)
-            ));
-            createMemberOrder(1L, request);
-
-            SaveMemberOrderRequest request2 = new SaveMemberOrderRequest(UUID.randomUUID().toString(), "김성원", "01021347851", "57353"
-                    , "전라남도 담양군 금성면 금성공단길 87 (금성면)", "금성 정육점", "가게 앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(5L, 1),
-                    new SaveOrderItemRequest(2L, 1)
-            ));
-            createMemberOrder(1L, request2);
-
-            SaveGuestOrderRequest saveGuestOrderRequest = new SaveGuestOrderRequest(UUID.randomUUID().toString(), "김수현", "ksh@tama.com", "01013249512", "김성원", "01021347851", "57353"
-                    , "전라남도 담양군 금성면 금성공단길 87 (금성면)", "금성 정육점", "가게 앞에 놔주세요", List.of(
-                    new SaveOrderItemRequest(4L, 1),
-                    new SaveOrderItemRequest(6L, 1)
-            ));
-            createGuestOrder(saveGuestOrderRequest);
-
-             */
+            createGuestOrder(guestRequest);
         }
 
         private void initReview() {
@@ -530,7 +520,7 @@ public class Init {
         }
 
 
-        private void createMemberOrder(Long memberId, SaveMemberOrderRequest request) {
+        private void createMemberOrder(Long memberId, SaveOrderRequest request) {
             Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
@@ -552,14 +542,14 @@ public class Init {
                 orderItems.add(orderItem);
             }
 
-            Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
+            Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, request.getUsedPoint(), orderItems);
 
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);
             jdbcTemplateRepository.saveOrderItems(orderItems);
         }
 
-        private void createGuestOrder(SaveGuestOrderRequest request) {
+        private void createGuestOrder(SaveOrderRequest request) {
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
 
@@ -594,14 +584,14 @@ public class Init {
 
             LocalDate dateOfManufacture = LocalDate.parse("2010-01-01");
             LocalDateTime createdDate = LocalDateTime.parse("2011-01-01T00:00:00");
-            for(int i=0; i<ITEM_COUNT; i++) {
+            for (int i = 0; i < ITEM_COUNT; i++) {
                 createdDate = createdDate.plusHours(1);
                 Item item = new Item(
-                        49900+i,
-                        39900+i,
+                        49900 + i,
+                        39900 + i,
                         Gender.FEMALE,
                         "24 F/W",
-                        "여 코듀로이 와이드 팬츠"+i,
+                        "여 코듀로이 와이드 팬츠" + i,
                         "무형광 원단입니다. 전 년 상품 자주히트와 동일한 소재이며, 네이밍이변경되었습니다.",
                         dateOfManufacture,
                         "방글라데시",
@@ -696,17 +686,19 @@ public class Init {
                 List<OrderItem> orderItems = new ArrayList<>();
                 Long id = colorItemSizeStock.getId();
                 int orderCount = id < 10 ? 2 : 1;
-                SaveMemberOrderRequest request;
+                SaveOrderRequest request;
 
-                if(id % 2 == 0){
-                    request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), manAddress.getReceiverNickName(), manAddress.getReceiverPhone(), manAddress.getZipCode()
-                            , manAddress.getStreet(), manAddress.getDetail(), "문 앞에 놔주세요", List.of(
+                if (id % 2 == 0) {
+                    request = new SaveOrderRequest(UUID.randomUUID().toString(), manAddress.getReceiverNickName(), manAddress.getReceiverPhone(), manAddress.getZipCode()
+                            , manAddress.getStreet(), manAddress.getDetail(), "문 앞에 놔주세요", null, null,
+                            null, 0, List.of(
                             new SaveOrderItemRequest(id, orderCount)
                     ));
                     member = man;
-                }else {
-                    request = new SaveMemberOrderRequest(UUID.randomUUID().toString(), womanAddress.getReceiverNickName(), womanAddress.getReceiverPhone(), womanAddress.getZipCode()
-                            , womanAddress.getStreet(), womanAddress.getDetail(), "현관에 놔주세요", List.of(
+                } else {
+                    request = new SaveOrderRequest(UUID.randomUUID().toString(), womanAddress.getReceiverNickName(), womanAddress.getReceiverPhone(), womanAddress.getZipCode()
+                            , womanAddress.getStreet(), womanAddress.getDetail(), "현관에 놔주세요", null, null,
+                            null, 0, List.of(
                             new SaveOrderItemRequest(id, orderCount)
                     ));
                     member = woman;
@@ -730,13 +722,13 @@ public class Init {
                     orderItems.add(orderItem);
                 }
 
-                Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, orderItems);
+                Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, null, orderItems);
                 order.setCreatedAt(createdDate);
                 order.setUpdatedAt(createdDate);
                 newOrders.add(order);
 
                 orderItems.clear();
-                if(++count == ORDER_COUNT) break;
+                if (++count == ORDER_COUNT) break;
             }
 
             jdbcTemplateRepository.saveDeliveries(deliveries);
@@ -811,13 +803,13 @@ public class Init {
         }
 
 
-        public void initBestItemCache(){
-            CustomPageRequest customPageRequest = new CustomPageRequest(1,10);
+        public void initBestItemCache() {
+            CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
 
             for (BestItem bestItem : BestItem.values()) {
                 List<Long> categoryIds = new ArrayList<>();
 
-                if(bestItem.getCategoryId() != null){
+                if (bestItem.getCategoryId() != null) {
                     Category category = categoryRepository.findWithChildrenById(bestItem.getCategoryId())
                             .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_CATEGORY));
                     categoryIds.add(bestItem.getCategoryId());

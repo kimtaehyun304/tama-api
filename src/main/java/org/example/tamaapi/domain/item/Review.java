@@ -34,6 +34,7 @@ public class Review extends BaseEntity {
     @Column(nullable = false)
     private int rating;
 
+    @Column(nullable = false)
     private String comment;
 
     // 키는 달라질수 있다.

@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.tamaapi.domain.BaseEntity;
+import org.example.tamaapi.domain.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Guest;
 import org.example.tamaapi.domain.user.Member;
 
@@ -31,18 +32,26 @@ public class Order extends BaseEntity {
     private Delivery delivery;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
     @Embedded
     private Guest guest;
 
-    //cascade insert 여러번 나가서 jdbcTemplate 사용
-    @OneToMany(mappedBy = "order")
-    //@BatchSize(size = 1000)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "member_coupon_id")
+    private MemberCoupon memberCoupon;
+
+    private int usedPoint;
 
     //포트원 결제 번호 (문자열)
     private String paymentId;
+
+    //cascade insert 여러번 나가서 jdbcTemplate 사용
+    @OneToMany(mappedBy = "order")
+    //@BatchSize(size = 1000) osiv off
+    private List<OrderItem> orderItems = new ArrayList<>();
+
 
     //==연관관계 메서드==//
     public void addMember(Member member) {
@@ -55,12 +64,14 @@ public class Order extends BaseEntity {
         orderItem.setOrder(this);
     }
 
-    private Order(String paymentId, Member member, Delivery delivery, List<OrderItem> orderItems) {
+    private Order(String paymentId, Member member, Delivery delivery, MemberCoupon memberCoupon, Integer usedPoint, List<OrderItem> orderItems) {
         this.paymentId = paymentId;
         this.addMember(member);
         this.delivery = delivery;
         for (OrderItem orderItem : orderItems)
             this.addOrderItem(orderItem);
+        this.memberCoupon = memberCoupon;
+        this.usedPoint = usedPoint;
         this.status = OrderStatus.PAYMENT;
     }
 
@@ -74,8 +85,8 @@ public class Order extends BaseEntity {
     }
 
     //==생성 메서드==//
-    public static Order createMemberOrder(String paymentId, Member member, Delivery delivery, List<OrderItem> orderItems) {
-       return new Order(paymentId,member,delivery,orderItems);
+    public static Order createMemberOrder(String paymentId, Member member, Delivery delivery, MemberCoupon memberCoupon, Integer usedPoint, List<OrderItem> orderItems) {
+       return new Order(paymentId,member,delivery, memberCoupon, usedPoint, orderItems);
     }
 
     public static Order createGuestOrder(String paymentId, Guest guest, Delivery delivery, List<OrderItem> orderItems) {
