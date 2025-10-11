@@ -91,25 +91,25 @@ public class OrderApiController {
     public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
-        SaveOrderRequest saveOrderRequest = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
+        SaveOrderRequest req = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
         Long memberId = principal.getMemberId();
 
-        portOneService.validate(paymentStatus, saveOrderRequest);
-        orderService.validate(saveOrderRequest, clientTotal, memberId);
+        portOneService.validate(paymentStatus, req);
+        orderService.validate(req, clientTotal, memberId);
 
         orderService.saveMemberOrder(
-                saveOrderRequest.getPaymentId(),
+                req.getPaymentId(),
                 memberId,
-                saveOrderRequest.getReceiverNickname(),
-                saveOrderRequest.getReceiverPhone(),
-                saveOrderRequest.getZipCode(),
-                saveOrderRequest.getStreetAddress(),
-                saveOrderRequest.getDetailAddress(),
-                saveOrderRequest.getDeliveryMessage(),
-                saveOrderRequest.getMemberCouponId(),
-                saveOrderRequest.getUsedPoint(),
-                saveOrderRequest.getOrderItems()
+                req.getReceiverNickname(),
+                req.getReceiverPhone(),
+                req.getZipCode(),
+                req.getStreetAddress(),
+                req.getDetailAddress(),
+                req.getDeliveryMessage(),
+                req.getMemberCouponId(),
+                req.getUsedPoint(),
+                req.getOrderItems()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
@@ -124,7 +124,7 @@ public class OrderApiController {
 
         Long memberId = principal.getMemberId();
 
-        orderService.validate(saveFreeOrder, memberId);
+        orderService.validateFreeOrder(saveFreeOrder, memberId);
 
         orderService.saveMemberOrder(
                 null,

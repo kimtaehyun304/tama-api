@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.util.*;
 
+import static org.example.tamaapi.domain.item.QItem.item;
 import static org.example.tamaapi.util.ErrorMessageUtil.*;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_COUPON;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
@@ -49,6 +50,8 @@ public class OrderService {
 
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;
+
+    private Double POINT_ACCUMULATION_RATE = 0.02;
 
     public void saveMemberOrder(String paymentId, Long memberId,
                                 String receiverNickname,
@@ -71,9 +74,12 @@ public class OrderService {
                 memberCoupon.changeIsUsed(true);
             }
 
-            member.minusPoint(usedPoint);
             saveOrder(paymentId, member, null, receiverNickname, receiverPhone,
                     zipCode, streetAddress, detailAddress, message, memberCoupon, usedPoint, saveOrderItemRequests);
+            member.minusPoint(usedPoint);
+            int orderItemsPrice = calculateOrderItemsPrice(saveOrderItemRequests);
+            int priceAfterCoupon = calculatePriceAfterCoupon(paymentId, memberCouponId, orderItemsPrice);
+            member.plusPoint((int) (priceAfterCoupon * POINT_ACCUMULATION_RATE));
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
@@ -136,6 +142,40 @@ public class OrderService {
         return order.getId();
     }
 
+    public void cancelGuestOrder(Long orderId, String reason) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+        OrderStatus status = order.getStatus();
+        if (!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK)) {
+            String message = "주문 취소 가능 단계가 아닙니다.";
+            log.warn(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        order.cancelOrder();
+        portOneService.cancelPayment(order.getPaymentId(), reason);
+    }
+
+    public void cancelMemberOrder(Long orderId, Long memberId, String reason) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+
+        if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
+            String message = "주문한 사용자가 아닙니다.";
+            log.warn(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        OrderStatus status = order.getStatus();
+        if (!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK)) {
+            String message = "주문 취소 가능 단계가 아닙니다.";
+            log.warn(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        order.cancelOrder();
+        portOneService.cancelPayment(order.getPaymentId(), reason);
+    }
+
     //saveOrder 공통 로직
     private List<OrderItem> createOrderItem(List<SaveOrderItemRequest> saveOrderItemRequests) {
         List<OrderItem> orderItems = new ArrayList<>();
@@ -160,23 +200,16 @@ public class OrderService {
     }
 
     //클라이언트 위변조 검증
-    private void validateOrderPrice(SaveOrderRequest saveOrderRequest, Integer clientTotal, Long memberId) {
-        String paymentId = saveOrderRequest.getPaymentId();
-        int orderItemsPrice = calculateOrderItemsPrice(saveOrderRequest);
+    private void validateOrderPrice(List<SaveOrderItemRequest> orderItems, Long memberCouponId, Integer usedPoint, Integer clientTotal, String paymentId, Long memberId) {
+        int orderItemsPrice = calculateOrderItemsPrice(orderItems);
         int SHIPPING_FEE = calculateShippingFee(orderItemsPrice);
 
         //쿠폰 검증 포함
-        int priceAfterCoupon = calculatePriceAfterCoupon(saveOrderRequest, orderItemsPrice);
-
-        Integer usedPoint = saveOrderRequest.getUsedPoint();
+        int priceAfterCoupon = calculatePriceAfterCoupon(paymentId, memberCouponId, orderItemsPrice);
 
         //0이면 검증안해도 됨
-        if (usedPoint != 0) {
-            int serverPoint = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new OrderFailException(paymentId, NOT_FOUND_MEMBER))
-                    .getPoint();
-            validatePoint(usedPoint, serverPoint, priceAfterCoupon, SHIPPING_FEE, saveOrderRequest.getPaymentId());
-        }
+        if (usedPoint != 0)
+            validatePoint(usedPoint, memberId, priceAfterCoupon, SHIPPING_FEE, paymentId);
 
         // 무료 주문은 clientTotal이 없음. 결제를 안하기 때문
         if (clientTotal != null)
@@ -218,14 +251,13 @@ public class OrderService {
             throw new OrderFailException("memberId 누락");
     }
 
-    private int calculatePriceAfterCoupon(SaveOrderRequest saveOrderRequest, int orderItemsPrice) {
-        Long memberCouponId = saveOrderRequest.getMemberCouponId();
+    private int calculatePriceAfterCoupon(String paymentId, Long memberCouponId, int orderItemsPrice) {
         int priceAfterCoupon = orderItemsPrice;
 
         //쿠폰 선택안하면 기본값 0으로 옴
         if (memberCouponId != 0) {
             MemberCoupon memberCoupon = memberCouponRepository.findWithById(memberCouponId)
-                    .orElseThrow(() -> new OrderFailException(NOT_FOUND_COUPON, saveOrderRequest.getPaymentId()));
+                    .orElseThrow(() -> new OrderFailException(NOT_FOUND_COUPON, paymentId));
 
             CouponType couponType = memberCoupon.getCoupon().getType();
             int discountValue = memberCoupon.getCoupon().getDiscountValue();
@@ -238,14 +270,13 @@ public class OrderService {
                 }
             };
             //무료 주문은 paymentId가 null, 유료 주문은 null이면 예외 던지게 해둠
-            validateCoupon(memberCoupon, priceAfterCoupon, saveOrderRequest.getPaymentId());
+            validateCoupon(memberCoupon, priceAfterCoupon, paymentId);
         }
         return priceAfterCoupon;
     }
 
 
-    private int calculateOrderItemsPrice(SaveOrderRequest saveOrderRequest) {
-        List<SaveOrderItemRequest> orderItems = saveOrderRequest.getOrderItems();
+    private int calculateOrderItemsPrice(List<SaveOrderItemRequest> orderItems) {
         List<Long> colorItemSizeStockIds = orderItems.stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
         List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
 
@@ -260,8 +291,12 @@ public class OrderService {
                 .sum();
     }
 
-    private void validatePoint(int usedPoint, int serverPoint, int priceAfterCoupon, int SHIPPING_FEE, String paymentId) {
+    private void validatePoint(int usedPoint, Long memberId, int priceAfterCoupon, int SHIPPING_FEE, String paymentId) {
         String cancelMsg = null;
+
+        int serverPoint = memberRepository.findById(memberId)
+                .orElseThrow(() -> new OrderFailException(paymentId, NOT_FOUND_MEMBER))
+                .getPoint();
 
         if (usedPoint > serverPoint)
             cancelMsg = "보유한 포인트보다 넘게 사용할 수 없습니다.";
@@ -294,27 +329,27 @@ public class OrderService {
 
     //개발 단계에서만 일어날 법한 상황인데, 출시 버전에도 필요한가?
     //-> 브라우저를 거치는 게 아니고, 포스트맨으로 요청 할 수 있어서 필요
-    public void validate(SaveOrderRequest saveOrderRequest, int clientTotal, Long memberId) {
+    public void validate(SaveOrderRequest req, int clientTotal, Long memberId) {
         try {
-            String paymentId = saveOrderRequest.getPaymentId();
+            String paymentId = req.getPaymentId();
+            validateMemberId(memberId, paymentId);
             validatePaymentId(paymentId);
-            validateOrderPrice(saveOrderRequest, clientTotal, memberId);
-            validateMemberId(memberId, saveOrderRequest.getPaymentId());
+            validateOrderPrice(req.getOrderItems(), req.getMemberCouponId(), req.getUsedPoint(), clientTotal, paymentId, memberId);
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
-            portOneService.cancelPayment(saveOrderRequest.getPaymentId(), e.getMessage());
+            portOneService.cancelPayment(req.getPaymentId(), e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
-            portOneService.cancelPayment(saveOrderRequest.getPaymentId(), e.getMessage());
+            portOneService.cancelPayment(req.getPaymentId(), e.getMessage());
             throw e;
         }
     }
 
-    public void validate(SaveOrderRequest saveOrderRequest, Long memberId) {
+    public void validateFreeOrder(SaveOrderRequest saveOrderRequest, Long memberId) {
         try {
-            validateOrderPrice(saveOrderRequest, null, memberId);
+            validateOrderPrice(null, memberId);
             validateMemberId(memberId);
         } catch (Exception e) {
             log.warn(e.getMessage());
@@ -327,40 +362,6 @@ public class OrderService {
                 .ifPresent(order -> {
                     throw new OrderFailException("이미 사용된 결제번호", paymentId);
                 });
-    }
-
-    public void cancelGuestOrder(Long orderId, String reason) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        OrderStatus status = order.getStatus();
-        if (!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK)) {
-            String message = "주문 취소 가능 단계가 아닙니다.";
-            log.warn(message);
-            throw new IllegalArgumentException(message);
-        }
-
-        order.cancelOrder();
-        portOneService.cancelPayment(order.getPaymentId(), reason);
-    }
-
-    public void cancelMemberOrder(Long orderId, Long memberId, String reason) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-
-        if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
-            String message = "주문한 사용자가 아닙니다.";
-            log.warn(message);
-            throw new IllegalArgumentException(message);
-        }
-
-        OrderStatus status = order.getStatus();
-        if (!(status == OrderStatus.PAYMENT || status == OrderStatus.CHECK)) {
-            String message = "주문 취소 가능 단계가 아닙니다.";
-            log.warn(message);
-            throw new IllegalArgumentException(message);
-        }
-
-        order.cancelOrder();
-        portOneService.cancelPayment(order.getPaymentId(), reason);
     }
 
 
