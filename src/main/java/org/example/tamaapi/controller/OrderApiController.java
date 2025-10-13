@@ -8,6 +8,7 @@ import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.PortOnePaymentStatus;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.user.Member;
+import org.example.tamaapi.dto.PortOneOrder;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.*;
 import org.example.tamaapi.dto.responseDto.CustomPage;
@@ -91,15 +92,44 @@ public class OrderApiController {
     public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
-        SaveOrderRequest req = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
+        PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
         Long memberId = principal.getMemberId();
 
-        portOneService.validate(paymentStatus, req);
-        orderService.validate(req, clientTotal, memberId);
+        portOneService.validatePaymentStatus(paymentStatus, paymentId);
+        orderService.validateMemberOrder(portOneOrder, clientTotal, memberId);
 
         orderService.saveMemberOrder(
-                req.getPaymentId(),
+                portOneOrder.getPaymentId(),
+                memberId,
+                portOneOrder.getReceiverNickname(),
+                portOneOrder.getReceiverPhone(),
+                portOneOrder.getZipCode(),
+                portOneOrder.getStreetAddress(),
+                portOneOrder.getDetailAddress(),
+                portOneOrder.getDeliveryMessage(),
+                portOneOrder.getMemberCouponId(),
+                portOneOrder.getUsedPoint(),
+                portOneOrder.getOrderItems()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
+    }
+
+    //멤버 무료 주문 저장
+    //비회원은 쿠폰, 포인트 없어서 무료 주문 불가 -> 비회원용 API 안 만듬
+    //포트원을 거치지 않음 -> 리다이렉트 X -> 모바일용 API 안 만듬
+    @PostMapping("/api/orders/free/member")
+    public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal CustomPrincipal principal
+            ,@RequestBody @Valid OrderRequest req) {
+
+        Long memberId = principal.getMemberId();
+
+        int orderItemsPrice = orderService.getOrderItemsPrice(req.getOrderItems());
+        orderService.validateFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
+
+        orderService.saveMemberFreeOrder(
+                null,
                 memberId,
                 req.getReceiverNickname(),
                 req.getReceiverPhone(),
@@ -111,38 +141,8 @@ public class OrderApiController {
                 req.getUsedPoint(),
                 req.getOrderItems()
         );
-
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
-
-    //멤버 무료 주문 저장
-    //비회원은 쿠폰, 포인트 없어서 무료 주문 불가 -> 비회원용 API 안 만듬
-    //포트원을 거치지 않음 -> 리다이렉트 X -> 모바일용 API 안 만듬
-    @PostMapping("/api/orders/free/member")
-    public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal CustomPrincipal principal
-            ,@RequestBody @Valid SaveOrderRequest saveFreeOrder) {
-
-        Long memberId = principal.getMemberId();
-
-        orderService.validateFreeOrder(saveFreeOrder, memberId);
-
-        orderService.saveMemberOrder(
-                null,
-                memberId,
-                saveFreeOrder.getReceiverNickname(),
-                saveFreeOrder.getReceiverPhone(),
-                saveFreeOrder.getZipCode(),
-                saveFreeOrder.getStreetAddress(),
-                saveFreeOrder.getDetailAddress(),
-                saveFreeOrder.getDeliveryMessage(),
-                saveFreeOrder.getMemberCouponId(),
-                saveFreeOrder.getUsedPoint(),
-                saveFreeOrder.getOrderItems()
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
-    }
-
 
     //비로그인 주문 저장
     @PostMapping("/api/orders/guest")
@@ -150,26 +150,26 @@ public class OrderApiController {
     public ResponseEntity<SimpleResponse> saveGuestOrder(@RequestParam String paymentId) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
-        SaveOrderRequest saveOrderRequest = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
+        PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
-        portOneService.validate(paymentStatus, saveOrderRequest);
-        orderService.validate(saveOrderRequest, clientTotal, null);
+        portOneService.validatePaymentStatus(paymentStatus, paymentId);
+        orderService.validate(portOneOrder, clientTotal, null);
 
         Long newOrderId = orderService.saveGuestOrder(
-                saveOrderRequest.getPaymentId(),
-                saveOrderRequest.getSenderNickname(),
-                saveOrderRequest.getSenderEmail(),
-                saveOrderRequest.getReceiverNickname(),
-                saveOrderRequest.getReceiverPhone(),
-                saveOrderRequest.getZipCode(),
-                saveOrderRequest.getStreetAddress(),
-                saveOrderRequest.getDetailAddress(),
-                saveOrderRequest.getDeliveryMessage(),
-                saveOrderRequest.getOrderItems()
+                portOneOrder.getPaymentId(),
+                portOneOrder.getSenderNickname(),
+                portOneOrder.getSenderEmail(),
+                portOneOrder.getReceiverNickname(),
+                portOneOrder.getReceiverPhone(),
+                portOneOrder.getZipCode(),
+                portOneOrder.getStreetAddress(),
+                portOneOrder.getDetailAddress(),
+                portOneOrder.getDeliveryMessage(),
+                portOneOrder.getOrderItems()
         );
 
-        emailService.sendGuestOrderEmailAsync(saveOrderRequest.getSenderEmail(), saveOrderRequest.getSenderNickname(), newOrderId);
+        emailService.sendGuestOrderEmailAsync(orderRequest.getSenderEmail(), orderRequest.getSenderNickname(), newOrderId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
 

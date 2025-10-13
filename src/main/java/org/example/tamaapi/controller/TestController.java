@@ -2,23 +2,12 @@ package org.example.tamaapi.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.Item;
-import org.example.tamaapi.dto.CharacterCreateRequest;
-import org.example.tamaapi.dto.CharacterRequest;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
-import org.example.tamaapi.dto.responseDto.item.ItemImageDto;
 import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.repository.item.ItemRepository;
 import org.example.tamaapi.service.PortOneService;
 import org.example.tamaapi.util.ErrorMessageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j

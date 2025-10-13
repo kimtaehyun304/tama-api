@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.domain.order.PortOnePaymentStatus;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
-import org.example.tamaapi.exception.MyInternalServerException;
+import org.example.tamaapi.dto.PortOneOrder;
+import org.example.tamaapi.dto.requestDto.order.OrderRequest;
 import org.example.tamaapi.exception.OrderFailException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,7 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -65,23 +63,22 @@ public class PortOneService {
     }
 
     //프론트에서 customData 양식 못 맞추면 예외 발생 가능
-    public SaveOrderRequest convertCustomData(String customData, String paymentId) {
+    public PortOneOrder convertCustomData(String customData, String paymentId) {
         try {
-            SaveOrderRequest saveOrderRequest = objectMapper.readValue(customData, SaveOrderRequest.class);
-            validateSaveOrderRequest(saveOrderRequest);
-            return saveOrderRequest;
+            PortOneOrder portOneOrder = objectMapper.readValue(customData, PortOneOrder.class);
+            validateNotBlank(portOneOrder);
+            return portOneOrder;
         } catch (Exception e) {
-            String cause = "PG사 데이터를 가공하다가 오류 발생";
+            String cause = "PG사 데이터 읽는 중 오류 발생";
             cancelPayment(paymentId, cause);
             log.error(String.format("결제가 취소될 예정입니다. 원인:%s, customData:%s", cause, customData));
             throw new OrderFailException(cause, paymentId);
         }
     }
-
+    /*
     //내부 리파지토리 안 쓰는 메소드라 orderService.validate와 분리
     public void validate(PortOnePaymentStatus paymentStatus, SaveOrderRequest saveOrderRequest) {
         try {
-            validateSaveOrderRequest(saveOrderRequest);
             validatePaymentStatus(paymentStatus, saveOrderRequest.getPaymentId());
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
@@ -94,21 +91,21 @@ public class PortOneService {
             throw e;
         }
     }
-
+     */
 
     //어짜피 결제 실패했기 때문에, 결제 취소 안해도 됨
-    private void validatePaymentStatus(PortOnePaymentStatus paymentStatus, String paymentId) {
+    public void validatePaymentStatus(PortOnePaymentStatus paymentStatus, String paymentId) {
         if (!paymentStatus.equals(PortOnePaymentStatus.PAID))
-            throw new OrderFailException(String.format("결제 실패로 인해 주문을 진행할 수 없습니다. 결제번호:%s"), paymentId);
+            throw new OrderFailException(String.format("결제가 완료되지 않아서 주문을 진행할 수 없습니다. 결제번호:%s"), paymentId);
     }
 
-    private void validateSaveOrderRequest(SaveOrderRequest saveOrderRequest) {
-        String paymentId = saveOrderRequest.getPaymentId();
+    private void validateNotBlank(PortOneOrder portOneOrder) {
+        String paymentId = portOneOrder.getPaymentId();
         // 1. SaveOrderRequest 필드 검사
-        for (Field field : SaveOrderRequest.class.getDeclaredFields()) {
+        for (Field field : OrderRequest.class.getDeclaredFields()) {
             field.setAccessible(true);
             try {
-                Object value = field.get(saveOrderRequest);
+                Object value = field.get(portOneOrder);
 
                 // String 빈 값 체크
                 if (value == null || (value instanceof String && !StringUtils.hasText((String) value))) {

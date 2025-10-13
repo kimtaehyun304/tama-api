@@ -1,19 +1,15 @@
 package org.example.tamaapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.item.Review;
-import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
-import org.example.tamaapi.domain.user.Provider;
 import org.example.tamaapi.dto.requestDto.item.save.SaveReviewRequest;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
+import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ReviewRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;
-import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.OrderService;
 import org.example.tamaapi.util.ErrorMessageUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +26,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -72,10 +67,10 @@ class ReviewApiControllerTest {
         String detailAddress = "마을회관";
         String deliveryMessage = "문 앞에 놔주세요";
 
-        List<SaveOrderItemRequest> orderItems = new ArrayList<>(
+        List<OrderItemRequest> orderItems = new ArrayList<>(
                 List.of(
-                        new SaveOrderItemRequest(10L, 1),
-                        new SaveOrderItemRequest(10L, 1)
+                        new OrderItemRequest(10L, 1),
+                        new OrderItemRequest(10L, 1)
                 )
         );
 

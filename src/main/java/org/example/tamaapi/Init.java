@@ -18,8 +18,8 @@ import org.example.tamaapi.domain.user.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 
-import org.example.tamaapi.dto.requestDto.order.SaveOrderItemRequest;
-import org.example.tamaapi.dto.requestDto.order.SaveOrderRequest;
+import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
+import org.example.tamaapi.dto.requestDto.order.OrderRequest;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.ItemQueryRepository;
@@ -460,19 +460,19 @@ public class Init {
         private void initOrder() {
             Member member1 = memberRepository.findAllByAuthority(Authority.MEMBER).get(0);
             MemberAddress member1DefaultAddress = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), true).get();
-            createMemberOrder(member1.getId(), new SaveOrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
+            createMemberOrder(member1.getId(), new OrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
                     , member1.getPhone(), member1DefaultAddress.getZipCode(), member1DefaultAddress.getStreet(), member1DefaultAddress.getDetail(), "현관문 앞에 놔주세요",
                     null, 0, List.of(
-                    new SaveOrderItemRequest(1L, 2),
-                    new SaveOrderItemRequest(2L, 2)
+                    new OrderItemRequest(1L, 2),
+                    new OrderItemRequest(2L, 2)
             )));
 
             MemberAddress member1Address = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), false).get();
-            createMemberOrder(member1.getId(), new SaveOrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
+            createMemberOrder(member1.getId(), new OrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
                     , member1.getPhone(), member1Address.getZipCode(), member1Address.getStreet(), member1Address.getDetail(), "회사 복도에 놔주세요",
                     null, 0, List.of(
-                    new SaveOrderItemRequest(1L, 2),
-                    new SaveOrderItemRequest(2L, 2)
+                    new OrderItemRequest(1L, 2),
+                    new OrderItemRequest(2L, 2)
             )));
 
             //-------------------------------------
@@ -480,26 +480,26 @@ public class Init {
             MemberAddress member2DefaultAddress = memberAddressRepository.findByMemberIdAndIsDefault(member2.getId(), true).get();
 
             createMemberOrder(member2.getId(),
-                    new SaveOrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
+                    new OrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
                             , member2.getPhone(), member2DefaultAddress.getZipCode(), member2DefaultAddress.getStreet(), member2DefaultAddress.getDetail(), "현관문 앞에 놔주세요",
                             null, 0, List.of(
-                            new SaveOrderItemRequest(1L, 2),
-                            new SaveOrderItemRequest(2L, 2))));
+                            new OrderItemRequest(1L, 2),
+                            new OrderItemRequest(2L, 2))));
 
             MemberAddress member2Address = memberAddressRepository.findByMemberIdAndIsDefault(member2.getId(), false).get();
-            createMemberOrder(member2.getId(), new SaveOrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
+            createMemberOrder(member2.getId(), new OrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
                     , member2.getPhone(), member2Address.getZipCode(), member2Address.getStreet(), member2Address.getDetail(), "현관문 앞에 놔주세요",
                     null, 0, List.of(
-                    new SaveOrderItemRequest(1L, 2),
-                    new SaveOrderItemRequest(2L, 2)
+                    new OrderItemRequest(1L, 2),
+                    new OrderItemRequest(2L, 2)
             )));
             //-------------------------------------
             String guestName = "장재일";
-            SaveOrderRequest guestRequest = new SaveOrderRequest(UUID.randomUUID().toString(), guestName, "burnaby033@naver.com", guestName, "010111122222", "05763"
+            OrderRequest guestRequest = new OrderRequest(UUID.randomUUID().toString(), guestName, "burnaby033@naver.com", guestName, "010111122222", "05763"
                     , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요",
                     null, 0, List.of(
-                    new SaveOrderItemRequest(3L, 2),
-                    new SaveOrderItemRequest(4L, 1)
+                    new OrderItemRequest(3L, 2),
+                    new OrderItemRequest(4L, 1)
             ));
             createGuestOrder(guestRequest);
         }
@@ -520,16 +520,16 @@ public class Init {
         }
 
 
-        private void createMemberOrder(Long memberId, SaveOrderRequest request) {
+        private void createMemberOrder(Long memberId, OrderRequest request) {
             Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
 
-            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
+            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(OrderItemRequest::getColorItemSizeStockId).toList();
             List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
 
-            for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
-                Long colorItemSizeStockId = saveOrderItemRequest.getColorItemSizeStockId();
+            for (OrderItemRequest orderItemRequest : request.getOrderItems()) {
+                Long colorItemSizeStockId = orderItemRequest.getColorItemSizeStockId();
                 //영속성 컨텍스트 재사용
                 ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId).orElseThrow(() -> new IllegalArgumentException(colorItemSizeStockId + "는 동록되지 않은 상품입니다"));
 
@@ -538,7 +538,7 @@ public class Init {
                 Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
                 int orderPrice = discountedPrice != null ? discountedPrice : price;
 
-                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(orderItemRequest.getOrderCount()).build();
                 orderItems.add(orderItem);
             }
 
@@ -549,15 +549,15 @@ public class Init {
             jdbcTemplateRepository.saveOrderItems(orderItems);
         }
 
-        private void createGuestOrder(SaveOrderRequest request) {
+        private void createGuestOrder(OrderRequest request) {
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
             List<OrderItem> orderItems = new ArrayList<>();
 
-            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(SaveOrderItemRequest::getColorItemSizeStockId).toList();
+            List<Long> colorItemSizeStockIds = request.getOrderItems().stream().map(OrderItemRequest::getColorItemSizeStockId).toList();
             List<ColorItemSizeStock> colorItemSizeStocks = colorItemSizeStockRepository.findAllWithColorItemAndItemByIdIn(colorItemSizeStockIds);
 
-            for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
-                Long itemId = saveOrderItemRequest.getColorItemSizeStockId();
+            for (OrderItemRequest orderItemRequest : request.getOrderItems()) {
+                Long itemId = orderItemRequest.getColorItemSizeStockId();
                 //영속성 컨텍스트 재사용
                 ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException(itemId + "는 동록되지 않은 상품입니다"));
 
@@ -566,7 +566,7 @@ public class Init {
                 Integer discountedPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
                 int orderPrice = discountedPrice != null ? discountedPrice : price;
 
-                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(saveOrderItemRequest.getOrderCount()).build();
+                OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice).count(orderItemRequest.getOrderCount()).build();
                 orderItems.add(orderItem);
             }
             Guest guest = new Guest(request.getSenderNickname(), request.getSenderEmail());
@@ -686,20 +686,20 @@ public class Init {
                 List<OrderItem> orderItems = new ArrayList<>();
                 Long id = colorItemSizeStock.getId();
                 int orderCount = id < 10 ? 2 : 1;
-                SaveOrderRequest request;
+                OrderRequest request;
 
                 if (id % 2 == 0) {
-                    request = new SaveOrderRequest(UUID.randomUUID().toString(), manAddress.getReceiverNickName(), manAddress.getReceiverPhone(), manAddress.getZipCode()
+                    request = new OrderRequest(UUID.randomUUID().toString(), manAddress.getReceiverNickName(), manAddress.getReceiverPhone(), manAddress.getZipCode()
                             , manAddress.getStreet(), manAddress.getDetail(), "문 앞에 놔주세요", null, null,
                             null, 0, List.of(
-                            new SaveOrderItemRequest(id, orderCount)
+                            new OrderItemRequest(id, orderCount)
                     ));
                     member = man;
                 } else {
-                    request = new SaveOrderRequest(UUID.randomUUID().toString(), womanAddress.getReceiverNickName(), womanAddress.getReceiverPhone(), womanAddress.getZipCode()
+                    request = new OrderRequest(UUID.randomUUID().toString(), womanAddress.getReceiverNickName(), womanAddress.getReceiverPhone(), womanAddress.getZipCode()
                             , womanAddress.getStreet(), womanAddress.getDetail(), "현관에 놔주세요", null, null,
                             null, 0, List.of(
-                            new SaveOrderItemRequest(id, orderCount)
+                            new OrderItemRequest(id, orderCount)
                     ));
                     member = woman;
                 }
@@ -711,13 +711,13 @@ public class Init {
                 delivery.setUpdatedAt(createdDate);
                 deliveries.add(delivery);
 
-                for (SaveOrderItemRequest saveOrderItemRequest : request.getOrderItems()) {
+                for (OrderItemRequest orderItemRequest : request.getOrderItems()) {
                     //가격 변동 or 할인 쿠폰 고려
                     Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
                     int orderPrice = nowPrice;
 
                     OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice)
-                            .count(saveOrderItemRequest.getOrderCount()).build();
+                            .count(orderItemRequest.getOrderCount()).build();
                     newOrderItems.add(orderItem);
                     orderItems.add(orderItem);
                 }
