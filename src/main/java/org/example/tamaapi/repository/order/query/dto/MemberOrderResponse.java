@@ -27,12 +27,21 @@ public class MemberOrderResponse {
 
     private List<OrderItemResponse> orderItems = new ArrayList<>();
 
+    private int usedCouponPrice;
+
+    private int usedPoint;
+
+    private int shippingFee;
+
     @QueryProjection
     public MemberOrderResponse(Order order) {
         id = order.getId();
         orderDate = order.getCreatedAt();
         status = order.getStatus();
         delivery = new DeliveryResponse(order.getDelivery());
+        usedCouponPrice = order.getUsedCouponPrice();
+        usedPoint = order.getUsedPoint();
+        shippingFee = order.getShippingFee();
     }
 
 }

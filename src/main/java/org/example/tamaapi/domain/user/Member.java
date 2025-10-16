@@ -73,6 +73,9 @@ public class Member extends BaseEntity {
         this.authority = authority;
     }
 
+    public Member(Long id) {
+        this.id = id;
+    }
 
     public void changeNickname(String nickname){
         this.nickname = nickname;

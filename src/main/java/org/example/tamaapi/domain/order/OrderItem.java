@@ -23,7 +23,7 @@ public class OrderItem {
     @JoinColumn(name = "color_item_size_stock_id")
     private ColorItemSizeStock colorItemSizeStock;
 
-    //구매 후 가격 변동 or 할인 쿠폰 고려
+    //구매 후 가격이 바뀔 수 있어서 당시 가격 남겨야함 (할인을 시작하거나, 할인이 끝나거나)
     private int orderPrice;
 
     private int count;

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.domain.coupon.MemberCoupon;
+import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.user.MemberAddress;
@@ -19,9 +19,7 @@ import org.example.tamaapi.dto.responseDto.MemberCouponResponse;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
-import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
 
-import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 
@@ -38,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.example.tamaapi.jwt.TokenProvider.ACCESS_TOKEN_DURATION;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 
 @RestController

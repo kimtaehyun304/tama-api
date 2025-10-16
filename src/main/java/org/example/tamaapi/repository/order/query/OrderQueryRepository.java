@@ -9,8 +9,10 @@ import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.responseDto.CustomPage;
+import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.order.query.dto.*;
 import org.example.tamaapi.repository.item.ColorItemImageRepository;
+import org.example.tamaapi.service.OrderService;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -36,6 +38,8 @@ public class OrderQueryRepository {
 
     private final ColorItemImageRepository colorItemImageRepository;
     private final JPAQueryFactory queryFactory;
+    private final OrderService orderService;
+    private final MemberCouponRepository memberCouponRepository;
 
     //★주문 조회 자식 컬렉션(공용) & 멤버 주문 조회 때문에 리뷰 조인
     private Map<Long, List<OrderItemResponse>> findOrdersChildrenMap(List<Long> orderIds){
@@ -72,6 +76,7 @@ public class OrderQueryRepository {
 
         List<Long> orderIds = content.stream().map(MemberOrderResponse::getId).toList();
         Map<Long, List<OrderItemResponse>> childrenMap = findOrdersChildrenMap(orderIds);
+
 
         content.forEach(o -> o.setOrderItems(childrenMap.get(o.getId())));
         return new CustomPage<>(content, customPageRequest, count);

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.exception.MyExpiredJwtException;
+import org.example.tamaapi.exception.OrderFailException;
 import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -60,9 +61,15 @@ public class TokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
-        Long memberId = Long.valueOf(claims.getSubject());
-        CustomPrincipal customPrincipal = new CustomPrincipal(memberId, null);
-        return new UsernamePasswordAuthenticationToken(customPrincipal, token);
+
+        try {
+            Long memberId = Long.valueOf(claims.getSubject());
+            CustomPrincipal customPrincipal = new CustomPrincipal(memberId, null);
+            return new UsernamePasswordAuthenticationToken(customPrincipal, token);
+        } catch (Exception e){
+            throw new OrderFailException("memberId 누락");
+        }
+
     }
 
 

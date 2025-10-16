@@ -8,12 +8,15 @@ import org.example.tamaapi.config.aspect.PreAuthentication;
 import org.example.tamaapi.domain.order.PortOnePaymentStatus;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.user.Member;
+import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.dto.PortOneOrder;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.order.*;
 import org.example.tamaapi.dto.responseDto.CustomPage;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
+import org.example.tamaapi.exception.OrderFailException;
+import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.order.query.dto.GuestOrderResponse;
 import org.example.tamaapi.repository.order.query.dto.MemberOrderResponse;
@@ -49,6 +52,7 @@ public class OrderApiController {
     private final OrderQueryRepository orderQueryRepository;
     private final PortOneService portOneService;
     private final MemberRepository memberRepository;
+    private final MemberCouponRepository memberCouponRepository;
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
@@ -96,7 +100,7 @@ public class OrderApiController {
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
         Long memberId = principal.getMemberId();
 
-        portOneService.validatePaymentStatus(paymentStatus, paymentId);
+        portOneService.validatePaymentStatus(paymentStatus);
         orderService.validateMemberOrder(portOneOrder, clientTotal, memberId);
 
         orderService.saveMemberOrder(
@@ -122,14 +126,12 @@ public class OrderApiController {
     @PostMapping("/api/orders/free/member")
     public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal CustomPrincipal principal
             ,@RequestBody @Valid OrderRequest req) {
-
         Long memberId = principal.getMemberId();
-
         int orderItemsPrice = orderService.getOrderItemsPrice(req.getOrderItems());
-        orderService.validateFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
+
+        orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
 
         orderService.saveMemberFreeOrder(
-                null,
                 memberId,
                 req.getReceiverNickname(),
                 req.getReceiverPhone(),
@@ -153,8 +155,8 @@ public class OrderApiController {
         PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
-        portOneService.validatePaymentStatus(paymentStatus, paymentId);
-        orderService.validate(portOneOrder, clientTotal, null);
+        portOneService.validatePaymentStatus(paymentStatus);
+        orderService.validateGuestOrder(portOneOrder, clientTotal);
 
         Long newOrderId = orderService.saveGuestOrder(
                 portOneOrder.getPaymentId(),
@@ -169,7 +171,7 @@ public class OrderApiController {
                 portOneOrder.getOrderItems()
         );
 
-        emailService.sendGuestOrderEmailAsync(orderRequest.getSenderEmail(), orderRequest.getSenderNickname(), newOrderId);
+        emailService.sendGuestOrderEmailAsync(portOneOrder.getSenderEmail(), portOneOrder.getSenderNickname(), newOrderId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
 

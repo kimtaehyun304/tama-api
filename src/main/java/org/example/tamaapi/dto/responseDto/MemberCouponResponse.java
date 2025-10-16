@@ -1,23 +1,10 @@
 package org.example.tamaapi.dto.responseDto;
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.example.tamaapi.domain.coupon.Coupon;
-import org.example.tamaapi.domain.coupon.CouponType;
-import org.example.tamaapi.domain.coupon.MemberCoupon;
-import org.example.tamaapi.domain.item.ColorItem;
-import org.example.tamaapi.domain.item.ColorItemImage;
-import org.example.tamaapi.domain.user.Member;
-import org.example.tamaapi.dto.UploadFile;
-import org.example.tamaapi.dto.responseDto.item.ColorItemSizeStockDto;
-import org.example.tamaapi.dto.responseDto.item.ItemDto;
-import org.example.tamaapi.dto.responseDto.item.RelatedColorItemDto;
+import org.example.tamaapi.domain.user.coupon.CouponType;
+import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class MemberCouponResponse {

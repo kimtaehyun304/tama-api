@@ -34,6 +34,8 @@ public class Delivery extends BaseEntity {
     @Column(nullable = false)
     private String receiverPhone;
 
+    //배송 상태는 주문 상태에서 관리
+
     public Delivery(String zipCode, String street, String detail, String message, String receiverNickname, String receiverPhone) {
         this.zipCode = zipCode;
         this.street = street;

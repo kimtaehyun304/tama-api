@@ -7,9 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.cache.BestItem;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.*;
-import org.example.tamaapi.domain.coupon.Coupon;
-import org.example.tamaapi.domain.coupon.CouponType;
-import org.example.tamaapi.domain.coupon.MemberCoupon;
+import org.example.tamaapi.domain.order.OrderStatus;
+import org.example.tamaapi.domain.user.coupon.Coupon;
+import org.example.tamaapi.domain.user.coupon.CouponType;
+import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
@@ -20,6 +21,7 @@ import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 
 import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
 import org.example.tamaapi.dto.requestDto.order.OrderRequest;
+import org.example.tamaapi.exception.OrderFailException;
 import org.example.tamaapi.repository.*;
 import org.example.tamaapi.repository.item.*;
 import org.example.tamaapi.repository.item.query.ItemQueryRepository;
@@ -27,10 +29,7 @@ import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryRespon
 import org.example.tamaapi.repository.order.DeliveryRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
-import org.example.tamaapi.service.CacheService;
-import org.example.tamaapi.service.ItemService;
-import org.example.tamaapi.service.MemberService;
-import org.example.tamaapi.service.ReviewService;
+import org.example.tamaapi.service.*;
 import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Sort;
@@ -42,6 +41,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_COUPON;
 
 @Component
 @RequiredArgsConstructor
@@ -89,7 +90,7 @@ public class Init {
         private final CacheService cacheService;
         private final CouponRepository couponRepository;
         private final MemberCouponRepository memberCouponRepository;
-
+        private final OrderService orderService;
         /*
         private void crawlItem(){
 
@@ -125,6 +126,7 @@ public class Init {
             initMember();
             initMemberAddress();
             initCoupon();
+            orderService.completeOrderAutomatically();
         }
 
         public void initSmallData() {
@@ -273,7 +275,9 @@ public class Init {
             Color ivory = colorRepository.findByName("아이보리").get();
             ColorItem ivoryColorItem = new ColorItem(item, ivory);
             colorItems.add(ivoryColorItem);
-            colorItemSizeStocks.addAll(List.of(new ColorItemSizeStock(ivoryColorItem, "S(67CM)", 9), new ColorItemSizeStock(ivoryColorItem, "M(67CM)", 9)));
+            colorItemSizeStocks.addAll(
+                    List.of(new ColorItemSizeStock(ivoryColorItem, "S(67CM)", 100),
+                            new ColorItemSizeStock(ivoryColorItem, "M(67CM)", 100)));
             colorItemImages.addAll(
                     List.of(
                             new ColorItemImage(ivoryColorItem, new UploadFile("woman-ivory-pants.jpg", "woman-ivory-pants-uuid.jpg"), 1),
@@ -285,7 +289,9 @@ public class Init {
             Color pink = colorRepository.findByName("핑크").get();
             ColorItem pinkColorItem = new ColorItem(item, pink);
             colorItems.add(pinkColorItem);
-            colorItemSizeStocks.addAll(List.of(new ColorItemSizeStock(pinkColorItem, "S(67CM)", 9), new ColorItemSizeStock(pinkColorItem, "M(67CM)", 9)));
+            colorItemSizeStocks.addAll(
+                    List.of(new ColorItemSizeStock(pinkColorItem, "S(67CM)", 100)
+                            , new ColorItemSizeStock(pinkColorItem, "M(67CM)", 100)));
             colorItemImages.addAll(List.of(
                             new ColorItemImage(pinkColorItem, new UploadFile("woman-pink-pants.jpg", "woman-pink-pants-uuid.jpg"), 1),
                             new ColorItemImage(pinkColorItem, new UploadFile("woman-pink-pants-detail.jpg", "woman-pink-pants-detail-uuid.jpg"), 2)
@@ -323,8 +329,8 @@ public class Init {
             colorItems.add(blueColorItem);
 
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(blueColorItem, "S(70CM)", 9),
-                    new ColorItemSizeStock(blueColorItem, "M(80CM)", 9)
+                    new ColorItemSizeStock(blueColorItem, "S(70CM)", 100),
+                    new ColorItemSizeStock(blueColorItem, "M(80CM)", 100)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(blueColorItem, new UploadFile("man-blue-pants.jpg", "man-blue-pants-uuid.jpg"), 1),
@@ -337,8 +343,8 @@ public class Init {
             ColorItem navyColorItem = new ColorItem(item, navy);
             colorItems.add(navyColorItem);
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(navyColorItem, "S(70CM)", 0),
-                    new ColorItemSizeStock(navyColorItem, "M(80CM)", 0)
+                    new ColorItemSizeStock(navyColorItem, "S(70CM)", 100),
+                    new ColorItemSizeStock(navyColorItem, "M(80CM)", 100)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(navyColorItem, new UploadFile("man-navy-pants.jpg", "man-navy-pants-uuid.jpg"), 1),
@@ -378,8 +384,8 @@ public class Init {
             colorItems.add(cardiganBlack);
 
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(cardiganBlack, "S(70CM)", 10),
-                    new ColorItemSizeStock(cardiganBlack, "M(80CM)", 10)
+                    new ColorItemSizeStock(cardiganBlack, "S(70CM)", 100),
+                    new ColorItemSizeStock(cardiganBlack, "M(80CM)", 100)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(cardiganBlack, new UploadFile("woman-black-neat.jpg", "woman-black-neat-3da68c93-01da-4dd9-b61c-e58d260c8afc.jpg"), 1),
@@ -390,8 +396,8 @@ public class Init {
             ColorItem cardiganWhite = new ColorItem(item, white);
             colorItems.add(cardiganWhite);
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(cardiganWhite, "S(70CM)", 10),
-                    new ColorItemSizeStock(cardiganWhite, "M(80CM)", 10)
+                    new ColorItemSizeStock(cardiganWhite, "S(70CM)", 100),
+                    new ColorItemSizeStock(cardiganWhite, "M(80CM)", 100)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(cardiganWhite, new UploadFile("woman-white-neat.jpg", "woman-white-neat-7d26b6a1-d9f3-42a6-b501-85291e51e297.jpg"), 1),
@@ -437,22 +443,30 @@ public class Init {
         private void initCoupon() {
             Coupon percentCoupon = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(3));
             Coupon fixedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(3));
+            Coupon fixedCoupon2 = new Coupon(CouponType.FIXED_DISCOUNT, 5000, LocalDate.now().plusYears(3));
+            Coupon fixedCoupon3 = new Coupon(CouponType.FIXED_DISCOUNT, 8000, LocalDate.now().plusYears(3));
             Coupon expiredCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().minusDays(7));
             Coupon usedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(3));
 
             couponRepository.save(percentCoupon);
             couponRepository.save(fixedCoupon);
+            couponRepository.save(fixedCoupon2);
+            couponRepository.save(fixedCoupon3);
             couponRepository.save(expiredCoupon);
             couponRepository.save(usedCoupon);
 
             List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
             memberCouponRepository.save(new MemberCoupon(percentCoupon, members.get(0), false));
             memberCouponRepository.save(new MemberCoupon(fixedCoupon, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon2, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon3, members.get(0), false));
             memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(0), false));
             memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(0), true));
 
             memberCouponRepository.save(new MemberCoupon(percentCoupon, members.get(1), false));
             memberCouponRepository.save(new MemberCoupon(fixedCoupon, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon2, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon3, members.get(1), false));
             memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(1), false));
             memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(1), true));
         }
@@ -460,24 +474,28 @@ public class Init {
         private void initOrder() {
             Member member1 = memberRepository.findAllByAuthority(Authority.MEMBER).get(0);
             MemberAddress member1DefaultAddress = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), true).get();
+            List<MemberCoupon> member1Coupons = memberCouponRepository.findNotExpiredAndUnusedCouponsByMemberId(member1.getId());
+
+
             createMemberOrder(member1.getId(), new OrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
                     , member1.getPhone(), member1DefaultAddress.getZipCode(), member1DefaultAddress.getStreet(), member1DefaultAddress.getDetail(), "현관문 앞에 놔주세요",
                     null, 0, List.of(
                     new OrderItemRequest(1L, 2),
-                    new OrderItemRequest(2L, 2)
+                    new OrderItemRequest(2L, 1)
             )));
 
             MemberAddress member1Address = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), false).get();
             createMemberOrder(member1.getId(), new OrderRequest(UUID.randomUUID().toString(), member1.getNickname(), member1.getEmail(), member1.getNickname()
                     , member1.getPhone(), member1Address.getZipCode(), member1Address.getStreet(), member1Address.getDetail(), "회사 복도에 놔주세요",
-                    null, 0, List.of(
-                    new OrderItemRequest(1L, 2),
-                    new OrderItemRequest(2L, 2)
+                    member1Coupons.get(0).getId(), 5000, List.of(
+                    new OrderItemRequest(1L, 3),
+                    new OrderItemRequest(2L, 1)
             )));
 
             //-------------------------------------
             Member member2 = memberRepository.findAllByAuthority(Authority.MEMBER).get(1);
             MemberAddress member2DefaultAddress = memberAddressRepository.findByMemberIdAndIsDefault(member2.getId(), true).get();
+            List<MemberCoupon> member2Coupons = memberCouponRepository.findNotExpiredAndUnusedCouponsByMemberId(member2.getId());
 
             createMemberOrder(member2.getId(),
                     new OrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
@@ -489,7 +507,7 @@ public class Init {
             MemberAddress member2Address = memberAddressRepository.findByMemberIdAndIsDefault(member2.getId(), false).get();
             createMemberOrder(member2.getId(), new OrderRequest(UUID.randomUUID().toString(), member2.getNickname(), member2.getEmail(), member2.getNickname()
                     , member2.getPhone(), member2Address.getZipCode(), member2Address.getStreet(), member2Address.getDetail(), "현관문 앞에 놔주세요",
-                    null, 0, List.of(
+                    member2Coupons.get(0).getId(), 5000, List.of(
                     new OrderItemRequest(1L, 2),
                     new OrderItemRequest(2L, 2)
             )));
@@ -502,6 +520,17 @@ public class Init {
                     new OrderItemRequest(4L, 1)
             ));
             createGuestOrder(guestRequest);
+
+
+            OrderRequest guestRequest2 = new OrderRequest(UUID.randomUUID().toString(), guestName, "burnaby033@naver.com", guestName, "010111122222", "05763"
+                    , "서울특별시 송파구 성내천로 306 (마천동, 송파구보훈회관)", "회관 옆 파랑 건물", "집앞에 놔주세요",
+                    null, 0, List.of(
+                    new OrderItemRequest(5L, 2),
+                    new OrderItemRequest(6L, 1)
+            ));
+            createGuestOrder(guestRequest2);
+
+
         }
 
         private void initReview() {
@@ -542,8 +571,24 @@ public class Init {
                 orderItems.add(orderItem);
             }
 
-            Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, request.getUsedPoint(), orderItems);
+            MemberCoupon memberCoupon = null;
 
+            Long memberCouponId = request.getMemberCouponId();
+            //주문 후에, 쿠폰 처리하는게 이상적이자만, saveOrder에 memberCoupon 넘겨야해서 미리 처리함
+            //주문 예외나면 쿠폰 롤백되서 미리 처리해도 괜찮음
+            if (memberCouponId != null) {
+                memberCoupon = memberCouponRepository.findById(memberCouponId)
+                        .orElseThrow(() -> new OrderFailException(NOT_FOUND_COUPON));
+                memberCoupon.changeIsUsed(true);
+            }
+            //사용한 포인트 차감
+            member.minusPoint(request.getUsedPoint());
+
+            int orderItemsPrice = orderService.getOrderItemsPrice(request.getOrderItems());
+            int usedCouponPrice = orderService.getCouponPrice(memberCoupon, orderItemsPrice);
+            int shippingFee = orderService.getShippingFee(orderItemsPrice);
+            Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, usedCouponPrice, request.getUsedPoint(), shippingFee, orderItems);
+            order.changeStatus(OrderStatus.COMPLETED);
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);
             jdbcTemplateRepository.saveOrderItems(orderItems);
@@ -570,7 +615,17 @@ public class Init {
                 orderItems.add(orderItem);
             }
             Guest guest = new Guest(request.getSenderNickname(), request.getSenderEmail());
-            Order order = Order.createGuestOrder(request.getPaymentId(), guest, delivery, orderItems);
+            int orderItemsPrice = orderService.getOrderItemsPrice(request.getOrderItems());
+            int shippingFee = orderService.getShippingFee(orderItemsPrice);
+            Order order = Order.createGuestOrder(request.getPaymentId(), guest, delivery, shippingFee, orderItems);
+
+            //자동 구매롹정 테스트를 위해 배송완료 처리
+            //사용자 주문한 날짜
+            order.setCreatedAt(LocalDateTime.now().minusDays(9));
+            //배송이 완료되서 변경된 날짜
+            order.setUpdatedAt(LocalDateTime.now().minusDays(7));
+            order.changeStatus(OrderStatus.IN_DELIVERY);
+
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);
             jdbcTemplateRepository.saveOrderItems(orderItems);
@@ -721,8 +776,9 @@ public class Init {
                     newOrderItems.add(orderItem);
                     orderItems.add(orderItem);
                 }
-
-                Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, null, orderItems);
+                int orderItemsPrice = orderService.getOrderItemsPrice(request.getOrderItems());
+                int shippingFee = orderService.getShippingFee(orderItemsPrice);
+                Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, 0, 0, shippingFee, orderItems);
                 order.setCreatedAt(createdDate);
                 order.setUpdatedAt(createdDate);
                 newOrders.add(order);

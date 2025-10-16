@@ -1,7 +1,6 @@
 package org.example.tamaapi.repository;
 
-import org.example.tamaapi.domain.coupon.Coupon;
-import org.example.tamaapi.domain.coupon.MemberCoupon;
+import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

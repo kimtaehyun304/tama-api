@@ -1,8 +1,7 @@
-package org.example.tamaapi.domain.coupon;
+package org.example.tamaapi.domain.user.coupon;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.tamaapi.domain.BaseEntity;

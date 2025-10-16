@@ -1,4 +1,4 @@
-package org.example.tamaapi.domain.coupon;
+package org.example.tamaapi.domain.user.coupon;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.tamaapi.domain.BaseEntity;
 import org.example.tamaapi.domain.user.Member;
-
-import java.time.LocalDate;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Table(uniqueConstraints = {
         @UniqueConstraint(name = "coupon_member_unique", columnNames = {"coupon_id","member_id"})
@@ -15,6 +14,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicUpdate
 public class MemberCoupon extends BaseEntity {
 
     @Id
@@ -38,8 +38,12 @@ public class MemberCoupon extends BaseEntity {
         this.member = member;
         this.isUsed = isUsed;
     }
-
     public void changeIsUsed(boolean isUsed){
         this.isUsed = isUsed;
     }
+
+    public MemberCoupon(Long memberCouponId){
+        id = memberCouponId;
+    }
+
 }

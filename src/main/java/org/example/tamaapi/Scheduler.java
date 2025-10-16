@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.BestItem;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.item.Category;
+import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.repository.item.CategoryRepository;
 import org.example.tamaapi.repository.item.query.ItemQueryRepository;
 import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
+import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.CacheService;
+import org.example.tamaapi.service.OrderService;
 import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,6 +27,7 @@ public class Scheduler {
     private final ItemQueryRepository itemQueryRepository;
     private final CategoryRepository categoryRepository;
     private final CacheService cacheService;
+    private final OrderService orderService;
 
     @Scheduled(cron = "0 0 0 * * *")
     private void saveBestItemCache(){
@@ -46,4 +51,10 @@ public class Scheduler {
     }
 
     //사용하지 않는 이미지를 주기적으로 제거하려했는데, 이미지 수정할 때 비동기로 지워주면 됨!
+
+    @Scheduled(cron = "0 0 0 * * *")
+    private void changeInDeliveryToCompleted(){
+        orderService.completeOrderAutomatically();
+    }
+
 }

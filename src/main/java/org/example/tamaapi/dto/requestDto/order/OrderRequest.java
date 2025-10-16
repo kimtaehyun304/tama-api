@@ -12,18 +12,16 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-//1. @RequestBody @Valid 용도
-//2. objectMapper.readValue 용도
-//3. init에서 AllArgsConstructor 용도
 public class OrderRequest {
 
+    //무료 주문은 PG사를 안거치므로 누락되도 정상
     private String paymentId;
 
     //--주문 고객---
-    @NotBlank
+    //엑세스 토큰이 있는 경우 누락되도 정상
     private String senderNickname;
 
-    @NotBlank
+    //엑세스 토큰이 있는 경우 누락되도 정상
     private String senderEmail;
 
     //---받는 고객---
@@ -47,7 +45,6 @@ public class OrderRequest {
     @NotBlank
     private String deliveryMessage;
 
-    @NotNull
     private Long memberCouponId;
 
     private int usedPoint;
