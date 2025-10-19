@@ -20,13 +20,16 @@ import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
 
-import org.example.tamaapi.jwt.TokenProvider;
+import org.example.tamaapi.config.jwt.TokenProvider;
+import org.example.tamaapi.event.SignedUpEvent;
+import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.MemberAddressRepository;
 
 import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.MemberService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,9 +52,13 @@ public class MemberApiController {
     private final MemberService memberService;
     private final MemberAddressRepository memberAddressRepository;
     private final MemberCouponRepository memberCouponRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PostMapping("/api/member/new")
     public ResponseEntity<SimpleResponse> signUp(@Valid @RequestBody SignUpMemberRequest request) {
+        memberService.validateIsExists(request.getEmail(), request.getPhone());
+
+        /*
         String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         if (!StringUtils.hasText(authString))
@@ -61,6 +68,8 @@ public class MemberApiController {
             throw new IllegalArgumentException("인증문자 불일치");
 
         cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
+
+         */
         String password = bCryptPasswordEncoder.encode(request.getPassword());
         Member member = Member.builder()
                 .email(request.getEmail()).phone(request.getPhone())
@@ -68,6 +77,7 @@ public class MemberApiController {
                 .provider(Provider.LOCAL).authority(Authority.MEMBER)
                 .build();
         memberRepository.save(member);
+        eventPublisher.publishEvent(new SignedUpEvent(member.getId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("회원가입 성공"));
     }
 
@@ -75,7 +85,7 @@ public class MemberApiController {
     public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
-        if(!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword()))
+        if (!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword()))
             throw new IllegalArgumentException("로그인 실패");
 
         String accessToken = tokenProvider.generateToken(member);
@@ -85,7 +95,7 @@ public class MemberApiController {
     //개인정보
     @GetMapping("/api/member/information")
     public ResponseEntity<MemberInformationResponse> memberInformation(@AuthenticationPrincipal CustomPrincipal principal) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         Member member = memberRepository.findById(principal.getMemberId()).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
@@ -96,7 +106,7 @@ public class MemberApiController {
     //개인정보
     @PutMapping("/api/member/information")
     public ResponseEntity<SimpleResponse> updateMemberInformation(@AuthenticationPrincipal CustomPrincipal principal, @Valid @RequestBody UpdateMemberInformationRequest request) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         memberService.updateMemberInformation(principal.getMemberId(), request.getHeight(), request.getWeight());
@@ -106,7 +116,7 @@ public class MemberApiController {
     //마이페이지 배송지
     @GetMapping("/api/member/address")
     public List<MemberAddressesResponse> memberAddress(@AuthenticationPrincipal CustomPrincipal principal) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         List<MemberAddress> memberAddresses = memberAddressRepository.findAllByMemberId(principal.getMemberId());
@@ -115,7 +125,7 @@ public class MemberApiController {
 
     @PostMapping("/api/member/address")
     public ResponseEntity<SimpleResponse> memberAddress(@AuthenticationPrincipal CustomPrincipal principal, @Valid @RequestBody SaveMemberAddressRequest request) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         memberService.saveMemberAddress(principal.getMemberId(), request.getAddressName(), request.getReceiverNickname(), request.getReceiverPhone(), request.getZipCode(), request.getStreetAddress(), request.getDetailAddress());
@@ -125,7 +135,7 @@ public class MemberApiController {
     //마이페이지 배송지
     @PutMapping("/api/member/address/default")
     public ResponseEntity<SimpleResponse> memberAddress(@AuthenticationPrincipal CustomPrincipal principal, @Valid @RequestBody UpdateMemberDefaultAddressRequest request) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         memberService.updateMemberDefaultAddress(principal.getMemberId(), request.getAddressId());
@@ -135,7 +145,7 @@ public class MemberApiController {
     //마이페이지 배송지
     @GetMapping("/api/member/coupon")
     public List<MemberCouponResponse> memberCoupon(@AuthenticationPrincipal CustomPrincipal principal) {
-        if(principal == null)
+        if (principal == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
 
         List<MemberCoupon> memberCoupons = memberCouponRepository.findNotExpiredAndUnusedCouponsByMemberId(principal.getMemberId());

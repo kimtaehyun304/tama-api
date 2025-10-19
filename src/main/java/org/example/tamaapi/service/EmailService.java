@@ -20,6 +20,13 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private ThreadPoolTaskExecutor taskExecutor;
 
+    public void sendSignedUpEmail(String toMailAddr) {
+        String subject = "[TAMA] 회원가입 완료 안내";
+        String body = String.format("<p>TAMA 쇼핑몰에 오신 것을 환영합니다</p>");
+        sendEmail(toMailAddr, subject, body);
+    }
+
+
     public void sendAuthenticationEmail(String toMailAddr, String authString) {
         String subject = "[TAMA] 회원가입 인증문자 안내";
         String body = String.format("인증문자 : %s <p>본 메일이 생성된 이유는 해당 메일로 인증하려는 시도가 있었기 때문입니다.</p>", authString);

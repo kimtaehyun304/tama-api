@@ -6,7 +6,7 @@ import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.dto.requestDto.item.save.SaveReviewRequest;
 import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
-import org.example.tamaapi.jwt.TokenProvider;
+import org.example.tamaapi.config.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ReviewRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;

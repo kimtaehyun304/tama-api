@@ -1,4 +1,4 @@
-package org.example.tamaapi.jwt;
+package org.example.tamaapi.config.jwt;
 
 
 import io.jsonwebtoken.*;
@@ -7,7 +7,6 @@ import org.example.tamaapi.config.CustomPrincipal;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.exception.MyExpiredJwtException;
 import org.example.tamaapi.exception.OrderFailException;
-import org.example.tamaapi.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;

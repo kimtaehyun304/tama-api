@@ -1,12 +1,11 @@
 package org.example.tamaapi.config.oauth2;
 
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
-import org.example.tamaapi.jwt.TokenProvider;
+import org.example.tamaapi.config.jwt.TokenProvider;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
@@ -20,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.UUID;
 
-import static org.example.tamaapi.jwt.TokenProvider.ACCESS_TOKEN_DURATION;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 
 

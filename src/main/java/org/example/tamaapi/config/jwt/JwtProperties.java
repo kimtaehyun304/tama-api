@@ -1,4 +1,4 @@
-package org.example.tamaapi.jwt;
+package org.example.tamaapi.config.jwt;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,10 +1,7 @@
 package org.example.tamaapi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.constraints.NotNull;
 import org.example.tamaapi.cache.MyCacheType;
-import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.user.MemberAddress;
@@ -14,10 +11,9 @@ import org.example.tamaapi.dto.requestDto.member.SaveMemberAddressRequest;
 import org.example.tamaapi.dto.requestDto.member.SignUpMemberRequest;
 import org.example.tamaapi.dto.requestDto.member.UpdateMemberDefaultAddressRequest;
 import org.example.tamaapi.dto.requestDto.member.UpdateMemberInformationRequest;
-import org.example.tamaapi.jwt.TokenProvider;
+import org.example.tamaapi.config.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberRepository;
-import org.example.tamaapi.repository.order.DeliveryRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.MemberService;
 import org.example.tamaapi.util.ErrorMessageUtil;
@@ -28,15 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

@@ -441,12 +441,12 @@ public class Init {
         }
 
         private void initCoupon() {
-            Coupon percentCoupon = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(3));
-            Coupon fixedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(3));
-            Coupon fixedCoupon2 = new Coupon(CouponType.FIXED_DISCOUNT, 5000, LocalDate.now().plusYears(3));
-            Coupon fixedCoupon3 = new Coupon(CouponType.FIXED_DISCOUNT, 8000, LocalDate.now().plusYears(3));
+            Coupon percentCoupon = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusMonths(1));
+            Coupon fixedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusMonths(1));
+            Coupon fixedCoupon2 = new Coupon(CouponType.FIXED_DISCOUNT, 5000, LocalDate.now().plusMonths(1));
+            Coupon fixedCoupon3 = new Coupon(CouponType.FIXED_DISCOUNT, 8000, LocalDate.now().plusMonths(1));
             Coupon expiredCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().minusDays(7));
-            Coupon usedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(3));
+            Coupon usedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusMonths(1));
 
             couponRepository.save(percentCoupon);
             couponRepository.save(fixedCoupon);

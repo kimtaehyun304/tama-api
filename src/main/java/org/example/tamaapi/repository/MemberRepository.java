@@ -11,6 +11,12 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
+    //중복 회원가입 방지를 위한 검증 용도
+    boolean existsByEmail(String email);
+
+    boolean existsByPhone(String phone);
+
+
     List<Member> findAllByAuthority(Authority authority);
 
     @Query("select m from Member m join fetch m.addresses where m.id = :memberId")
