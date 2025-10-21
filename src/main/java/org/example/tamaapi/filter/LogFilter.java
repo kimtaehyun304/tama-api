@@ -1,4 +1,4 @@
-package org.example.tamaapi.config.filter;
+package org.example.tamaapi.filter;
 
 import jakarta.servlet.*;
 import org.springframework.stereotype.Component;

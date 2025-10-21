@@ -1,4 +1,4 @@
-package org.example.tamaapi.config.oauth2;
+package org.example.tamaapi.auth.oauth2;
 
 
 import lombok.RequiredArgsConstructor;

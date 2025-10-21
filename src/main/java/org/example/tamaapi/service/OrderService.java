@@ -399,6 +399,19 @@ public class OrderService {
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public void updateOrderStatusToCompleted(List<Long> orderIds) {
+        try {
+            int count = em.createQuery("update Order o set o.status = :completed where o.id in :orderIds")
+                    .setParameter("completed", OrderStatus.COMPLETED)
+                    .setParameter("orderIds", orderIds)
+                    .executeUpdate();
+            log.info("{}건 자동 구매확정 처리 완료", count);
+        } catch (Exception e){
+            log.error("자동 구매확정 처리 실패, 원인:{}",e.getMessage());
+        }
+    }
+
     public void completeOrderAutomatically() {
         try {
             int count = em.createQuery("update Order o set o.status = :completed " +
@@ -410,7 +423,7 @@ public class OrderService {
         } catch (Exception e){
             log.error("자동 구매확정 처리 실패");
         }
-
     }
+
 
 }

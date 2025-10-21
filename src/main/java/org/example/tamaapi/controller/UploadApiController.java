@@ -2,7 +2,7 @@ package org.example.tamaapi.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.config.aspect.PreAuthentication;
+import org.example.tamaapi.aspect.PreAuthentication;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.item.save.*;
@@ -16,7 +16,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

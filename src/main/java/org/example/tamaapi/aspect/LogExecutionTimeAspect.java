@@ -1,4 +1,4 @@
-package org.example.tamaapi.config.aspect;
+package org.example.tamaapi.aspect;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogExecutionTimeAspect {
 
-    @Around("@annotation(LogExecutionTime)")
+    @Around("@annotation(org.example.tamaapi.aspect.LogExecutionTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.currentTimeMillis();
 

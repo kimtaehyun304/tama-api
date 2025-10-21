@@ -1,7 +1,7 @@
 package org.example.tamaapi.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.config.jwt.TokenProvider;
+import org.example.tamaapi.auth.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;

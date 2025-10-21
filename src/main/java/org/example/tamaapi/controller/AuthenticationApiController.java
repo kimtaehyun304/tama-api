@@ -3,7 +3,7 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
-import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.auth.CustomPrincipal;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.dto.requestDto.member.EmailRequest;
 import org.example.tamaapi.dto.requestDto.member.MyTokenRequest;

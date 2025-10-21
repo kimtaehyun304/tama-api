@@ -1,10 +1,8 @@
-package org.example.tamaapi.config.oauth2;
+package org.example.tamaapi.auth.oauth2;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;

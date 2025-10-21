@@ -1,9 +1,9 @@
-package org.example.tamaapi.config.jwt;
+package org.example.tamaapi.auth.jwt;
 
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.auth.CustomPrincipal;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.exception.MyExpiredJwtException;
 import org.example.tamaapi.exception.OrderFailException;

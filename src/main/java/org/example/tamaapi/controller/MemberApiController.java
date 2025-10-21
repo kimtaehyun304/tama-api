@@ -2,8 +2,7 @@ package org.example.tamaapi.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.cache.MyCacheType;
-import org.example.tamaapi.config.CustomPrincipal;
+import org.example.tamaapi.auth.CustomPrincipal;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
@@ -20,9 +19,8 @@ import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
 
-import org.example.tamaapi.config.jwt.TokenProvider;
+import org.example.tamaapi.auth.jwt.TokenProvider;
 import org.example.tamaapi.event.SignedUpEvent;
-import org.example.tamaapi.exception.MyBadRequestException;
 import org.example.tamaapi.repository.MemberAddressRepository;
 
 import org.example.tamaapi.repository.MemberCouponRepository;
@@ -34,7 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

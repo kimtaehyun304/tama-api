@@ -1,11 +1,11 @@
-package org.example.tamaapi.config.oauth2;
+package org.example.tamaapi.auth.oauth2;
 
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.cache.MyCacheType;
-import org.example.tamaapi.config.jwt.TokenProvider;
+import org.example.tamaapi.auth.jwt.TokenProvider;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;

@@ -1,11 +1,11 @@
-package org.example.tamaapi.config.aspect;
+package org.example.tamaapi.aspect;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.example.tamaapi.config.CustomPrincipal;
-import org.example.tamaapi.config.CustomUserDetails;
+import org.example.tamaapi.auth.CustomPrincipal;
+import org.example.tamaapi.auth.CustomUserDetails;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.exception.UnauthorizedException;
 import org.example.tamaapi.repository.MemberRepository;
@@ -33,7 +33,7 @@ public class PreAuthenticationAspect {
 
     private final MemberRepository memberRepository;
 
-    @Before("@annotation(PreAuthentication)")
+    @Before("@annotation(org.example.tamaapi.aspect.PreAuthentication)")
     public void setAuthentication() {
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -1,5 +1,6 @@
 package org.example.tamaapi;
 
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -17,6 +18,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @EnableCaching
 @EnableAsync
 @EnableRetry
+@EnableBatchProcessing
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class TamaApiApplication {
 

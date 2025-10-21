@@ -2,13 +2,13 @@ package org.example.tamaapi.config;
 
 
 import lombok.RequiredArgsConstructor;
-import org.example.tamaapi.config.filter.TokenAuthenticationFilter;
-import org.example.tamaapi.config.oauth2.OAuth2FailureHandler;
+import org.example.tamaapi.filter.TokenAuthenticationFilter;
+import org.example.tamaapi.auth.oauth2.OAuth2FailureHandler;
 
 
-import org.example.tamaapi.config.oauth2.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import org.example.tamaapi.config.oauth2.OAuth2SuccessHandler;
-import org.example.tamaapi.config.oauth2.OAuth2UserCustomService;
+import org.example.tamaapi.auth.oauth2.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import org.example.tamaapi.auth.oauth2.OAuth2SuccessHandler;
+import org.example.tamaapi.auth.oauth2.OAuth2UserCustomService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

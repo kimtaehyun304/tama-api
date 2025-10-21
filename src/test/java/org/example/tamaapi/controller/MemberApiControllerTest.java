@@ -11,7 +11,7 @@ import org.example.tamaapi.dto.requestDto.member.SaveMemberAddressRequest;
 import org.example.tamaapi.dto.requestDto.member.SignUpMemberRequest;
 import org.example.tamaapi.dto.requestDto.member.UpdateMemberDefaultAddressRequest;
 import org.example.tamaapi.dto.requestDto.member.UpdateMemberInformationRequest;
-import org.example.tamaapi.config.jwt.TokenProvider;
+import org.example.tamaapi.auth.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;

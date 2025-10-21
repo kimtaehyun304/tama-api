@@ -1,4 +1,4 @@
-package org.example.tamaapi.config;
+package org.example.tamaapi.auth;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

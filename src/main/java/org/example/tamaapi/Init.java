@@ -126,7 +126,6 @@ public class Init {
             initMember();
             initMemberAddress();
             initCoupon();
-            orderService.completeOrderAutomatically();
         }
 
         public void initSmallData() {
@@ -624,7 +623,7 @@ public class Init {
             order.setCreatedAt(LocalDateTime.now().minusDays(9));
             //배송이 완료되서 변경된 날짜
             order.setUpdatedAt(LocalDateTime.now().minusDays(7));
-            order.changeStatus(OrderStatus.IN_DELIVERY);
+            order.changeStatus(OrderStatus.DELIVERED);
 
             //order 저장후 orderItem 저장해야함
             orderRepository.save(order);

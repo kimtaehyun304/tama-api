@@ -11,7 +11,7 @@ import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.dto.requestDto.item.save.SaveColorItemRequest;
 import org.example.tamaapi.dto.requestDto.item.save.SaveItemRequest;
 import org.example.tamaapi.dto.requestDto.item.save.SaveSizeStockRequest;
-import org.example.tamaapi.config.jwt.TokenProvider;
+import org.example.tamaapi.auth.jwt.TokenProvider;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ColorItemRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
