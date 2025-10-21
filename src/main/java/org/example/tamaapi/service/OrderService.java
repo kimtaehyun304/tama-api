@@ -90,12 +90,12 @@ public class OrderService {
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
-            throw e;
+            throw new WillCancelPaymentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
             portOneService.cancelPayment(paymentId, e.getMessage());
-            throw e;
+            throw new WillCancelPaymentException(e.getMessage());
         }
     }
 
@@ -155,12 +155,12 @@ public class OrderService {
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
-            throw e;
+            throw new WillCancelPaymentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
             portOneService.cancelPayment(paymentId, e.getMessage());
-            throw e;
+            throw new WillCancelPaymentException(e.getMessage());
         }
     }
 
@@ -333,7 +333,7 @@ public class OrderService {
             throw new OrderFailException("결제 금액이 위변조 됐습니다.");
     }
 
-    //무료 주문은 PG사 결제를 안 거쳤으므로 취소할 게 없음
+    //무료 주문은 PG사 결제를 안 거쳤으므로, 결제 취소 없음
     //1.쿠폰으로 무료 주문
     //2.포인트로 무료 주문
     //3.쿠폰+포인트로 무료 주문
@@ -367,12 +367,12 @@ public class OrderService {
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
             portOneService.cancelPayment(order.getPaymentId(), e.getMessage());
-            throw e;
+            throw new WillCancelPaymentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
             portOneService.cancelPayment(order.getPaymentId(), e.getMessage());
-            throw e;
+            throw new WillCancelPaymentException(e.getMessage());
         }
     }
 
