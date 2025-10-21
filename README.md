@@ -74,7 +74,7 @@
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L62">
- 안정적인 결제 API 개발
+ 결제 API 개발
 </a>
 <ul>
  <li>
@@ -82,10 +82,23 @@
   주문 中 예외 발생 → DB 롤백, 결제 취소
   </a>
  </li>
- <li>주문 전에 결제 금액 위변조, 결제 결과 확인</li>
- <li>종속성을 줄이기 위해, 외부 서비스(PortOne) 검증과 내부 DB 검증을 분리</li>
- <li>PC·모바일 API 하나로 합체</li>
- <li>회원·비회원 API 간 공통 로직 메서드화 → 중복 코드 제거</li>
+ <li>주문 저장 전에 검증 ex)결제 금액 조작, 입력 값 누락</li>
+ <li>PC·모바일</li>
+ <li>회원·비회원</li>
+ <li>쿠폰·포인트</li>
+</ul>
+
+스프링 이벤트 
+<ul>
+ <li>회원가입 시 웰컴 메일 전송 및 쿠폰 제공</li>
+ <li>기존엔 내용이 회원가입 로직에 들어있었지만, 이벤트로 분리</li>
+ <li>왜냐하면 회원가입 기능만 남기기 위해</li>
+</ul>
+
+스프링 배치
+<ul>
+ <li>배송이 완료되고 7일째 되는 날 자동으로 구매 확정</li>
+ <li>로직 중복 실행 예방 및 실패하면 재시도를 위해 스프링 배치 도입</li>
 </ul>
 
 기타
