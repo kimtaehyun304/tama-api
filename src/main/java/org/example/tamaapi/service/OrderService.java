@@ -401,29 +401,11 @@ public class OrderService {
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
     public void updateOrderStatusToCompleted(List<Long> orderIds) {
-        try {
-            int count = em.createQuery("update Order o set o.status = :completed where o.id in :orderIds")
-                    .setParameter("completed", OrderStatus.COMPLETED)
-                    .setParameter("orderIds", orderIds)
-                    .executeUpdate();
-            log.info("{}건 자동 구매확정 처리 완료", count);
-        } catch (Exception e){
-            log.error("자동 구매확정 처리 실패, 원인:{}",e.getMessage());
-        }
+        int count = em.createQuery("update Order o set o.status = :completed, o.updatedAt = now() where o.id in :orderIds")
+                .setParameter("completed", OrderStatus.COMPLETED)
+                .setParameter("orderIds", orderIds)
+                .executeUpdate();
+        log.info("{}건 자동 구매확정 처리 완료", count);
     }
-
-    public void completeOrderAutomatically() {
-        try {
-            int count = em.createQuery("update Order o set o.status = :completed " +
-                            "where o.status = :delivered and date(o.updatedAt)-0 >= date(now())-8")
-                    .setParameter("completed", OrderStatus.COMPLETED)
-                    .setParameter("delivered", OrderStatus.DELIVERED)
-                    .executeUpdate();
-            log.debug("{}건 자동 구매확정 처리 완료", count);
-        } catch (Exception e){
-            log.error("자동 구매확정 처리 실패");
-        }
-    }
-
 
 }

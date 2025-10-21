@@ -62,8 +62,8 @@ public class Scheduler {
 
     //사용하지 않는 이미지를 주기적으로 제거하려했는데, 이미지 수정할 때 비동기로 지워주면 됨!
 
-    //@Scheduled(cron = "58 30 0 * * *", zone = "Asia/Seoul")
-    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    //@EventListener(ApplicationReadyEvent.class)
     public void runCompleteOrderJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
