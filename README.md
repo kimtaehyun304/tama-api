@@ -73,29 +73,35 @@
  <li>주문 완료 응답 속도 개선 4000ms → 400ms</li>
 </ul>
 
-<a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L62">
  결제 API 개발
-</a>
 <ul>
+  <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/a3901e82a376ca438e13b546c6a82897b4eb1c1f/src/main/java/org/example/tamaapi/service/OrderService.java#L298">
+  주문 저장 전에 검증 ex)결제 금액 조작, 입력 값 누락
+  </a>
+ </li>
  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/748cd836b1dd52bae1d66e30b07ef29103b59e94/src/main/java/org/example/tamaapi/service/OrderService.java#L82">
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/a3901e82a376ca438e13b546c6a82897b4eb1c1f/src/main/java/org/example/tamaapi/service/OrderService.java#L57">
   주문 中 예외 발생 → DB 롤백, 결제 취소
   </a>
  </li>
- <li>주문 저장 전에 검증 ex)결제 금액 조작, 입력 값 누락</li>
  <li>PC·모바일</li>
  <li>회원·비회원</li>
  <li>쿠폰·포인트</li>
 </ul>
 
-스프링 이벤트 
+<a href="https://github.com/kimtaehyun304/tama-api/blob/0efd407922c8d3281cdc5413517478f928e9a12c/src/main/java/org/example/tamaapi/event/SignedUpEventHandler.java#L33">
+스프링 이벤트
+</a>
 <ul>
  <li>회원가입 시 웰컴 메일 전송 및 쿠폰 제공</li>
  <li>기존엔 내용이 회원가입 로직에 들어있었지만, 이벤트로 분리</li>
  <li>왜냐하면 회원가입 기능만 남기기 위해</li>
 </ul>
 
+<a href="https://github.com/kimtaehyun304/tama-api/blob/0efd407922c8d3281cdc5413517478f928e9a12c/src/main/java/org/example/tamaapi/config/batch/AutoOrderCompleteJobConfig.java#L41">
 스프링 배치
+</a>
 <ul>
  <li>배송이 완료되고 7일째 되는 날 자동으로 구매 확정</li>
  <li>로직 중복 실행 예방 및 실패하면 재시도를 위해 스프링 배치 도입</li>
