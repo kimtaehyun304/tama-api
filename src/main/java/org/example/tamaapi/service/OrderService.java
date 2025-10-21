@@ -297,6 +297,7 @@ public class OrderService {
 
     public void validateMemberOrder(PortOneOrder order, int clientTotal, Long memberId) {
         try {
+            validateMemberId(memberId);
             validatePaymentId(order.getPaymentId());
             validateMemberOrderPrice(getOrderItemsPrice(order.getOrderItems()), order.getMemberCouponId(), order.getUsedPoint(), clientTotal, memberId);
         } catch (OrderFailException e) {
@@ -337,6 +338,7 @@ public class OrderService {
     //2.포인트로 무료 주문
     //3.쿠폰+포인트로 무료 주문
     public void validateMemberFreeOrderPrice(int orderItemsPrice, Long memberCouponId, Integer usedPoint, Long memberId) {
+        validateMemberId(memberId);
         int SHIPPING_FEE = getShippingFee(orderItemsPrice);
 
         MemberCoupon memberCoupon = null;
@@ -396,6 +398,11 @@ public class OrderService {
                 .ifPresent(order -> {
                     throw new WillCancelPaymentException("이미 사용된 결제번호");
                 });
+    }
+
+    private void validateMemberId(Long memberId) {
+        if(memberId == null)
+            throw new IllegalArgumentException("memberId가 누락됐습니다");
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
