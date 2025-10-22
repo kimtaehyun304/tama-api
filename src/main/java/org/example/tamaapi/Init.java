@@ -441,7 +441,7 @@ public class Init {
         }
 
         private void initCoupon() {
-            Coupon percentCoupon1 = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(1));
+                Coupon percentCoupon1 = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(1));
             Coupon percentCoupon2 = new Coupon(CouponType.PERCENT_DISCOUNT, 20, LocalDate.now().plusYears(1));
             Coupon percentCoupon3 = new Coupon(CouponType.PERCENT_DISCOUNT, 30, LocalDate.now().plusYears(1));
 
@@ -462,10 +462,16 @@ public class Init {
 
             couponRepository.save(expiredCoupon);
             couponRepository.save(usedCoupon);
-
+            //----------------------------------------------------------------
             List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
 
+            memberCouponRepository.save(new MemberCoupon(percentCoupon1, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(percentCoupon2, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(percentCoupon3, members.get(0), false));
 
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon1, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon2, members.get(0), false));
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon3, members.get(0), false));
 
             memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(0), false));
             memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(0), true));
