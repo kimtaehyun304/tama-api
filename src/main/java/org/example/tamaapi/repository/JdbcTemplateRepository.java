@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 
 @Repository
@@ -23,22 +24,53 @@ public class JdbcTemplateRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public void saveOrders(List<Order> orders) {
-        String sql = "INSERT INTO orders (member_id, delivery_id, guest_nickname, guest_email, status, payment_id, created_at, updated_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO orders (" +
+                "member_id, delivery_id, guest_nickname, guest_email, status, " +
+                "used_coupon_price, used_point, shipping_fee, payment_id, created_at, updated_at" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 Order order = orders.get(i);
 
-                ps.setLong(1, order.getMember().getId());   // null 아님
-                ps.setLong(2, order.getDelivery().getId()); // null 아님
-                ps.setObject(3, order.getGuest() != null ? order.getGuest().getNickname() : null, java.sql.Types.VARCHAR);
-                ps.setObject(4, order.getGuest() != null ? order.getGuest().getEmail() : null, java.sql.Types.VARCHAR);
+                // 1. 회원 주문일 경우
+                if (order.getMember() != null) {
+                    ps.setLong(1, order.getMember().getId());
+                } else {
+                    ps.setNull(1, Types.BIGINT);
+                }
+
+                // 2. 배송 정보 (null 아니라고 하셨음)
+                ps.setLong(2, order.getDelivery().getId());
+
+                // 3~4. Guest 정보가 있을 때만
+                if (order.getGuest() != null) {
+                    ps.setString(3, order.getGuest().getNickname());
+                    ps.setString(4, order.getGuest().getEmail());
+                } else {
+                    ps.setNull(3, Types.VARCHAR);
+                    ps.setNull(4, Types.VARCHAR);
+                }
+
+                // 5. 상태 (ENUM → 문자열)
                 ps.setString(5, order.getStatus().name());
-                ps.setString(6, order.getPaymentId());
-                ps.setTimestamp(7, Timestamp.valueOf(order.getCreatedAt()));
-                ps.setTimestamp(8, Timestamp.valueOf(order.getUpdatedAt()));
+
+                // 6. 사용 쿠폰 금액
+                ps.setInt(6, order.getUsedCouponPrice());
+
+                // 7. 사용 포인트
+                ps.setInt(7, order.getUsedPoint());
+
+                // 8. 배송비
+                ps.setInt(8, order.getShippingFee());
+
+                // 9. 결제 번호
+                ps.setString(9, order.getPaymentId());
+
+                // 10~11. 생성/수정 시간
+                ps.setTimestamp(10, Timestamp.valueOf(order.getCreatedAt()));
+                ps.setTimestamp(11, Timestamp.valueOf(order.getUpdatedAt()));
             }
 
             @Override
@@ -47,6 +79,7 @@ public class JdbcTemplateRepository {
             }
         });
     }
+
 
     public void saveOrderItems(List<OrderItem> orderItems) {
         jdbcTemplate.batchUpdate("INSERT INTO order_item(order_id, color_item_size_stock_id, order_price, count) values (?, ?, ?, ?)", new BatchPreparedStatementSetter() {

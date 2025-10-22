@@ -39,7 +39,7 @@ public class Order extends BaseEntity {
     private Guest guest;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "member_coupon_id")
+    @JoinColumn(name = "member_coupon_id", unique = true)
     private MemberCoupon memberCoupon;
 
     //매번 계산할 수 있지만 코드가 복잡해져서 필드 만듬
@@ -54,7 +54,7 @@ public class Order extends BaseEntity {
     //포트원 결제 번호 (문자열)
     private String paymentId;
 
-    //cascade insert 여러번 나가서 jdbcTemplate 사용
+    //cascade는 insert 여러번 실행되서 jdbcTemplate 사용
     @OneToMany(mappedBy = "order")
     //@BatchSize(size = 1000) osiv off
     private List<OrderItem> orderItems = new ArrayList<>();

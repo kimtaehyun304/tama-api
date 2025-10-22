@@ -81,4 +81,17 @@ public class MemberService {
         }
     }
 
+    public void createCoupon(Long memberId) {
+        try {
+            Coupon coupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusMonths(1));
+            couponRepository.save(coupon);
+            //서버에서 전달하는거라 검증 불필요
+            Member member = new Member(memberId);
+            memberCouponRepository.save(new MemberCoupon(coupon, member, false));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new MyInternalServerException("쿠폰 발급 실패");
+        }
+    }
+
 }

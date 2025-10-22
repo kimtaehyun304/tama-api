@@ -58,7 +58,7 @@ public class Init {
 
         if (!ddlAuto.equals("none")) {
             initService.initCommon();
-            initService.initSmallData();
+            initService.initBigData();
         }
 
         //캐시 메모리에 올려두는 거라 매번 초기화 해야함
@@ -420,52 +420,65 @@ public class Init {
 
             Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER)
                     .email("kimapbel@gmail.com").phone("01011111112").password(password).nickname("김참정")
-                    .height(160).weight(50).gender(Gender.MALE).point(500000).build();
+                    .height(160).weight(50).gender(Gender.MALE).point(1000000).build();
             memberRepository.save(OAUTH2_MEMBER);
 
+            //체험 계정으로 제공
             Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
-                    .email("pyb0402@tama.com").phone("01011111113").password(password).nickname("박유빈")
-                    .height(170).weight(60).gender(Gender.FEMALE).point(500000).build();
+                    .email("burnaby033@naver.com").phone("01011111113").password(password).nickname("박유빈")
+                    .height(170).weight(60).gender(Gender.FEMALE).point(1000000).build();
             memberRepository.save(ORIGINAL_MEMBER);
         }
 
         private void initMemberAddress() {
-            Member member2 = memberRepository.findById(2L).get();
-            memberService.saveMemberAddress(member2.getId(), "우리집", member2.getNickname(), member2.getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
-            memberService.saveMemberAddress(member2.getId(), "회사", member2.getNickname(), member2.getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
+            List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
 
-            Member member3 = memberRepository.findById(3L).get();
-            memberService.saveMemberAddress(member3.getId(), "우리집", member3.getNickname(), member3.getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
-            memberService.saveMemberAddress(member3.getId(), "회사", member3.getNickname(), member3.getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
+            memberService.saveMemberAddress(members.get(0).getId(), "우리집", members.get(0).getNickname(), members.get(0).getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
+            memberService.saveMemberAddress(members.get(0).getId(), "회사", members.get(0).getNickname(), members.get(0).getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
+
+            memberService.saveMemberAddress(members.get(1).getId(), "우리집", members.get(1).getNickname(), members.get(1).getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
+            memberService.saveMemberAddress(members.get(1).getId(), "회사", members.get(1).getNickname(), members.get(1).getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
         }
 
         private void initCoupon() {
-            Coupon percentCoupon = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusMonths(1));
-            Coupon fixedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusMonths(1));
-            Coupon fixedCoupon2 = new Coupon(CouponType.FIXED_DISCOUNT, 5000, LocalDate.now().plusMonths(1));
-            Coupon fixedCoupon3 = new Coupon(CouponType.FIXED_DISCOUNT, 8000, LocalDate.now().plusMonths(1));
+            Coupon percentCoupon1 = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(1));
+            Coupon percentCoupon2 = new Coupon(CouponType.PERCENT_DISCOUNT, 20, LocalDate.now().plusYears(1));
+            Coupon percentCoupon3 = new Coupon(CouponType.PERCENT_DISCOUNT, 30, LocalDate.now().plusYears(1));
+
+            Coupon fixedCoupon1 = new Coupon(CouponType.FIXED_DISCOUNT, 5000, LocalDate.now().plusYears(1));
+            Coupon fixedCoupon2 = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusYears(1));
+            Coupon fixedCoupon3 = new Coupon(CouponType.FIXED_DISCOUNT, 15000, LocalDate.now().plusYears(1));
+
             Coupon expiredCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().minusDays(7));
             Coupon usedCoupon = new Coupon(CouponType.FIXED_DISCOUNT, 10000, LocalDate.now().plusMonths(1));
 
-            couponRepository.save(percentCoupon);
-            couponRepository.save(fixedCoupon);
+            couponRepository.save(percentCoupon1);
+            couponRepository.save(percentCoupon2);
+            couponRepository.save(percentCoupon3);
+
+            couponRepository.save(fixedCoupon1);
             couponRepository.save(fixedCoupon2);
             couponRepository.save(fixedCoupon3);
+
             couponRepository.save(expiredCoupon);
             couponRepository.save(usedCoupon);
 
             List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
-            memberCouponRepository.save(new MemberCoupon(percentCoupon, members.get(0), false));
-            memberCouponRepository.save(new MemberCoupon(fixedCoupon, members.get(0), false));
-            memberCouponRepository.save(new MemberCoupon(fixedCoupon2, members.get(0), false));
-            memberCouponRepository.save(new MemberCoupon(fixedCoupon3, members.get(0), false));
+
+
+
             memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(0), false));
             memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(0), true));
 
-            memberCouponRepository.save(new MemberCoupon(percentCoupon, members.get(1), false));
-            memberCouponRepository.save(new MemberCoupon(fixedCoupon, members.get(1), false));
+            //----------------------------------------------------------------
+            memberCouponRepository.save(new MemberCoupon(percentCoupon1, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(percentCoupon2, members.get(1), false));
+            memberCouponRepository.save(new MemberCoupon(percentCoupon3, members.get(1), false));
+
+            memberCouponRepository.save(new MemberCoupon(fixedCoupon1, members.get(1), false));
             memberCouponRepository.save(new MemberCoupon(fixedCoupon2, members.get(1), false));
             memberCouponRepository.save(new MemberCoupon(fixedCoupon3, members.get(1), false));
+
             memberCouponRepository.save(new MemberCoupon(expiredCoupon, members.get(1), false));
             memberCouponRepository.save(new MemberCoupon(usedCoupon, members.get(1), true));
         }
@@ -723,15 +736,20 @@ public class Init {
         private void initManyOrder(int ORDER_COUNT) {
             log.info("initManyOrder 실행 중");
             List<ColorItemSizeStock> foundColorItemSizeStocks = colorItemSizeStockRepository.findAll();
-            MemberAddress manAddress = memberAddressRepository.findById(1L).get();
-            MemberAddress womanAddress = memberAddressRepository.findById(3L).get();
+
+            List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
+            Member member0 = members.get(0);
+            Member member1 = members.get(1);
+
+            MemberAddress member0Address = memberAddressRepository.findByMemberIdAndIsDefault(member0.getId(), true).get();
+            MemberAddress member1Address = memberAddressRepository.findByMemberIdAndIsDefault(member1.getId(), true).get();
             List<Order> newOrders = new ArrayList<>();
             List<OrderItem> newOrderItems = new ArrayList<>();
             List<Delivery> deliveries = new ArrayList<>();
 
             Member member;
-            Member man = memberRepository.findById(2L).get();
-            Member woman = memberRepository.findById(3L).get();
+            MemberAddress memberAddress;
+
             int count = 0;
 
             LocalDateTime createdDate = LocalDateTime.parse("2020-01-01T00:00:00");
@@ -743,23 +761,24 @@ public class Init {
                 OrderRequest request;
 
                 if (id % 2 == 0) {
-                    request = new OrderRequest(UUID.randomUUID().toString(), manAddress.getReceiverNickName(), manAddress.getReceiverPhone(), manAddress.getZipCode()
-                            , manAddress.getStreet(), manAddress.getDetail(), "문 앞에 놔주세요", null, null,
-                            null, 0, List.of(
-                            new OrderItemRequest(id, orderCount)
-                    ));
-                    member = man;
+                    member = member0;
+                    memberAddress = member0Address;
                 } else {
-                    request = new OrderRequest(UUID.randomUUID().toString(), womanAddress.getReceiverNickName(), womanAddress.getReceiverPhone(), womanAddress.getZipCode()
-                            , womanAddress.getStreet(), womanAddress.getDetail(), "현관에 놔주세요", null, null,
-                            null, 0, List.of(
-                            new OrderItemRequest(id, orderCount)
-                    ));
-                    member = woman;
+                    member = member1;
+                    memberAddress = member1Address;
                 }
 
+                request = new OrderRequest(UUID.randomUUID().toString(), null, null,
+                        memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
+                        , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
+                        List.of(
+                                new OrderItemRequest(id, orderCount)
+                        ));
+
+                //order랑 delivery를 OrderRequest에서 한번에 받으므로, OrderRequest에서 delivery 정보 가져옴
                 Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage()
                         , request.getReceiverNickname(), request.getReceiverPhone());
+
                 createdDate = createdDate.plusHours(1);
                 delivery.setCreatedAt(createdDate);
                 delivery.setUpdatedAt(createdDate);
@@ -775,8 +794,10 @@ public class Init {
                     newOrderItems.add(orderItem);
                     orderItems.add(orderItem);
                 }
-                int orderItemsPrice = orderService.getOrderItemsPrice(request.getOrderItems());
-                int shippingFee = orderService.getShippingFee(orderItemsPrice);
+                //selcet 여러번 실행되서 오래걸리므로 shippingFee 0으로 지정
+                //int orderItemsPrice = orderService.getOrderItemsPrice(request.getOrderItems());
+                //int shippingFee = orderService.getShippingFee(orderItemsPrice);
+                int shippingFee = 0;
                 Order order = Order.createMemberOrder(request.getPaymentId(), member, delivery, null, 0, 0, shippingFee, orderItems);
                 order.setCreatedAt(createdDate);
                 order.setUpdatedAt(createdDate);

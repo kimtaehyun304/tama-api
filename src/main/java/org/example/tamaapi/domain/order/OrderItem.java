@@ -8,7 +8,7 @@ import org.example.tamaapi.domain.item.ColorItemSizeStock;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderItem {
+public class  OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

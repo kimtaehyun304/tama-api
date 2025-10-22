@@ -7,7 +7,15 @@ import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.item.Category;
 import org.example.tamaapi.domain.order.Order;
 import org.example.tamaapi.domain.order.OrderStatus;
+import org.example.tamaapi.domain.user.Authority;
+import org.example.tamaapi.domain.user.Member;
+import org.example.tamaapi.domain.user.coupon.Coupon;
+import org.example.tamaapi.domain.user.coupon.CouponType;
+import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
+import org.example.tamaapi.repository.CouponRepository;
+import org.example.tamaapi.repository.MemberCouponRepository;
+import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.CategoryRepository;
 import org.example.tamaapi.repository.item.query.ItemQueryRepository;
 import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryResponse;
@@ -38,6 +46,9 @@ public class Scheduler {
     private final CacheService cacheService;
     private final JobLauncher jobLauncher;
     private final Job completeOrderJob;
+    private final MemberCouponRepository memberCouponRepository;
+    private final MemberRepository memberRepository;
+    private final CouponRepository couponRepository;
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     private void saveBestItemCache(){
@@ -75,4 +86,21 @@ public class Scheduler {
         }
     }
 
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    //체험용 계정에 쿠폰 발급 (다 썼을 경우)
+    public void giveCoupon() {
+        Member experienceAccount = memberRepository.findAllByAuthority(Authority.MEMBER).get(1);
+        boolean isAllCouponsUsed = !memberCouponRepository.existsByMemberIdAndIsUsedIsFalse(experienceAccount.getId());
+
+        if(isAllCouponsUsed){
+            List<Coupon> coupons = couponRepository.findAllById(List.of(1L, 2L, 3L, 4L, 5L, 6L));
+            memberCouponRepository.save(new MemberCoupon(coupons.get(0), experienceAccount, false));
+            memberCouponRepository.save(new MemberCoupon(coupons.get(1), experienceAccount, false));
+            memberCouponRepository.save(new MemberCoupon(coupons.get(2), experienceAccount, false));
+
+            memberCouponRepository.save(new MemberCoupon(coupons.get(3), experienceAccount, false));
+            memberCouponRepository.save(new MemberCoupon(coupons.get(4), experienceAccount, false));
+            memberCouponRepository.save(new MemberCoupon(coupons.get(5), experienceAccount, false));
+        }
+    }
 }
