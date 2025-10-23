@@ -17,5 +17,7 @@ public class CancelMemberOrderRequest {
     @NotNull
     private Long orderId;
 
+    @NotNull
+    private boolean isFreeOrder;
 
 }

@@ -289,8 +289,8 @@ public class Init {
             ColorItem pinkColorItem = new ColorItem(item, pink);
             colorItems.add(pinkColorItem);
             colorItemSizeStocks.addAll(
-                    List.of(new ColorItemSizeStock(pinkColorItem, "S(67CM)", 100)
-                            , new ColorItemSizeStock(pinkColorItem, "M(67CM)", 100)));
+                    List.of(new ColorItemSizeStock(pinkColorItem, "S(67CM)", 1000)
+                            , new ColorItemSizeStock(pinkColorItem, "M(67CM)", 1000)));
             colorItemImages.addAll(List.of(
                             new ColorItemImage(pinkColorItem, new UploadFile("woman-pink-pants.jpg", "woman-pink-pants-uuid.jpg"), 1),
                             new ColorItemImage(pinkColorItem, new UploadFile("woman-pink-pants-detail.jpg", "woman-pink-pants-detail-uuid.jpg"), 2)
@@ -328,8 +328,8 @@ public class Init {
             colorItems.add(blueColorItem);
 
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(blueColorItem, "S(70CM)", 100),
-                    new ColorItemSizeStock(blueColorItem, "M(80CM)", 100)
+                    new ColorItemSizeStock(blueColorItem, "S(70CM)", 1000),
+                    new ColorItemSizeStock(blueColorItem, "M(80CM)", 1000)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(blueColorItem, new UploadFile("man-blue-pants.jpg", "man-blue-pants-uuid.jpg"), 1),
@@ -342,8 +342,8 @@ public class Init {
             ColorItem navyColorItem = new ColorItem(item, navy);
             colorItems.add(navyColorItem);
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(navyColorItem, "S(70CM)", 100),
-                    new ColorItemSizeStock(navyColorItem, "M(80CM)", 100)
+                    new ColorItemSizeStock(navyColorItem, "S(70CM)", 1000),
+                    new ColorItemSizeStock(navyColorItem, "M(80CM)", 1000)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(navyColorItem, new UploadFile("man-navy-pants.jpg", "man-navy-pants-uuid.jpg"), 1),
@@ -383,8 +383,8 @@ public class Init {
             colorItems.add(cardiganBlack);
 
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(cardiganBlack, "S(70CM)", 100),
-                    new ColorItemSizeStock(cardiganBlack, "M(80CM)", 100)
+                    new ColorItemSizeStock(cardiganBlack, "S(70CM)", 1000),
+                    new ColorItemSizeStock(cardiganBlack, "M(80CM)", 1000)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(cardiganBlack, new UploadFile("woman-black-neat.jpg", "woman-black-neat-3da68c93-01da-4dd9-b61c-e58d260c8afc.jpg"), 1),
@@ -395,8 +395,8 @@ public class Init {
             ColorItem cardiganWhite = new ColorItem(item, white);
             colorItems.add(cardiganWhite);
             colorItemSizeStocks.addAll(List.of(
-                    new ColorItemSizeStock(cardiganWhite, "S(70CM)", 100),
-                    new ColorItemSizeStock(cardiganWhite, "M(80CM)", 100)
+                    new ColorItemSizeStock(cardiganWhite, "S(70CM)", 1000),
+                    new ColorItemSizeStock(cardiganWhite, "M(80CM)", 1000)
             ));
             colorItemImages.addAll(List.of(
                     new ColorItemImage(cardiganWhite, new UploadFile("woman-white-neat.jpg", "woman-white-neat-7d26b6a1-d9f3-42a6-b501-85291e51e297.jpg"), 1),
@@ -714,8 +714,8 @@ public class Init {
             for (ColorItem colorItem : colorItems) {
                 int i = 0;
                 // 사이즈 재고 추가 (모든 색상 공통)
-                colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "S(67CM)", 9));
-                colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "M(67CM)", 9));
+                colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "S(67CM)", 1000));
+                colorItemSizeStocks.add(new ColorItemSizeStock(colorItem, "M(67CM)", 1000));
 
                 //상품 이미지 s3에 이미 올려둔거 쓰는거라 이름 통일함
                 // 색상별 이미지 분기

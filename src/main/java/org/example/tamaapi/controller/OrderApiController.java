@@ -180,26 +180,17 @@ public class OrderApiController {
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
         //사용자가 주문 취소 사유를 입력하도록 변경 필요
-        orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId(), "구매자 취소 요청");
+        if(cancelMemberOrderRequest.isFreeOrder())
+            orderService.cancelMemberFreeOrder(cancelMemberOrderRequest.getOrderId(),principal.getMemberId());
+        else
+            orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId(), "구매자 취소 요청");
+
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
     }
-
-    //멤버 주문 취소
-    @PutMapping("/api/orders/free/member//cancel")
-    public ResponseEntity<SimpleResponse> cancelMemberFreeOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal CustomPrincipal principal) {
-        if (principal == null)
-            throw new MyBadRequestException("액세스 토큰이 비었습니다.");
-
-        //사용자가 주문 취소 사유를 입력하도록 변경 필요
-        orderService.cancelMemberFreeOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId());
-        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
-    }
-
 
     //게스트 주문 취소
     @PutMapping("/api/orders/guest/cancel")
     public ResponseEntity<SimpleResponse> cancelGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
         if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new IllegalArgumentException(INVALID_HEADER);
