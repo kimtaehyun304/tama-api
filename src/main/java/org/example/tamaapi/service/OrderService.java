@@ -92,8 +92,6 @@ public class OrderService {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
             throw new WillCancelPaymentException(e.getMessage());
-        } catch (UsedPaymentIdException e) {
-            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -159,8 +157,6 @@ public class OrderService {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
             throw new WillCancelPaymentException(e.getMessage());
-        } catch (UsedPaymentIdException e) {
-            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -331,6 +327,8 @@ public class OrderService {
             validateMemberId(memberId);
             validatePaymentId(order.getPaymentId());
             validateMemberOrderPrice(getOrderItemsPrice(order.getOrderItems()), order.getMemberCouponId(), order.getUsedPoint(), clientTotal, memberId);
+        } catch (UsedPaymentIdException e) {
+            throw new IllegalArgumentException(e.getMessage());
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
             portOneService.cancelPayment(order.getPaymentId(), e.getMessage());
