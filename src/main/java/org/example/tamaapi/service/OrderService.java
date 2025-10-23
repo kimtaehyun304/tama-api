@@ -16,6 +16,7 @@ import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.dto.PortOneOrder;
 import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
 
+import org.example.tamaapi.exception.UsedPaymentIdException;
 import org.example.tamaapi.exception.OrderFailException;
 import org.example.tamaapi.exception.WillCancelPaymentException;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
@@ -91,6 +92,8 @@ public class OrderService {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
             throw new WillCancelPaymentException(e.getMessage());
+        } catch (UsedPaymentIdException e) {
+            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -156,6 +159,8 @@ public class OrderService {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
             throw new WillCancelPaymentException(e.getMessage());
+        } catch (UsedPaymentIdException e) {
+            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -205,8 +210,10 @@ public class OrderService {
     }
 
     public void cancelMemberOrder(Long orderId, Long memberId, String reason) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
         if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
             String message = "주문한 사용자가 아닙니다.";
@@ -225,6 +232,30 @@ public class OrderService {
         order.cancelOrder();
         portOneService.cancelPayment(order.getPaymentId(), reason);
     }
+
+    public void cancelMemberFreeOrder(Long orderId, Long memberId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+
+        if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
+            String message = "주문한 사용자가 아닙니다.";
+            log.warn(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        OrderStatus status = order.getStatus();
+        //나머지 케이스는 취소 불가 (운영자여도 마찬가지)
+        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
+            String message = "주문 취소 가능 단계가 아닙니다.";
+            log.warn(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        order.cancelOrder();
+    }
+
 
     //saveOrder 공통 로직
     private List<OrderItem> createOrderItem(List<OrderItemRequest> orderItemRequests) {
@@ -312,7 +343,6 @@ public class OrderService {
         }
     }
 
-
     //클라이언트 위변조 검증
     private void validateMemberOrderPrice(int orderItemsPrice, Long memberCouponId, Integer usedPoint, Integer clientTotal, Long memberId) {
         int SHIPPING_FEE = getShippingFee(orderItemsPrice);
@@ -396,13 +426,13 @@ public class OrderService {
     private void validatePaymentId(String paymentId) {
         orderRepository.findByPaymentId(paymentId)
                 .ifPresent(order -> {
-                    throw new WillCancelPaymentException("이미 사용된 결제번호");
+                    throw new UsedPaymentIdException();
                 });
     }
 
     private void validateMemberId(Long memberId) {
-        if(memberId == null)
-            throw new IllegalArgumentException("memberId가 누락됐습니다");
+        if (memberId == null)
+            throw new OrderFailException("memberId가 누락됐습니다");
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
