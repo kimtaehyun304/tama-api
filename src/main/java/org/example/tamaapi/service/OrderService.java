@@ -299,7 +299,7 @@ public class OrderService {
 
         return switch (couponType) {
             case FIXED_DISCOUNT -> discountValue;
-            case PERCENT_DISCOUNT -> (int) (orderItemsPrice * (discountValue / 100.0));
+            case PERCENT_DISCOUNT -> (int) Math.round(orderItemsPrice * (discountValue / 100.0));
         };
     }
 

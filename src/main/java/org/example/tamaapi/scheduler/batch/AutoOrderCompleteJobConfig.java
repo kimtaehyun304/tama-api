@@ -1,4 +1,4 @@
-package org.example.tamaapi.config.batch;
+package org.example.tamaapi.scheduler.batch;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

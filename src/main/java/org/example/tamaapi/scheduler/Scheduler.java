@@ -1,4 +1,4 @@
-package org.example.tamaapi;
+package org.example.tamaapi.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
