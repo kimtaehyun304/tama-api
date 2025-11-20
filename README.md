@@ -107,6 +107,18 @@
  <li>로직 중복 실행 예방 및 실패하면 재시도를 위해 스프링 배치 도입</li>
 </ul>
 
+패턴
+<ul>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
+   회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
+  </a>
+ </li>
+  <li>조기 종료 패턴 사용</li>
+  <li>빌더 패턴은 적용하고 생산성이 저하되는 걸 느끼고 지양</li>\
+  <li>DDD 설계</li>
+</ul>
+
 기타
 <ul>
  <li>
@@ -115,11 +127,6 @@
   </a>
  </li>
  <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
-  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
-   회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
-  </a>
-  </li>
  <li>ouath2·jwt 기반 인증</li>
  <li>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
@@ -127,6 +134,7 @@
   </a>
  </li>
 </ul>
+
 
 ### API
 상품 API
