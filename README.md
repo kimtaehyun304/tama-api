@@ -130,7 +130,7 @@
  <li>ouath2·jwt 기반 인증</li>
 </ul>
 
-### API
+### API 문서
 상품 API
 <ul>
  <li>상품 상세</li>
