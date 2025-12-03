@@ -13,7 +13,7 @@
 <p>https://dlta.kr</p>
 
 ### 프로젝트 스킬
-스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql
+스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql 8
 
 ### 디자인 패턴
 <ul>
