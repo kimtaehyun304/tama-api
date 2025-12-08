@@ -1,8 +1,9 @@
-package org.example.tamaapi.dto.responseDto;
+package org.example.tamaapi.dto.responseDto.review;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
+import org.example.tamaapi.dto.responseDto.CustomPageable;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

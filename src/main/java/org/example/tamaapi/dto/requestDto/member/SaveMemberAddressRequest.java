@@ -1,5 +1,6 @@
 package org.example.tamaapi.dto.requestDto.member;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,24 +13,24 @@ import lombok.NoArgsConstructor;
 public class SaveMemberAddressRequest {
 
     //ex)우리집
-    @NotNull
+    @NotBlank
     private String addressName;
 
-    @NotNull
+    @NotBlank
     private String receiverNickname;
 
-    @NotNull
+    @NotBlank
     private String receiverPhone;
 
-    @NotNull
+    @NotBlank
     // 우편번호
     private String zipCode;
 
-    @NotNull
+    @NotBlank
     // 도로명 주소
     private String streetAddress;
 
-    @NotNull
+    @NotBlank
     // 상세 주소
     private String detailAddress;
 

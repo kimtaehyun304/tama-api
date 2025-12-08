@@ -180,7 +180,7 @@ public class OrderApiController {
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
         //사용자가 주문 취소 사유를 입력하도록 변경 필요
-        if(cancelMemberOrderRequest.isFreeOrder())
+        if(cancelMemberOrderRequest.getIsFreeOrder())
             orderService.cancelMemberFreeOrder(cancelMemberOrderRequest.getOrderId(),principal.getMemberId());
         else
             orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId(), "구매자 취소 요청");
@@ -232,19 +232,6 @@ public class OrderApiController {
     public CustomPage<AdminOrderResponse> orders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
         return orderQueryRepository.findAdminOrdersWithPaging(customPageRequest);
     }
-
-    //포트원 결제 내역에 저장할 멤버 정보
-    @GetMapping("/api/order/setup")
-    public ResponseEntity<MemberOrderSetUpResponse> member(@AuthenticationPrincipal CustomPrincipal principal) {
-        if (principal == null)
-            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
-
-        Member member = memberRepository.findWithAddressesById(principal.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-        return ResponseEntity.status(HttpStatus.OK).body(new MemberOrderSetUpResponse(member));
-    }
-
-
 
 
 

@@ -1,7 +1,6 @@
 package org.example.tamaapi.dto;
 
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @ToString

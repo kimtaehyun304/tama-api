@@ -1,6 +1,7 @@
 package org.example.tamaapi.dto.requestDto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,10 +13,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginRequest {
 
-    @NotNull @Email
+    @NotBlank
+    @Email
     private String email;
 
-    @NotNull
+    @NotBlank
     private String password;
 
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.example.tamaapi.domain.BaseEntity;
 import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.order.Order;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicUpdate
 public class Member extends BaseEntity {
 
     @Id

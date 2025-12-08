@@ -18,7 +18,7 @@ public class MemberAddress extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "delivery_address_id")
+    @Column(name = "member_address_id")
     private Long id;
 
     //ex)우리집

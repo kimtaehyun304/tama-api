@@ -88,6 +88,8 @@ public class OrderService {
             int orderItemsPrice = getOrderItemsPrice(orderItems);
             int accumulatedPoint = (int) ((orderItemsPrice - getCouponPrice(memberCoupon, orderItemsPrice) - usedPoint) * POINT_ACCUMULATION_RATE);
             member.plusPoint(accumulatedPoint);
+            
+            throw new IllegalArgumentException("옝히 발생");
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
@@ -225,6 +227,8 @@ public class OrderService {
             throw new IllegalArgumentException(message);
         }
 
+        //포인트, 쿠폰 롤백은 취소 확정 됐을때 처리
+
         order.cancelOrder();
         portOneService.cancelPayment(order.getPaymentId(), reason);
     }
@@ -249,6 +253,8 @@ public class OrderService {
             throw new IllegalArgumentException(message);
         }
 
+        //포인트, 쿠폰 롤백은 취소 확정 됐을때 처리
+
         order.cancelOrder();
     }
 
@@ -259,7 +265,7 @@ public class OrderService {
 
         for (OrderItemRequest orderItemRequest : orderItemRequests) {
             Long colorItemSizeStockId = orderItemRequest.getColorItemSizeStockId();
-            //영속성 컨텍스트 재사용
+            //getOrderItemsPrice()에서 만든 영속성 컨텍스트 재사용
             ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(colorItemSizeStockId)
                     .orElseThrow(() -> new IllegalArgumentException(colorItemSizeStockId + "는 동록되지 않은 상품입니다"));
 

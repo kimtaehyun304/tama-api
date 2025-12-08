@@ -20,6 +20,7 @@ import org.example.tamaapi.dto.responseDto.member.MemberAddressesResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberInformationResponse;
 
 import org.example.tamaapi.auth.jwt.TokenProvider;
+import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
 import org.example.tamaapi.event.SignedUpEvent;
 import org.example.tamaapi.repository.MemberAddressRepository;
 
@@ -147,6 +148,17 @@ public class MemberApiController {
 
         List<MemberCoupon> memberCoupons = memberCouponRepository.findNotExpiredAndUnusedCouponsByMemberId(principal.getMemberId());
         return memberCoupons.stream().map(MemberCouponResponse::new).toList();
+    }
+
+    //포트원 결제 내역에 저장할 멤버 정보
+    @GetMapping("/api/member/orders/setup")
+    public ResponseEntity<MemberOrderSetUpResponse> member(@AuthenticationPrincipal CustomPrincipal principal) {
+        if (principal == null)
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        Member member = memberRepository.findWithAddressesById(principal.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+        return ResponseEntity.status(HttpStatus.OK).body(new MemberOrderSetUpResponse(member));
     }
 
 }

@@ -9,7 +9,7 @@ import org.example.tamaapi.domain.order.OrderItem;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.CustomSort;
 import org.example.tamaapi.dto.requestDto.item.save.SaveReviewRequest;
-import org.example.tamaapi.dto.responseDto.MyPageReview;
+import org.example.tamaapi.dto.responseDto.review.MyPageReview;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.review.ReviewResponse;
 import org.example.tamaapi.dto.validator.SortValidator;

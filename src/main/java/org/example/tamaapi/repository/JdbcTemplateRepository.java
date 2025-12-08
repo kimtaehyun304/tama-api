@@ -80,7 +80,6 @@ public class JdbcTemplateRepository {
         });
     }
 
-
     public void saveOrderItems(List<OrderItem> orderItems) {
         jdbcTemplate.batchUpdate("INSERT INTO order_item(order_id, color_item_size_stock_id, order_price, count) values (?, ?, ?, ?)", new BatchPreparedStatementSetter() {
             @Override

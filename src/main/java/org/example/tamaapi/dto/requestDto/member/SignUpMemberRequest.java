@@ -1,6 +1,7 @@
 package org.example.tamaapi.dto.requestDto.member;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,19 +13,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SignUpMemberRequest {
 
-    @NotNull @Email
+    @NotBlank
+    @Email
     private String email;
 
-    @NotNull
+    @NotBlank
     private String phone;
 
-    @NotNull
+    @NotBlank
     private String password;
 
-    @NotNull
+    @NotBlank
     private String authString;
 
-    @NotNull
+    @NotBlank
     private String nickname;
 
     //Gender gender;
