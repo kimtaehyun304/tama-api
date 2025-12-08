@@ -9,9 +9,10 @@ public class ReviewMemberResponse {
     private final Integer height;
     private final Integer weight;
 
-    public ReviewMemberResponse(Member member) {
-        this.nickname = member.getNickname();
-        this.height = member.getHeight();
-        this.weight = member.getWeight();
+    public ReviewMemberResponse(String nickname, Integer height, Integer weight) {
+        this.nickname = nickname;
+        this.height = height;
+        this.weight = weight;
     }
+
 }

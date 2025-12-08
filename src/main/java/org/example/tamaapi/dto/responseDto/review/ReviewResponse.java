@@ -21,7 +21,7 @@ public class ReviewResponse {
     private final LocalDate createdAt;
 
     public ReviewResponse(Review review){
-        member = new ReviewMemberResponse(review.getMember());
+        member = new ReviewMemberResponse(review.getMember().getNickname(), review.getHeight(), review.getWeight());
         ColorItemSizeStock colorItemSizeStock = review.getOrderItem().getColorItemSizeStock();
         option = colorItemSizeStock.getColorItem().getColor().getName() + "/"+ colorItemSizeStock.getSize();
         rating = review.getRating();
