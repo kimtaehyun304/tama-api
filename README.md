@@ -13,33 +13,50 @@
 <p>https://dlta.kr</p>
 
 ### 프로젝트 스킬
-스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql
+스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql 8
+
+### 디자인 패턴
+<ul>
+  <li>도메인 주도 설계</li>
+ 
+  <li>
+    <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+     AOP (인증, 로그)
+    </a>
+  </li>
+  <li>빌더 패턴</li>
+  <li>조기 종료 패턴</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
+   정적 팩토리 메소드 (회원·비회원 주문 구분)
+  </a>
+ </li>
+  <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
+  테스트 코드 작성
+  </a>
+ </li>
+</ul>
 
 ### 프로젝트로 얻은 경험
-
- <a href="https://github.com/kimtaehyun304/tama-api/blob/180628544c098dc074be2c34929a40bc9431f2d3/src/main/java/org/example/tamaapi/repository/item/query/ItemQueryRepository.java#L56">
+ <a href="https://velog.io/@hyungman304/SQL-exists-vs-distinct">
 상품 검색 쿼리 속도 개선
  </a>
  <ul>
-  <li>상품 테이블 row 십만개 넣고 진행</li>
-  <li>카운트 쿼리 중복 row 제거 방법 변경 (distinct 0.9s → exists 0.6s)</li>
-  <li>
-   <a href="https://velog.io/@hyungman304/%EC%B9%B4%EC%9A%B4%ED%8A%B8%EC%A0%95%EB%A0%AC-%EC%BF%BC%EB%A6%AC-%ED%8A%9C%EB%8B%9D-with-%EC%9D%B8%EB%8D%B1%EC%8A%A4#exists-06s-1">
-   정렬 쿼리 row 제거 방법 변경 (exists 0.6s → subQuery 0s)
-   </a>
-  </li>
-  <ul>
-   <li>최신순) 기존 인덱스 쓰려고 order by 필드 변경 (created_at → item.id)</li>
-   <li>가격순) 인덱스 적용을 위해, 함수 제거 및 테이블 컬럼 변경</li>
-   <li>ex) colasecse(disconted_price, price) → now_price</li>
-  </ul>
+  <li>상품 테이블 row 총 700,000만개 넣고 진행</li>
+  <li>카운트 쿼리 중복 row 제거 방법 변경 (distinct → exists)</li>
+  <li>정렬 쿼리 중복 row 제거 방법 변경 (exists → subQuery)</li>
+  <li>기존 인덱스 재사용하려고 order by절 컬럼 변경 (created_at → item.id)</li>
+  <li>인덱스 적용하려고 db 함수 제거하고 컬럼 변경</li>
+  <li>ex) colasecse(disconted_price, price) → now_price</li>
+ </ul>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/0130e7c2b935cdd39a3afe7f908184db51f9b3f5/src/main/java/org/example/tamaapi/controller/ItemApiController.java#L126">
  인기 상품 API 응답 속도 개선 
 </a>
 <ul>
- <li>SQL SUM 함수를 사용하므로, 동시에 요청 오면 느린 걸 확인</li>
+ <li>SQL SUM 함수를 사용하여 동시에 요청 오면 느림</li>
  <li>카페인 캐시에 저장하는 걸로 변경 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/3ceffeb519f348f45d99b6b03a8ec11bf9405803/src/main/java/org/example/tamaapi/Scheduler.java#L27">
   (스케줄러로 24시간 마다 교체)
@@ -69,11 +86,11 @@
  이메일 전송을 비동기로 분리
 </a>
 <ul>
- <li>외부 이메일 서버 장애를 격리하기 위해 분리</li>
- <li>주문 완료 응답 속도 개선 4000ms → 400ms</li>
+ <li>외부 이메일 서버 장애를 격리하기 위해</li>
+ <li>주문 완료 응답 속도 개선 4초 → 0.4초</li>
 </ul>
 
- 결제 API 개발
+결제 API 개발
 <ul>
   <li>
   <a href="https://github.com/kimtaehyun304/tama-api/blob/a3901e82a376ca438e13b546c6a82897b4eb1c1f/src/main/java/org/example/tamaapi/service/OrderService.java#L298">
@@ -90,45 +107,30 @@
  <li>쿠폰·포인트</li>
 </ul>
 
+### 스프링 기능
 <a href="https://github.com/kimtaehyun304/tama-api/blob/0efd407922c8d3281cdc5413517478f928e9a12c/src/main/java/org/example/tamaapi/event/SignedUpEventHandler.java#L33">
 스프링 이벤트
 </a>
 <ul>
  <li>회원가입 시 웰컴 메일 전송 및 쿠폰 제공</li>
- <li>기존엔 내용이 회원가입 로직에 들어있었지만, 이벤트로 분리</li>
- <li>왜냐하면 회원가입 기능만 남기기 위해</li>
+ <li>주요 기능인 회원가입 기능만 남기기 위해, 쿠폰 제공을 이벤트로 분리</li>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/0efd407922c8d3281cdc5413517478f928e9a12c/src/main/java/org/example/tamaapi/config/batch/AutoOrderCompleteJobConfig.java#L41">
 스프링 배치
 </a>
 <ul>
- <li>배송이 완료되고 7일째 되는 날 자동으로 구매 확정</li>
- <li>로직 중복 실행 예방 및 실패하면 재시도를 위해 스프링 배치 도입</li>
+ <li>배송이 완료되고 7일째 되는 날, 자동으로 구매 확정 처리</li>
+ <li>배치 중복 실행 예방과 실패시 재시도를 위해 스프링 배치 도입</li>
 </ul>
 
-기타
+스프링 시큐리티
 <ul>
- <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
-   코드 간소화를 위해 AOP 어노테이션으로 유저 권한 조회
-  </a>
- </li>
- <li>스프링 시큐리티 인증을 커스텀하기 위해 @AuthenticationPrincipal 사용</li>
-  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
-   회원·비회원 주문 구분을 위해 정적 팩토리 메소드 사용
-  </a>
-  </li>
+ <li>인증 객체 커스텀 - @AuthenticationPrincipal</li>
  <li>ouath2·jwt 기반 인증</li>
- <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
-  테스트 코드 작성
-  </a>
- </li>
 </ul>
 
-### API
+### API 문서
 상품 API
 <ul>
  <li>상품 상세</li>
