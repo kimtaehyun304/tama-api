@@ -88,9 +88,8 @@ public class OrderService {
             int orderItemsPrice = getOrderItemsPrice(orderItems);
             int accumulatedPoint = (int) ((orderItemsPrice - getCouponPrice(memberCoupon, orderItemsPrice) - usedPoint) * POINT_ACCUMULATION_RATE);
             member.plusPoint(accumulatedPoint);
-            
-            throw new IllegalArgumentException("옝히 발생");
         } catch (OrderFailException e) {
+            //악의적인 시도 로깅을 위해 커스텀 예외 사용
             log.warn(e.getMessage());
             portOneService.cancelPayment(paymentId, e.getMessage());
             throw new WillCancelPaymentException(e.getMessage());
