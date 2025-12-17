@@ -79,7 +79,7 @@
 </a>
 <ul>
  <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
- <li>재고 음수 방지를 위해, where c.stock >= :quantity & updated row 수 확인</li>
+ <li>재고 음수 방지를 위해, update .. where stock >= quantity (updated row 수 체크) </li>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/b649db7ce5fda02504a65004ab4d1abdba8a6d7b/src/main/java/org/example/tamaapi/controller/OrderApiController.java#L159">
