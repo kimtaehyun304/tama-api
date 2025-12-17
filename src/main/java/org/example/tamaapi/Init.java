@@ -419,7 +419,7 @@ public class Init {
             memberRepository.save(admin);
 
             Member OAUTH2_MEMBER = Member.builder().provider(Provider.GOOGLE).authority(Authority.MEMBER)
-                    .email("kimapbel@gmail.com").phone("01011111112").password(password).nickname("김참정")
+                    .email("kimapbel@gmail.com").phone("01011111112").password(null).nickname("김참정")
                     .height(160).weight(50).gender(Gender.MALE).point(1000000).build();
             memberRepository.save(OAUTH2_MEMBER);
 

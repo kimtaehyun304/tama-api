@@ -187,6 +187,7 @@ public class OrderService {
                 ? Order.createMemberOrder(paymentId, member, delivery, memberCoupon, usedCouponPrice, usedPoint, getShippingFee(orderItemsPrice), orderItems)
                 : Order.createGuestOrder(paymentId, guest, delivery, getShippingFee(orderItemsPrice), orderItems);
 
+        //기존 트랜잭션에 참여되지만, 논리 커밋은 되므로 insert 쿼리 실행 됨
         orderRepository.save(order);
         jdbcTemplateRepository.saveOrderItems(orderItems);
         return order.getId();

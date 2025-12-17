@@ -67,6 +67,9 @@ class TamaApiApplicationTests {
     private EmailService emailService;
 
 
+
+
+
     // 멀티쓰레드라 removeStock 테스트 롤백 안됨 -> 수동 테스트 할 것!
     public void 상품주문_동시성_문제_검증() throws InterruptedException {
         Long colorItemSizeStockId = 1L;

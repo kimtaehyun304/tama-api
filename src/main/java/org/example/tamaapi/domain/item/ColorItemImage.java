@@ -12,7 +12,7 @@ public class ColorItemImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_image_id")
+    @Column(name = "color_item_image_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -31,7 +31,7 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String phone;
 
-    @Column(nullable = false)
+    //oauth2 계정은 비밀번호 없음
     private String password;
 
     @Column(nullable = false)
