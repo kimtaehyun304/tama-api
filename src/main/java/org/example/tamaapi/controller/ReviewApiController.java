@@ -61,15 +61,14 @@ public class ReviewApiController {
 
 
     @PostMapping("/api/reviews")
-    public ResponseEntity<SimpleResponse> saveReview(@Valid @RequestBody SaveReviewRequest saveReviewRequest, @AuthenticationPrincipal CustomPrincipal principal) {
-        //ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(saveReviewRequest.getColorItemSizeStockId()).orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_ITEM));
+    public ResponseEntity<SimpleResponse> saveReview(@Valid @RequestBody SaveReviewRequest saveReviewRequest, @AuthenticationPrincipal Long memberId) {
         OrderItem orderItem = orderItemRepository.findWithOrderById(saveReviewRequest.getOrderItemId())
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER_ITEM));
 
-        if(!Objects.equals(orderItem.getOrder().getMember().getId(), principal.getMemberId()))
+        if(!Objects.equals(orderItem.getOrder().getMember().getId(), memberId))
             throw new IllegalArgumentException("주문자가 아닙니다.");
 
-        Member member = memberRepository.findById(principal.getMemberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
         Review newReview = new Review(orderItem, member, saveReviewRequest.getRating(), saveReviewRequest.getComment(),
                 saveReviewRequest.getHeight(), saveReviewRequest.getWeight());

@@ -18,9 +18,12 @@ import org.example.tamaapi.util.ErrorMessageUtil;
 import org.example.tamaapi.util.RandomStringGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,8 +56,13 @@ public class AuthenticationApiController {
     }
 
     @GetMapping("/api/isAdmin")
-    public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal CustomPrincipal principal) {
-        Authority authority = memberRepository.findAuthorityById(principal.getMemberId())
+    public ResponseEntity<IsAdminResponse> isAdmin(Principal principal) {
+        if (principal == null)
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
+
+        Long memberId = Long.parseLong(principal.getName());
+
+        Authority authority = memberRepository.findAuthorityById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
 
         if (authority != Authority.ADMIN) return ResponseEntity.ok(new IsAdminResponse(false));
@@ -63,4 +71,3 @@ public class AuthenticationApiController {
     }
 
 }
-

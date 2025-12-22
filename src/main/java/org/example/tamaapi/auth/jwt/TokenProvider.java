@@ -9,6 +9,7 @@ import org.example.tamaapi.exception.MyExpiredJwtException;
 import org.example.tamaapi.exception.OrderFailException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -63,14 +64,12 @@ public class TokenProvider {
 
         try {
             Long memberId = Long.valueOf(claims.getSubject());
-            CustomPrincipal customPrincipal = new CustomPrincipal(memberId, null);
-            return new UsernamePasswordAuthenticationToken(customPrincipal, token);
+            return new UsernamePasswordAuthenticationToken(memberId, null);
         } catch (Exception e){
             throw new OrderFailException("memberId 누락");
         }
 
     }
-
 
     private Claims getClaims(String token) {
         return Jwts.parser()

@@ -54,11 +54,11 @@ public class OrderApiController {
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
-    public CustomPage<MemberOrderResponse> orders(@AuthenticationPrincipal CustomPrincipal principal, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
-        if (principal == null)
+    public CustomPage<MemberOrderResponse> orders(@AuthenticationPrincipal Long memberId, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
+        if (memberId == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
         //조회라 굳이 멤버 존재 체크 안필요
-        return orderQueryRepository.findMemberOrdersWithPaging(customPageRequest, principal.getMemberId());
+        return orderQueryRepository.findMemberOrdersWithPaging(customPageRequest, memberId);
     }
 
     //비로그인 주문 조회
@@ -91,12 +91,11 @@ public class OrderApiController {
 
     //멤버 주문 저장
     @PostMapping("/api/orders/member")
-    public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal CustomPrincipal principal) {
+    public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal Long memberId) {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
         PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
-        Long memberId = principal.getMemberId();
 
         portOneService.validatePaymentStatus(paymentStatus);
         orderService.validateMemberOrder(portOneOrder, clientTotal, memberId);
@@ -122,9 +121,8 @@ public class OrderApiController {
     //비회원은 쿠폰, 포인트 없어서 무료 주문 불가 -> 비회원용 API 안 만듬
     //포트원을 거치지 않음 -> 리다이렉트 X -> 모바일용 API 안 만듬
     @PostMapping("/api/orders/free/member")
-    public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal CustomPrincipal principal
+    public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal Long memberId
             ,@RequestBody @Valid OrderRequest req) {
-        Long memberId = principal.getMemberId();
         int orderItemsPrice = orderService.getOrderItemsPrice(req.getOrderItems());
 
         orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
