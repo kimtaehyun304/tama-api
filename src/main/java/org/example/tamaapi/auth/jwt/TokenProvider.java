@@ -25,7 +25,6 @@ public class TokenProvider {
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
 
-
     public String generateToken(Member member) {
         Date now = new Date();
         return makeToken(member, new Date(now.getTime() + ACCESS_TOKEN_DURATION.toMillis()));

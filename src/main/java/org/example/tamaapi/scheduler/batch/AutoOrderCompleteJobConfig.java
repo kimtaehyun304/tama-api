@@ -16,11 +16,14 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.batch.item.database.orm.JpaNativeQueryProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +43,7 @@ public class AutoOrderCompleteJobConfig {
     @Bean
     public JpaPagingItemReader<Long> orderIdReader()  {
         //업데이트가 실시간으로 이뤄지므로, 페이징이 앞으로 당겨지는 문제 해결을 위해
-        JpaPagingItemReader<Long> reader = new JpaPagingItemReader<Long>() {
+        JpaPagingItemReader<Long> reader = new JpaPagingItemReader<>() {
             @Override
             public int getPage() {
                 return 0;
@@ -49,17 +52,23 @@ public class AutoOrderCompleteJobConfig {
 
         reader.setName("orderIdReader");
         reader.setEntityManagerFactory(emf);
-        reader.setQueryString(
-                "SELECT o.id FROM Order o where date(o.updatedAt) <= :standardDate"
-        );
-        reader.setParameterValues(Map.of(
-                "standardDate", LocalDateTime.now().minusDays(7).toLocalDate()
-        ));
         reader.setPageSize(chunkSize);
+
+        //dateTime 형식 필요해서 네이티브 쿼리 사용
+        //mysql은 dateTime이고, 객체는 localDateTime이라 타입이 안 맞음
+        JpaNativeQueryProvider<Long> queryProvider =
+                new JpaNativeQueryProvider<>();
+        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= :eightDaysAgo");
+        queryProvider.setEntityClass(Long.class);
+
+        reader.setQueryProvider(queryProvider);
+
+        reader.setParameterValues(Map.of(
+                "eightDaysAgo", Timestamp.valueOf(LocalDate.now().minusDays(8).atStartOfDay()).toString()
+        ));
 
         return reader;
     }
-
     @Bean
     public ItemWriter<Long> orderUpdateWriter() {
         return chunk -> {

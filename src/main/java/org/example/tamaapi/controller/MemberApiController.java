@@ -3,6 +3,7 @@ package org.example.tamaapi.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.auth.CustomPrincipal;
+import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Member;
@@ -33,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,8 +57,6 @@ public class MemberApiController {
     @PostMapping("/api/member/new")
     public ResponseEntity<SimpleResponse> signUp(@Valid @RequestBody SignUpMemberRequest request) {
         memberService.validateIsExists(request.getEmail(), request.getPhone());
-
-        /*
         String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         if (!StringUtils.hasText(authString))
@@ -67,7 +67,6 @@ public class MemberApiController {
 
         cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
-         */
         String password = bCryptPasswordEncoder.encode(request.getPassword());
         Member member = Member.builder()
                 .email(request.getEmail()).phone(request.getPhone())
