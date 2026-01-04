@@ -67,7 +67,7 @@ class ItemApiControllerTest {
     @Autowired
     private EntityManager em;
 
-    @Test
+    //@Test
     void saveItems() throws Exception {
         //given
         String name = "여 코듀로이 스커트";

@@ -30,8 +30,10 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -110,6 +112,31 @@ class TamaApiApplicationTests {
         }
 
         assertThat(1).isEqualTo(1);
+    }
+
+    @Test
+    void LocalDateTime_변환_테스트() {
+        LocalDateTime eightDaysAgo = LocalDateTime.now().minusDays(80).toLocalDate().atStartOfDay();
+        //이건 예외 발생
+        //String eightDaysAgo = Timestamp.valueOf(LocalDateTime.now().minusDays(8).toLocalDate().atStartOfDay()).toString();
+        System.out.println("eightDaysAgo = " + eightDaysAgo);
+        em.createQuery("SELECT o.id FROM Order o WHERE o.updatedAt >= :eightDaysAgo")
+                .setParameter("eightDaysAgo", eightDaysAgo)
+                .getResultList();
+    }
+
+    @Test
+    void LocalDateTime_변환_테스트_네이티브() {
+        List<Long> resultList = em.createNativeQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 80 day", Long.class)
+                .getResultList();
+        assertThat(resultList.size()).isEqualTo(6);
+    }
+
+    @Test
+    void LocalDateTime_변환_테스트_네이티브2() {
+        List<Long> resultList = em.createNativeQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 80 day", Long.class)
+                .getResultList();
+        assertThat(resultList.size()).isEqualTo(6);
     }
 
 }

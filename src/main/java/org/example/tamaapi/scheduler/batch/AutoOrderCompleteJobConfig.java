@@ -54,21 +54,18 @@ public class AutoOrderCompleteJobConfig {
         reader.setEntityManagerFactory(emf);
         reader.setPageSize(chunkSize);
 
-        //dateTime 형식 필요해서 네이티브 쿼리 사용
-        //mysql은 dateTime이고, 객체는 localDateTime이라 타입이 안 맞음
         JpaNativeQueryProvider<Long> queryProvider =
                 new JpaNativeQueryProvider<>();
-        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= :eightDaysAgo");
+        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 80 day and o.status = :DELIVERED");
         queryProvider.setEntityClass(Long.class);
 
-        reader.setQueryProvider(queryProvider);
-
         reader.setParameterValues(Map.of(
-                "eightDaysAgo", Timestamp.valueOf(LocalDate.now().minusDays(8).atStartOfDay()).toString()
+                "DELIVERED", OrderStatus.DELIVERED.name()
         ));
-
+        reader.setQueryProvider(queryProvider);
         return reader;
     }
+
     @Bean
     public ItemWriter<Long> orderUpdateWriter() {
         return chunk -> {

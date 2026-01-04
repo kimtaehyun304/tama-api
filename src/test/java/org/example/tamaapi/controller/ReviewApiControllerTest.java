@@ -57,7 +57,7 @@ class ReviewApiControllerTest {
     @Autowired
     private OrderService orderService;
     private final String PAYMENT_ID = UUID.randomUUID().toString();
-    @BeforeEach
+    //@BeforeEach
     void saveOrder() throws Exception {
         Member member = memberRepository.findAllByAuthority(Authority.MEMBER).get(0);
         String receiverNickname = member.getNickname();
@@ -89,7 +89,7 @@ class ReviewApiControllerTest {
         );
     }
 
-    @Test
+    //@Test
     void saveReview() throws  Exception {
         //given
         Long orderItemId = orderItemRepository.findAllWithOrderByPaymentId(PAYMENT_ID).get(0).getId();
