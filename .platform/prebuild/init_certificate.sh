@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-echo command -v certbot >/dev/null 2>&1
+echo "running init_certificate"
 
 # certbot 설치 여부 확인
 if ! command -v certbot >/dev/null 2>&1; then
+  echo "running init_certificate because true"
     echo "Certbot not installed. installing..."
     yum install -y certbot python3-certbot-nginx
 
