@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
+echo command -v certbot >/dev/null 2>&1
+
 # certbot 설치 여부 확인
 if ! command -v certbot >/dev/null 2>&1; then
-    echo "Certbot not installed, installing..."
+    echo "Certbot not installed. installing..."
     yum install -y certbot python3-certbot-nginx
 
     # nginx.conf 자동 적용 + 인증서 발급

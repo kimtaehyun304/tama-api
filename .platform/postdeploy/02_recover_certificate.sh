@@ -3,7 +3,7 @@ set -e
 
 # live/도메인 디렉토리는 있는데, 인증서만 지워진 경우가 있음
 if [ ! -f /etc/letsencrypt/live/README ]; then
-
+  echo "[WARN] try to recover certificate..."
    #nignx.conf 자동 적용
    certbot --nginx \
         -d dldm.kr \
