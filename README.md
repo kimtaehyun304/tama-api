@@ -12,8 +12,29 @@
 
 <p>https://dlta.kr</p>
 
-### 프로젝트 스킬
-스프링 부트3 (mvc·rest api, valid, security, cache, hibernate), mysql 8
+### 기술
+* 스프링 부트 3.4 (mvc, security, valid, aop, cache)
+* mysql 8, hibernate 6, data jpa, querydsl 5
+
+### 구조
+
+설정 파일
+application.yml
+<ul>
+  <li>open-in-view: false</li>
+  <li>배포엔 application-prod.yml</li>
+</ul>
+
+logback-spring.xml
+<ul>
+  <li></li>
+</ul>
+
+
+
+
+
+
 
 ### 아키텍처
 필터 
@@ -22,9 +43,7 @@
 서블릿
 - 중앙 예외 처리
 - 시큐리티 인증 객체
-- 시큐리티 권한 전체 허용 / 권한 필요한 메서든 권한 검증   
-
-
+- 시큐리티 권한 전체 허용 / 권한 필요한 메서든 권한 검증
 
 ### 디자인 패턴
 <ul>
