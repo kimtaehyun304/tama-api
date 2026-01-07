@@ -48,16 +48,6 @@ ouath2 로그인
   <li>회원가입 시 웰컴 메일 전송 및 쿠폰 제공 (스프링 비동기 이벤트)</li>
 </ul>
 
-### 스프링 기능
-<a href="https://github.com/kimtaehyun304/tama-api/blob/0efd407922c8d3281cdc5413517478f928e9a12c/src/main/java/org/example/tamaapi/event/SignedUpEventHandler.java#L33">
-스프링 이벤트
-</a>
-<ul>
- <li>회원가입 시 웰컴 메일 전송 및 쿠폰 제공</li>
- <li>주요 기능인 회원가입 기능만 남기기 위해, 쿠폰 제공을 이벤트로 분리</li>
-</ul>
-
-
 #### SQL
 상품 상세 쿼리
 <ul>
