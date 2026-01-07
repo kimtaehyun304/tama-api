@@ -18,7 +18,18 @@
 
 ### 구조
 
-설정 파일
+
+
+#### 흐름
+스프링 시큐리티 필터체인 → 토큰 인증 필터 → 컨트롤러 → 공통 예외 처리
+
+#### 설정 파일
+
+config 폴더
+
+
+
+
 application.yml
 <ul>
   <li>open-in-view: false</li>
@@ -27,14 +38,8 @@ application.yml
 
 logback-spring.xml
 <ul>
-  <li></li>
+  <li>로그 파일 용도로 쓰다가 beanstalk 전환 후 필요 없어짐</li>
 </ul>
-
-
-
-
-
-
 
 ### 아키텍처
 필터 
