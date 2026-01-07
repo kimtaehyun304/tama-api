@@ -26,9 +26,12 @@
 #### 설정 파일
 
 config 폴더
-
-
-
+<ul>
+  <li>json 이스케이프</li>
+  <li>restClient 타임아웃 설정</li>
+  <li>비동기 쓰레드 풀 설정</li>
+  <li>cors 설정 (UrlBasedCorsConfigurationSource)</li>
+</ul>
 
 application.yml
 <ul>
