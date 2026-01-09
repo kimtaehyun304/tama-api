@@ -48,6 +48,28 @@ ouath2 로그인
   <li>회원가입 시 웰컴 메일 전송 및 쿠폰 제공 (스프링 이벤트)</li>
 </ul>
 
+### 디자인 패턴
+<ul>
+  <li>도메인 주도 설계</li> 
+  <li>
+    <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
+     AOP (인증, 로그)
+    </a>
+  </li>
+  <li>빌더 패턴</li>
+  <li>조기 종료 패턴</li>
+ <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
+   정적 팩토리 메소드 (회원·비회원 주문 구분)
+  </a>
+ </li>
+  <li>
+  <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
+  테스트 코드 작성
+  </a>
+ </li>
+</ul>
+
 #### SQL
 상품 상세 쿼리
 <ul>
@@ -136,28 +158,6 @@ application.yml
 logback-spring.xml
 <ul>
   <li>로그 파일 용도로 쓰다가 beanstalk 전환 후 필요 없어짐</li>
-</ul>
-
-### 디자인 패턴
-<ul>
-  <li>도메인 주도 설계</li> 
-  <li>
-    <a href="https://github.com/kimtaehyun304/tama-api/blob/5a0433c9634e03ac5d25a37ba15553a9f8042b8d/src/main/java/org/example/tamaapi/config/aspect/PreAuthenticationAspect.java#L36">
-     AOP (인증, 로그)
-    </a>
-  </li>
-  <li>빌더 패턴</li>
-  <li>조기 종료 패턴</li>
- <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/e35dfd1e6a51b00c042898593c88513ebc04ba88/src/main/java/org/example/tamaapi/domain/order/Order.java#L76">
-   정적 팩토리 메소드 (회원·비회원 주문 구분)
-  </a>
- </li>
-  <li>
-  <a href="https://github.com/kimtaehyun304/tama-api/blob/2b5e350c81cf7ae92ea829f930572a0133eb927b/src/test/java/org/example/tamaapi/controller/ItemApiControllerTest.java#L112">
-  테스트 코드 작성
-  </a>
- </li>
 </ul>
 
 ### 트러블 슈팅
