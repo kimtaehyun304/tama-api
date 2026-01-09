@@ -30,7 +30,7 @@
   <li>인기 상품 쿼리 로컬 캐싱</li>
   <li>
     <a href="https://github.com/kimtaehyun304/tama-api/blob/7e25461d15214a4566ed46ca02709cccf93e24ed/src/main/java/org/example/tamaapi/scheduler/batch/AutoOrderCompleteJobConfig.java#L43">
-      배송완료 상품 구매 확정 (스프링 배치)
+      배송완료 상품 자동 구매 확정 (스프링 배치)
     </a>
   </li>
 </ul>
