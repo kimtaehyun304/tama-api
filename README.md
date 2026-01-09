@@ -161,7 +161,7 @@ logback-spring.xml
 </ul>
 
 ### 트러블 슈팅
-상품 검색 쿼리 속도 개선기
+인덱스로 쿼리 속도 개선
  <ul>
   <li>상황: 상품 row 총 700,000개 존재</li>
   <li>
@@ -172,15 +172,18 @@ logback-spring.xml
   <li>pk 인덱스 사용하려고 order by 컬럼 변경 (created_at → item.id pk)</li>
   <li>db 함수는 인덱스 미적용 → db 함수 안 써도 되게 컬럼 재설계</li>
   <li>ex)할인 중이면 할인 가격을 가져오기 - colasecse(disconted_price, price) → now_price, original_price</li>
+  <li>import 후 느림 → analyze로 통계정보 최신화 </li>
+  <li>explain 조인 순서가 비효율적 → 스트레이트 조인 (힌트) </li>
  </ul>
 </ul>
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L67">
- 상품 주문 동시성 문제 해결
+db 동시 요청
 </a>
 <ul>
  <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락을 통한 대기)</li>
- <li>재고 음수 방지를 위해, update .. where stock >= quantity (updated row 수 체크) </li>
+ <li>낙관, 비관 락 보다 간단하고 성능 좋음</li>
+ <li>재고 음수 방지를 위해, update .. where stock >= quantity (updated row 수 체크)</li>
 </ul>
 
 ### API 문서
