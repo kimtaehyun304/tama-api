@@ -102,7 +102,7 @@ ouath2 로그인
 연관관계: 상품 -< 색상 컬렉션 -< 색상별 사이즈
 <ul>
   <li>색상 컬렉션 저장은 jdbcTemplate batch insert</li>
-  <li>색상별 사이즈도 jdbcTemplate로 하려하니 색상 컬렉션 PK를 몰라서 실패</li>
+  <li>색상별 사이즈도 jdbcTemplate로 하려니 색상 컬렉션 PK를 몰라서 실패</li>
   <li>색상 컬렉션 정보를 가지고 색상 컬렉션 PK를 조회하고 넣어줌</li>  
 </ul>  
 
