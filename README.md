@@ -170,12 +170,16 @@ logback-spring.xml
     </a>
   </li>
   <li>pk 인덱스 사용하려고 order by 컬럼 변경 (created_at → item.id pk)</li>
-  <li>db 함수는 인덱스 미적용 → db 함수 안 써도 되게 컬럼 재설계</li>
-  <li>ex)할인 중이면 할인 가격을 가져오기 - colasecse(disconted_price, price) → now_price, original_price</li>
   <li>import 후 느림 → analyze로 통계정보 최신화 </li>
   <li>explain 조인 순서가 비효율적 → 스트레이트 조인 (힌트) </li>
  </ul>
 </ul>
+
+인덱스 자제
+* pk 인덱스 사용하려고 order by 컬럼 변경 (created_at → item.id pk) 
+* db 함수는 인덱스 미적용 → db 함수 안 써도 되게 컬럼 재설계 
+* ex) colasecse(discounted_price, price) → now_price, original_price
+* ex) 할인 중이 아니라면 discounted_price는 null / now_price는 현재 가격
 
 <a href="https://github.com/kimtaehyun304/tama-api/blob/284ee0e18267a9cc732b929609db6d79f176d203/src/main/java/org/example/tamaapi/service/ItemService.java#L67">
 db 동시 요청
