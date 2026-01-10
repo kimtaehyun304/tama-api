@@ -171,7 +171,7 @@ logback-spring.xml
   </li>
   <li>pk 인덱스 사용하려고 order by 컬럼 변경 (created_at → item.id pk)</li>
   <li>import 후 느림 → analyze로 통계정보 최신화 </li>
-  <li>explain 조인 순서가 비효율적 → 스트레이트 조인 (힌트) </li>
+  <li>explain 조인 순서가 비효율적 → 스트레이트 조인 힌트로 순서 강제</li>
  </ul>
 </ul>
 
