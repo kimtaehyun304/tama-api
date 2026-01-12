@@ -185,7 +185,7 @@ logback-spring.xml
 db 동시 요청
 </a>
 <ul>
- <li>갱신 분실 방지를 위해, jpa 변경 감지 → 직접 update (배타 락)</li>
+ <li>갱신 분실 방지를 위해, jpa 변경 감지 → 일반 update 변경 (배타 락)</li>
  <li>낙관, 비관 락 보다 간단하고 성능 좋음</li>
  <li>재고 음수 방지를 위해, update .. where stock >= quantity (updated row 수 체크)</li>
  <li>updated row 수 0이면 예외 던짐</li>
