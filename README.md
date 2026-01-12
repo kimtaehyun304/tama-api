@@ -175,7 +175,7 @@ logback-spring.xml
  </ul>
 </ul>
 
-인덱스 자제
+인덱스 지식
 * pk 인덱스 사용하려고 order by 컬럼 변경 (created_at → item.id pk) 
 * db 함수는 인덱스 미적용 → db 함수 안 써도 되게 컬럼 재설계 
 * ex) colasecse(discounted_price, price) → now_price, original_price
