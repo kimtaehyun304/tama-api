@@ -13,6 +13,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
@@ -43,9 +44,9 @@ public class AutoOrderCompleteJobConfig {
     private static final int chunkSize = 1000;
 
     @Bean
-    public JpaPagingItemReader<Long> orderIdReader()  {
+    public JdbcPagingItemReader<Long> orderIdReader()  {
         //업데이트가 실시간으로 이뤄지므로, 페이징이 앞으로 당겨지는 문제 해결을 위해
-        JpaPagingItemReader<Long> reader = new JpaPagingItemReader<>() {
+        JdbcPagingItemReader<Long> reader = new JdbcPagingItemReader<>() {
             @Override
             public int getPage() {
                 return 0;
@@ -53,18 +54,17 @@ public class AutoOrderCompleteJobConfig {
         };
 
         reader.setName("orderIdReader");
-        reader.setEntityManagerFactory(emf);
+        //reader.setEntityManagerFactory(emf);
         reader.setPageSize(chunkSize);
 
-        JpaNativeQueryProvider<Long> queryProvider =
-                new JpaNativeQueryProvider<>();
-        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 8 day and o.status = :DELIVERED");
+        JpaNativeQueryProvider<Long> queryProvider = new JpaNativeQueryProvider<>();
+        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 8 day and o.status = :DELIVERED order by o.order_id asc");
         queryProvider.setEntityClass(Long.class);
 
         reader.setParameterValues(Map.of(
                 "DELIVERED", OrderStatus.DELIVERED.name()
         ));
-        reader.setQueryProvider(queryProvider);
+        //reader.setQueryProvider(queryProvider);
         return reader;
     }
 
@@ -80,7 +80,7 @@ public class AutoOrderCompleteJobConfig {
     }
 
     @Bean
-    public Step completeOrderStep(JpaPagingItemReader<Long> orderIdReader,
+    public Step completeOrderStep(JdbcPagingItemReader<Long> orderIdReader,
                                   ItemWriter<Long> orderUpdateWriter) {
         return new StepBuilder("completeOrderStep", jobRepository)
                 .<Long, Long>chunk(chunkSize, transactionManager)
