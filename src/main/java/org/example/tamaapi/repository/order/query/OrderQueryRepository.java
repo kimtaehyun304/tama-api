@@ -44,7 +44,8 @@ public class OrderQueryRepository {
     //★주문 조회 자식 컬렉션(공용) & 멤버 주문 조회 때문에 리뷰 조인
     private Map<Long, List<OrderItemResponse>> findOrdersChildrenMap(List<Long> orderIds){
         List<OrderItemResponse> children = queryFactory
-                .select(new QOrderItemResponse(orderItem.order.id, colorItem.id, orderItem.id, orderItem.orderPrice, orderItem.count, item.name, colorItem.color.name, colorItemSizeStock.size, review.id.isNotNull()))
+                .select(new QOrderItemResponse(orderItem.order.id, colorItem.id, orderItem.id, orderItem.orderPrice,
+                        orderItem.count, item.name, colorItem.color.name, colorItemSizeStock.size, review.id.isNotNull()))
                 .from(orderItem).leftJoin(review).on(orderItem.id.eq(review.orderItem.id))
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.color, color).join(colorItem.item, item)
                 .where(orderItem.order.id.in(orderIds))

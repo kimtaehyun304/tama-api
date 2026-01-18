@@ -20,7 +20,9 @@ import org.springframework.batch.item.database.orm.JpaNativeQueryProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -56,7 +58,7 @@ public class AutoOrderCompleteJobConfig {
 
         JpaNativeQueryProvider<Long> queryProvider =
                 new JpaNativeQueryProvider<>();
-        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 80 day and o.status = :DELIVERED");
+        queryProvider.setSqlQuery("SELECT o.order_id FROM orders o WHERE o.updated_at >= now() - interval 8 day and o.status = :DELIVERED");
         queryProvider.setEntityClass(Long.class);
 
         reader.setParameterValues(Map.of(
@@ -83,7 +85,13 @@ public class AutoOrderCompleteJobConfig {
         return new StepBuilder("completeOrderStep", jobRepository)
                 .<Long, Long>chunk(chunkSize, transactionManager)
                 .reader(orderIdReader)
+                .transactionAttribute(new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED) {{
+                    setReadOnly(true);
+                }})
                 .writer(orderUpdateWriter)
+                .transactionAttribute(new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED) {{
+                    setReadOnly(false);
+                }})
                 .faultTolerant()
                 .retry(Exception.class)
                 .retryLimit(3)
