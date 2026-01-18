@@ -44,9 +44,9 @@ public class AutoOrderCompleteJobConfig {
     private static final int chunkSize = 1000;
 
     @Bean
-    public JdbcPagingItemReader<Long> orderIdReader()  {
+    public JpaPagingItemReader<Long> orderIdReader() {
         //업데이트가 실시간으로 이뤄지므로, 페이징이 앞으로 당겨지는 문제 해결을 위해
-        JdbcPagingItemReader<Long> reader = new JdbcPagingItemReader<>() {
+        JpaPagingItemReader<Long> reader = new JpaPagingItemReader<>() {
             @Override
             public int getPage() {
                 return 0;
@@ -54,7 +54,7 @@ public class AutoOrderCompleteJobConfig {
         };
 
         reader.setName("orderIdReader");
-        //reader.setEntityManagerFactory(emf);
+        reader.setEntityManagerFactory(emf);
         reader.setPageSize(chunkSize);
 
         JpaNativeQueryProvider<Long> queryProvider = new JpaNativeQueryProvider<>();
@@ -64,7 +64,7 @@ public class AutoOrderCompleteJobConfig {
         reader.setParameterValues(Map.of(
                 "DELIVERED", OrderStatus.DELIVERED.name()
         ));
-        //reader.setQueryProvider(queryProvider);
+        reader.setQueryProvider(queryProvider);
         return reader;
     }
 
@@ -80,7 +80,7 @@ public class AutoOrderCompleteJobConfig {
     }
 
     @Bean
-    public Step completeOrderStep(JdbcPagingItemReader<Long> orderIdReader,
+    public Step completeOrderStep(JpaPagingItemReader<Long> orderIdReader,
                                   ItemWriter<Long> orderUpdateWriter) {
         return new StepBuilder("completeOrderStep", jobRepository)
                 .<Long, Long>chunk(chunkSize, transactionManager)
