@@ -22,7 +22,8 @@ public class RedisCacheService {
     public void save(MyCacheType cacheName, String key, Object value) {
         Cache cache = getCache(cacheName);
         //덮어 씌움
-        if (cache != null) cache.put(key, value);
+        //put 안되길래, null인지 체크해보려고 if != null 지움
+        cache.put(key, value);
     }
 
     public Object get(MyCacheType cacheName, String key) {
@@ -33,7 +34,7 @@ public class RedisCacheService {
 
     public void evict(MyCacheType cacheName, String key) {
         Cache cache = getCache(cacheName);
-        if (cache != null) cache.evict(key);
+        cache.evict(key);
     }
 
     private Cache getCache(MyCacheType cacheName){
