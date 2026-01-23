@@ -17,6 +17,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -46,14 +47,22 @@ public class CacheConfig {
 
     @Bean
     public RedisCacheManager redisCacheManager(RedisConnectionFactory factory){
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofSeconds(60))
-                .disableCachingNullValues()
-                .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
-                );
+        Map<String, RedisCacheConfiguration> cacheConfigs =
+                Arrays.stream(MyCacheType.values())
+                        .collect(Collectors.toMap(
+                                MyCacheType::name,
+                                cache -> RedisCacheConfiguration.defaultCacheConfig()
+                                        .entryTtl(Duration.ofSeconds(cache.getExpireAfterWrite()))
+                                        .disableCachingNullValues()
+                                        .serializeValuesWith(
+                                                RedisSerializationContext.SerializationPair
+                                                        .fromSerializer(new GenericJackson2JsonRedisSerializer())
+                                        )
+                        ));
 
-        return RedisCacheManager.builder(factory).cacheDefaults(config).build();
+        return RedisCacheManager.builder(factory)
+                .withInitialCacheConfigurations(cacheConfigs)
+                .build();
     }
 
 
