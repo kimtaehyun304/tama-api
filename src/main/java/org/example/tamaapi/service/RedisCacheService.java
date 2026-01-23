@@ -6,7 +6,7 @@ import org.example.tamaapi.cache.MyCacheType;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
-import org.springframework.cache.support.SimpleCacheManager;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -15,9 +15,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CacheService {
+public class RedisCacheService {
 
-    private final SimpleCacheManager cacheManager;
+    private final RedisCacheManager cacheManager;
 
     public void save(MyCacheType cacheName, String key, Object value) {
         Cache cache = getCache(cacheName);

@@ -29,6 +29,7 @@ import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.MemberService;
+import org.example.tamaapi.service.RedisCacheService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 public class MemberApiController {
 
     private final MemberRepository memberRepository;
-    private final CacheService cacheService;
+    private final RedisCacheService redisCacheService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
@@ -57,7 +58,7 @@ public class MemberApiController {
     @PostMapping("/api/member/new")
     public ResponseEntity<SimpleResponse> signUp(@Valid @RequestBody SignUpMemberRequest request) {
         memberService.validateIsExists(request.getEmail(), request.getPhone());
-        String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
+        String authString = (String) redisCacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         if (!StringUtils.hasText(authString))
             throw new IllegalArgumentException("유효하지 않는 인증문자");
@@ -65,7 +66,7 @@ public class MemberApiController {
         if(!request.getAuthString().equals(authString))
             throw new IllegalArgumentException("인증문자 불일치");
 
-        cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
+        redisCacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         String password = bCryptPasswordEncoder.encode(request.getPassword());
         Member member = Member.builder()

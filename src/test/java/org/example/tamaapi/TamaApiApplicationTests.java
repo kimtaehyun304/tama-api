@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
@@ -22,6 +23,8 @@ import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryRespon
 import org.example.tamaapi.repository.item.query.dto.QCategoryItemQueryDto;
 import org.example.tamaapi.service.EmailService;
 import org.example.tamaapi.service.ItemService;
+import org.example.tamaapi.service.RedisCacheService;
+import org.example.tamaapi.util.RandomStringGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,9 +71,8 @@ class TamaApiApplicationTests {
     @Autowired
     private EmailService emailService;
 
-
-
-
+    @Autowired
+    private RedisCacheService redisCacheService;
 
     // 멀티쓰레드라 removeStock 테스트 롤백 안됨 -> 수동 테스트 할 것!
     public void 상품주문_동시성_문제_검증() throws InterruptedException {
@@ -138,5 +140,17 @@ class TamaApiApplicationTests {
                 .getResultList();
         assertThat(resultList.size()).isEqualTo(6);
     }
+
+
+    @Test
+    void 레디스_테스트() {
+        String authString = RandomStringGenerator.generateRandomString(6);
+        String email = "burnaby@naver.com";
+        redisCacheService.save(MyCacheType.SIGN_UP_AUTH_STRING, email, authString);
+
+        String redisAuthString = (String) redisCacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, email);
+        assertThat(authString).isEqualTo(redisAuthString);
+    }
+
 
 }

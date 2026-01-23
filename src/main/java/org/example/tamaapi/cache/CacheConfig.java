@@ -7,7 +7,14 @@ import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +25,8 @@ import java.util.stream.Collectors;
 public class CacheConfig {
 
     @Bean
-    public CacheManager cacheManager() {
+    @Primary
+    public SimpleCacheManager localCacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
 
         List<CaffeineCache> caches = Arrays.stream(MyCacheType.values())
@@ -36,6 +44,17 @@ public class CacheConfig {
         return cacheManager;
     }
 
+    @Bean
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory factory){
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofSeconds(60))
+                .disableCachingNullValues()
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
+                );
+
+        return RedisCacheManager.builder(factory).cacheDefaults(config).build();
+    }
 
 
 }
