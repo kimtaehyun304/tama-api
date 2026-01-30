@@ -2,7 +2,8 @@ package org.example.tamaapi.domain.user;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public enum Authority implements GrantedAuthority {
+// implements GrantedAuthority getAuthority 어짜피 String 반환이라 제거
+public enum Authority  {
     MEMBER("ROLE_MEMBER"),
     ADMIN("ROLE_ADMIN");
 
@@ -12,8 +13,4 @@ public enum Authority implements GrantedAuthority {
         this.authority = authority;
     }
 
-    @Override
-    public String getAuthority() {
-        return authority;
-    }
 }
