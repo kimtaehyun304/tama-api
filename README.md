@@ -219,5 +219,5 @@ db 동시 요청
 
 ### erd
 <p align="center">
-<img src="https://github.com/user-attachments/assets/69455699-3fa4-4dd0-9ee9-ce8ea3284cd4"/>
+ <img src="https://github.com/user-attachments/assets/b263caa1-b65a-48da-a496-7f9ea90bb3ad" />
 </p>
