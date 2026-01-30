@@ -45,11 +45,7 @@ public class PreAuthenticationAspect {
         Long memberId = (Long) authentication.getPrincipal();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().getAuthority()));
-        Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
-                null,
-                null,
-                authorities
-        );
+        Authentication newAuthentication = new UsernamePasswordAuthenticationToken(null, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(newAuthentication);
     }
 
