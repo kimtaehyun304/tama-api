@@ -35,6 +35,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        //String은 실패 이유
         Pair<Boolean, String> pair = tokenProvider.validateToken(token);
         Boolean isPass = pair.getFirst();
 
