@@ -38,6 +38,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         Pair<Boolean, String> pair = tokenProvider.validateToken(token);
         Boolean isPass = pair.getFirst();
 
+        //필터는 공통 예외 처리가 가능하지 않다
         if (!isPass) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
