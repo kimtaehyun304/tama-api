@@ -66,6 +66,7 @@ public class OrderService {
                                 Integer usedPoint,
                                 List<OrderItemRequest> orderItems) {
         try {
+            log.info("주문 저장 중.. paymentId:{}, memberId:{}",paymentId, memberId);
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new OrderFailException(NOT_FOUND_MEMBER));
 
@@ -112,6 +113,8 @@ public class OrderService {
                                     Integer usedPoint,
                                     List<OrderItemRequest> orderItems) {
         try {
+            log.info("주문 저장 중.. memberId:{}",memberId);
+            /*
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new OrderFailException(NOT_FOUND_MEMBER));
 
@@ -129,7 +132,7 @@ public class OrderService {
 
             saveOrder(null, member, null, receiverNickname, receiverPhone,
                     zipCode, streetAddress, detailAddress, message, memberCoupon, usedPoint, orderItems);
-
+            */
             //무료 주문이라 포인트 적립 없음
         } catch (OrderFailException e) {
             log.warn(e.getMessage());
@@ -151,6 +154,7 @@ public class OrderService {
                                String message,
                                List<OrderItemRequest> orderItems) {
         try {
+            log.info("주문 저장 중.. paymentId:{}", paymentId);
             Guest guest = new Guest(senderNickname, senderEmail);
             return saveOrder(paymentId, null, guest, receiverNickname, receiverPhone,
                     zipCode, streetAddress, detailAddress, message, null, 0, orderItems);

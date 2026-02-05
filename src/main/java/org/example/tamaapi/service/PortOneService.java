@@ -39,8 +39,8 @@ public class PortOneService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     //res 포함하면 복잡해서 포함 안했음. 보안상 민감한 내용 있을수도 있고
-                    String clientMsg = String.format("결제 검증 중 오류가 발생했습니다. 원인: 포트원 결제내역 단건조회 API 호출 실패");
-                    String serverMsg = String.format("결제 검증 중 오류가 발생했습니다. 원인: 포트원 결제내역 단건조회 API 호출 실패, res=%s", res);
+                    String clientMsg = String.format("포트원 결제내역 단건조회 API 호출 실패");
+                    String serverMsg = String.format("포트원 결제내역 단건조회 API 호출 실패, res=%s", res);
                     log.error(serverMsg);
                     throw new IllegalArgumentException(clientMsg);
                 })

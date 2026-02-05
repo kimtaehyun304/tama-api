@@ -10,9 +10,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.auth.jwt.TokenProvider;
 import org.example.tamaapi.cache.MyCacheType;
 import org.example.tamaapi.domain.Gender;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
+import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.CustomSort;
 import org.example.tamaapi.exception.MyBadRequestException;
@@ -73,6 +75,9 @@ class TamaApiApplicationTests {
 
     @Autowired
     private RedisCacheService redisCacheService;
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     // 멀티쓰레드라 removeStock 테스트 롤백 안됨 -> 수동 테스트 할 것!
     public void 상품주문_동시성_문제_검증() throws InterruptedException {
@@ -152,5 +157,9 @@ class TamaApiApplicationTests {
         assertThat(authString).isEqualTo(redisAuthString);
     }
 
-
+    @Test
+    void generateToken() {
+        String token = tokenProvider.generateToken(new Member(2L));
+        System.out.println("token = " + token);
+    }
 }

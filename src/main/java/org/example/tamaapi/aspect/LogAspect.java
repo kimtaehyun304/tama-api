@@ -1,6 +1,5 @@
 package org.example.tamaapi.aspect;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Aspect
 @Component
-public class LogExecutionTimeAspect {
+public class LogAspect {
 
     @Around("@annotation(org.example.tamaapi.aspect.LogExecutionTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -24,5 +23,6 @@ public class LogExecutionTimeAspect {
             log.info("{} 실행 시간: {} ms", joinPoint.getSignature(), elapsed);
         }
     }
+
 
 }

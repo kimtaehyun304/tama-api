@@ -95,6 +95,8 @@ public class OrderApiController {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
         PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
+        log.info("주문 처리 중.. paymentId:{}, memberId:{}",paymentId, memberId);
+
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
         portOneService.validatePaymentStatus(paymentStatus);
@@ -113,7 +115,7 @@ public class OrderApiController {
                 portOneOrder.getUsedPoint(),
                 portOneOrder.getOrderItems()
         );
-
+        log.info("[Controller] 주문 저장 완료! paymentId:{}, memberId:{}",paymentId, memberId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
 
@@ -123,9 +125,10 @@ public class OrderApiController {
     @PostMapping("/api/orders/free/member")
     public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal Long memberId
             ,@RequestBody @Valid OrderRequest req) {
+        log.info("주문 처리 중.. memberId:{}", memberId);
         int orderItemsPrice = orderService.getOrderItemsPrice(req.getOrderItems());
 
-        orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
+        //orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
 
         orderService.saveMemberFreeOrder(
                 memberId,
@@ -139,6 +142,7 @@ public class OrderApiController {
                 req.getUsedPoint(),
                 req.getOrderItems()
         );
+        log.info("주문 저장 완료! memberId:{}", memberId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
 
@@ -149,6 +153,7 @@ public class OrderApiController {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
         PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
+        log.info("주문 처리 중.. paymentId:{}", paymentId);
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
         portOneService.validatePaymentStatus(paymentStatus);
@@ -168,6 +173,7 @@ public class OrderApiController {
         );
 
         emailService.sendGuestOrderEmailAsync(portOneOrder.getSenderEmail(), portOneOrder.getSenderNickname(), newOrderId);
+        log.info("주문 저장 완료! paymentId:{}", paymentId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
     }
 
