@@ -57,11 +57,9 @@ public class AuthenticationApiController {
     }
 
     @GetMapping("/api/isAdmin")
-    public ResponseEntity<IsAdminResponse> isAdmin(Principal principal) {
-        if (principal == null)
+    public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal Long memberId) {
+        if (memberId == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
-
-        Long memberId = Long.parseLong(principal.getName());
 
         Authority authority = memberRepository.findAuthorityById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));

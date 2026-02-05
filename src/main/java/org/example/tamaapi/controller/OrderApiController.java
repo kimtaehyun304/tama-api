@@ -179,15 +179,15 @@ public class OrderApiController {
 
     //멤버 주문 취소
     @PutMapping("/api/orders/member/cancel")
-    public ResponseEntity<SimpleResponse> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal CustomPrincipal principal) {
-        if (principal == null)
+    public ResponseEntity<SimpleResponse> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal Long memberId) {
+        if (memberId == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
         //사용자가 주문 취소 사유를 입력하도록 변경 필요
         if(cancelMemberOrderRequest.getIsFreeOrder())
-            orderService.cancelMemberFreeOrder(cancelMemberOrderRequest.getOrderId(),principal.getMemberId());
+            orderService.cancelMemberFreeOrder(cancelMemberOrderRequest.getOrderId(), memberId);
         else
-            orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), principal.getMemberId(), "구매자 취소 요청");
+            orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), memberId, "구매자 취소 요청");
 
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
     }
