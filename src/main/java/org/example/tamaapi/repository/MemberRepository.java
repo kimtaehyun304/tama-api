@@ -25,5 +25,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m.authority from Member m where m.id = :memberId")
     Optional<Authority> findAuthorityById(Long memberId);
 
+    List<Member> findAllByIdBetween(Long start, Long end);
 
 }

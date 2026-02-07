@@ -20,8 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.example.tamaapi.util.ErrorMessageUtil.NOT_AUTHENTICATED;
-import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
+import static org.example.tamaapi.util.ErrorMessageUtil.*;
 
 @Component
 @Aspect
@@ -38,9 +37,9 @@ public class PreAuthenticationAspect {
         // 현재 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        //헤더에 토큰 첨부안하면 null
-        if (authentication.getPrincipal() == null)
-            throw new UnauthorizedException(NOT_AUTHENTICATED);
+        //인증 객체는 기본값으로 저걸 가짐 (필터에서 할당 안한 경우)
+        if (authentication.getPrincipal().equals("anonymousUser"))
+            throw new UnauthorizedException(NO_ACCESS_TOKEN);
 
         Long memberId = (Long) authentication.getPrincipal();
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));

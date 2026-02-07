@@ -56,7 +56,7 @@ public class AuthenticationApiController {
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }
 
-    @GetMapping("/api/isAdmin")
+    @GetMapping("/api/auth/isAdmin")
     public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal Long memberId) {
         if (memberId == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");

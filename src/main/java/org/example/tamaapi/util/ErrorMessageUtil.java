@@ -20,6 +20,7 @@ public class ErrorMessageUtil {
    public static String INVALID_HEADER = "유효하지 않은 헤더 또는 양식입니다";
    public static String NOT_AUTHENTICATED = "인증되지 않았습니다";
 
+   public static String NO_ACCESS_TOKEN = "엑세스 토큰이 첨부되지 않았습니다";
    public static String ACCESS_DENIED = "접근 권한이 없습니다";
 
 }

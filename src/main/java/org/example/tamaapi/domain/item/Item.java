@@ -53,7 +53,7 @@ public class Item extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String description;
 
     @Column(nullable = false)
@@ -72,7 +72,7 @@ public class Item extends BaseEntity {
     @Column(nullable = false)
     private String textile;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String precaution;
 
     @OneToMany(mappedBy = "item")

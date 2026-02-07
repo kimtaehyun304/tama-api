@@ -16,6 +16,7 @@ import org.example.tamaapi.dto.responseDto.SimpleResponse;
 import org.example.tamaapi.dto.responseDto.member.MemberOrderSetUpResponse;
 import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
+import org.example.tamaapi.repository.order.query.dto.AdminSalesResponse;
 import org.example.tamaapi.repository.order.query.dto.GuestOrderResponse;
 import org.example.tamaapi.repository.order.query.dto.MemberOrderResponse;
 import org.example.tamaapi.exception.MyBadRequestException;
@@ -92,6 +93,8 @@ public class OrderApiController {
     //멤버 주문 저장
     @PostMapping("/api/orders/member")
     public ResponseEntity<SimpleResponse> saveMemberOrder(@RequestParam String paymentId, @AuthenticationPrincipal Long memberId) {
+        if (memberId == null)
+            throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
         PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
@@ -237,6 +240,12 @@ public class OrderApiController {
         return orderQueryRepository.findAdminOrdersWithPaging(customPageRequest);
     }
 
+    @GetMapping("/api/orders/sales")
+    //@PreAuthentication
+    //@PreAuthorize("hasRole('ADMIN')")
+    public AdminSalesResponse sales() {
+        return orderQueryRepository.findAdminSales();
+    }
 
 
 }

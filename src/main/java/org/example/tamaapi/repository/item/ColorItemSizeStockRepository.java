@@ -15,4 +15,6 @@ public interface ColorItemSizeStockRepository extends JpaRepository<ColorItemSiz
 
     List<ColorItemSizeStock> findAllByColorItemIdIn(List<Long> colorItemIds);
 
+    List<ColorItemSizeStock> findAllByColorItemIdBetween(Long start, Long end);
+
 }

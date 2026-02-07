@@ -3,7 +3,10 @@ package org.example.tamaapi.repository.order.query;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.dto.UploadFile;
@@ -15,12 +18,17 @@ import org.example.tamaapi.repository.item.ColorItemImageRepository;
 import org.example.tamaapi.service.OrderService;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 
+import static java.time.LocalTime.now;
 import static org.example.tamaapi.domain.item.QColor.color;
 import static org.example.tamaapi.domain.item.QColorItem.colorItem;
 import static org.example.tamaapi.domain.item.QColorItemSizeStock.colorItemSizeStock;
@@ -40,6 +48,7 @@ public class OrderQueryRepository {
     private final JPAQueryFactory queryFactory;
     private final OrderService orderService;
     private final MemberCouponRepository memberCouponRepository;
+    private final EntityManager em;
 
     //★주문 조회 자식 컬렉션(공용) & 멤버 주문 조회 때문에 리뷰 조인
     private Map<Long, List<OrderItemResponse>> findOrdersChildrenMap(List<Long> orderIds){
@@ -62,7 +71,7 @@ public class OrderQueryRepository {
         return children.stream().collect(Collectors.groupingBy(OrderItemResponse::getOrderId));
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------
+
     //★멤버 주문 조회
     public CustomPage<MemberOrderResponse> findMemberOrdersWithPaging(CustomPageRequest customPageRequest, Long memberId){
         List<MemberOrderResponse> content = queryFactory.select(new QMemberOrderResponse(order))
@@ -83,7 +92,7 @@ public class OrderQueryRepository {
         return new CustomPage<>(content, customPageRequest, count);
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------
+
     public Optional<GuestOrderResponse> findGuestOrder(Long orderId){
         GuestOrderResponse guestOrderResponse = queryFactory.select(new QGuestOrderResponse(order))
                 .from(order).join(order.delivery, delivery).fetchJoin().join(order.orderItems, orderItem).fetchJoin()
@@ -94,7 +103,7 @@ public class OrderQueryRepository {
         guestOrderResponse.setOrderItems(childrenMap.get(orderId));
         return Optional.of(guestOrderResponse);
     }
-    //-------------------------------------------------------------------------------------------------------------------------------
+
     public CustomPage<AdminOrderResponse> findAdminOrdersWithPaging(CustomPageRequest customPageRequest){
         List<AdminOrderResponse> content = queryFactory.select(new QAdminOrderResponse(order, member.nickname)).from(order)
                 .join(order.delivery, delivery).fetchJoin().join(order.member, member)
@@ -112,4 +121,38 @@ public class OrderQueryRepository {
         return new CustomPage<>(content, customPageRequest, count);
     }
 
+    //-------------------------------------------------------------------------------------------------------------------------------
+
+    public AdminSalesResponse findAdminSales(){
+        //2026-01-01 00:00:00
+        //LocalDateTime startOfLastMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1).atStartOfDay();
+        LocalDateTime start = LocalDate.of(2023,1,1).atStartOfDay();
+
+        LocalDateTime end = start.plusMonths(1);
+
+        //DATE()는 java.util.date를 반환해서 이렇게 해야함
+        DateTemplate<Date> today = Expressions.dateTemplate(Date.class, "DATE({0})", order.createdAt);
+        //이렇게하면 argument mismatch
+        //DateTemplate<LocalDate> today = Expressions.dateTemplate(LocalDate.class, "DATE({0})", order.createdAt);
+
+        //이번달의 날마다 매출, 주문수
+        List<AdminMonthSalesResponse> monthSales = queryFactory
+                .select(new QAdminMonthSalesResponse(today, order.count(), orderItem.orderPrice.subtract(order.usedCouponPrice).subtract(order.usedPoint).sum()))
+                .from(order).join(order.orderItems, orderItem)
+                .where(order.createdAt.goe(start), order.createdAt.lt(end))
+                .groupBy(today)
+                .orderBy(new OrderSpecifier<>(Order.ASC, today))
+                .fetch();
+
+        //카테고리별 매출
+        List<AdminCategorySalesResponse> categorySales = queryFactory
+                .select(new QAdminCategorySalesResponse(item.category.name, order.count(), orderItem.orderPrice.subtract(order.usedCouponPrice).subtract(order.usedPoint).sum()))
+                .from(orderItem).join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)
+                .join(orderItem.order, order)
+                .where(order.createdAt.goe(start), order.createdAt.lt(end))
+                .groupBy(item.category.name)
+                .fetch();
+
+       return new AdminSalesResponse(monthSales, categorySales);
+    }
 }

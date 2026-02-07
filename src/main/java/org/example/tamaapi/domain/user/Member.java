@@ -46,7 +46,6 @@ public class Member extends BaseEntity {
 
     private Integer weight;
 
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Provider provider;
@@ -56,7 +55,7 @@ public class Member extends BaseEntity {
     private Authority authority;
 
     @OneToMany(mappedBy = "member")
-    private List<MemberAddress> addresses= new ArrayList<>();
+    private List<MemberAddress> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();

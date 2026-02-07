@@ -37,6 +37,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -56,6 +57,7 @@ public class Init {
     public void init() {
         String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto");
 
+        //메서드 한번 거쳐서 호출해야함. initMember()이렇게 하면 npe 남
         if (!ddlAuto.equals("none")) {
             initService.initCommon();
             initService.initBigData();
@@ -68,7 +70,7 @@ public class Init {
     @Component
     @Transactional
     @RequiredArgsConstructor
-    static class InitService {
+    public static class InitService {
 
         private final ColorItemSizeStockRepository colorItemSizeStockRepository;
         private final CategoryRepository categoryRepository;
@@ -91,6 +93,8 @@ public class Init {
         private final CouponRepository couponRepository;
         private final MemberCouponRepository memberCouponRepository;
         private final OrderService orderService;
+
+
         /*
         private void crawlItem(){
 
@@ -423,21 +427,86 @@ public class Init {
                     .height(160).weight(50).gender(Gender.MALE).point(1000000).build();
             memberRepository.save(OAUTH2_MEMBER);
 
-            //체험 계정으로 제공
+            //(체험 계정)
             Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
                     .email("burnaby033@naver.com").phone("01011111113").password(password).nickname("박유빈")
                     .height(170).weight(60).gender(Gender.FEMALE).point(1000000).build();
             memberRepository.save(ORIGINAL_MEMBER);
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("hayoon.choi@tama.com").phone("01011111114").password(password).nickname("최하윤")
+                    .height(168).weight(57).gender(Gender.FEMALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("seohyun.jung@tama.com").phone("01011111115").password(password).nickname("정서현")
+                    .height(175).weight(72).gender(Gender.MALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("sua.kang@tama.com").phone("01011111116").password(password).nickname("강수아")
+                    .height(160).weight(50).gender(Gender.FEMALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("jimin.jo@tama.com").phone("01011111117").password(password).nickname("조지민")
+                    .height(178).weight(75).gender(Gender.MALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("yujin.yoon@tama.com").phone("01011111118").password(password).nickname("윤유진")
+                    .height(166).weight(54).gender(Gender.FEMALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("chaewon.jang@tama.com").phone("01011111119").password(password).nickname("장채원")
+                    .height(163).weight(53).gender(Gender.FEMALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("hyejin.kim@tama.com").phone("01011111120").password(password).nickname("김혜진")
+                    .height(167).weight(56).gender(Gender.FEMALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("taeho.lee@tama.com").phone("01011111121").password(password).nickname("이태호")
+                    .height(180).weight(78).gender(Gender.MALE).point(0).build());
+
+            memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
+                    .email("soobin.park@tama.com").phone("01011111122").password(password).nickname("박수빈")
+                    .height(164).weight(53).gender(Gender.FEMALE).point(0).build());
+
+
         }
 
         private void initMemberAddress() {
             List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
-
+            /*
             memberService.saveMemberAddress(members.get(0).getId(), "우리집", members.get(0).getNickname(), members.get(0).getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
             memberService.saveMemberAddress(members.get(0).getId(), "회사", members.get(0).getNickname(), members.get(0).getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
 
             memberService.saveMemberAddress(members.get(1).getId(), "우리집", members.get(1).getNickname(), members.get(1).getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
             memberService.saveMemberAddress(members.get(1).getId(), "회사", members.get(1).getNickname(), members.get(1).getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
+            */
+            memberService.saveMemberAddress(members.get(2).getId(), "우리집", members.get(2).getNickname(), members.get(2).getPhone(), "34126", "대전 유성구 대학로 99 (궁동)", "203호");
+            memberService.saveMemberAddress(members.get(2).getId(), "회사", members.get(2).getNickname(), members.get(2).getPhone(), "34036", "대전 유성구 엑스포로 1 (도룡동)", "연구동 5층");
+
+            memberService.saveMemberAddress(members.get(3).getId(), "우리집", members.get(3).getNickname(), members.get(3).getPhone(), "48058", "부산 해운대구 센텀중앙로 97 (재송동)", "105동 1802호");
+            memberService.saveMemberAddress(members.get(3).getId(), "회사", members.get(3).getNickname(), members.get(3).getPhone(), "47281", "부산 부산진구 중앙대로 708 (부전동)", "10층");
+
+            memberService.saveMemberAddress(members.get(4).getId(), "우리집", members.get(4).getNickname(), members.get(4).getPhone(), "35242", "대구 북구 대학로 80 (산격동)", "원룸 302호");
+            memberService.saveMemberAddress(members.get(4).getId(), "회사", members.get(4).getNickname(), members.get(4).getPhone(), "41968", "대구 중구 동성로 2 (동성로2가)", "상가 4층");
+
+            memberService.saveMemberAddress(members.get(5).getId(), "우리집", members.get(5).getNickname(), members.get(5).getPhone(), "61475", "광주 북구 용봉로 77 (용봉동)", "101동 904호");
+            memberService.saveMemberAddress(members.get(5).getId(), "회사", members.get(5).getNickname(), members.get(5).getPhone(), "61945", "광주 서구 상무중앙로 7 (치평동)", "비즈니스센터 6층");
+
+            memberService.saveMemberAddress(members.get(6).getId(), "우리집", members.get(6).getNickname(), members.get(6).getPhone(), "16456", "경기 수원시 영통구 광교중앙로 145 (이의동)", "A동 1501호");
+            memberService.saveMemberAddress(members.get(6).getId(), "회사", members.get(6).getNickname(), members.get(6).getPhone(), "16229", "경기 용인시 기흥구 흥덕중앙로 120 (영덕동)", "지식산업센터 7층");
+
+            memberService.saveMemberAddress(members.get(7).getId(), "우리집", members.get(7).getNickname(), members.get(7).getPhone(), "28177", "충북 청주시 흥덕구 강서로 122 (강서동)", "102동 1103호");
+            memberService.saveMemberAddress(members.get(7).getId(), "회사", members.get(7).getNickname(), members.get(7).getPhone(), "28501", "충북 청주시 상당구 상당로 82 (북문로2가)", "사무실 3층");
+
+            memberService.saveMemberAddress(members.get(8).getId(), "우리집", members.get(8).getNickname(), members.get(8).getPhone(), "54901", "전북 전주시 덕진구 백제대로 567 (금암동)", "원룸 201호");
+            memberService.saveMemberAddress(members.get(8).getId(), "회사", members.get(8).getNickname(), members.get(8).getPhone(), "54896", "전북 전주시 완산구 홍산로 249 (효자동3가)", "업무동 5층");
+
+            memberService.saveMemberAddress(members.get(9).getId(), "우리집", members.get(9).getNickname(), members.get(9).getPhone(), "51767", "경남 창원시 성산구 중앙대로 151 (중앙동)", "110동 702호");
+            memberService.saveMemberAddress(members.get(9).getId(), "회사", members.get(9).getNickname(), members.get(9).getPhone(), "51522", "경남 창원시 의창구 원이대로 320 (대원동)", "사무동 9층");
+
+            memberService.saveMemberAddress(members.get(10).getId(), "우리집", members.get(10).getNickname(), members.get(10).getPhone(), "63092", "제주특별자치도 제주시 중앙로 14 (삼도이동)", "주택 1층");
+            memberService.saveMemberAddress(members.get(10).getId(), "회사", members.get(10).getNickname(), members.get(10).getPhone(), "63566", "제주특별자치도 제주시 첨단로 213-65 (영평동)", "연구동 2층");
         }
 
         private void initCoupon() {
@@ -739,8 +808,120 @@ public class Init {
             jdbcTemplateRepository.saveColorItemImages(colorItemImages);
         }
 
+        //5만개 가능
+        private void initManyRandomOrder(int ORDER_COUNT) {
+            log.info("initManyRandomOrder 실행 중");
+
+            SecureRandom secureRandom = new SecureRandom();
+            
+            //상품 pk 범위
+            int minItemId = 200009;
+            int maxItemId = 200020;
+
+            int minOrderCount = 40;
+            int maxOrderCount = 130;
+
+            int minMemberId = 3;
+            int maxMemberId = 36;
+
+            //영속성 컨텍스트 올리기
+            List<ColorItemSizeStock> foundColorItemSizeStocks = colorItemSizeStockRepository.findAllByColorItemIdBetween((long) minItemId, (long) maxItemId);
+            List<Member> members = memberRepository.findAllByIdBetween((long) minMemberId, (long) maxMemberId);
+            //key:memberId, value:this
+            Map<Long, MemberAddress> memberAddressMap = memberAddressRepository.findAllByIsDefault(true).stream().collect(Collectors.toMap(
+                                    ma -> ma.getMember().getId(), ma -> ma
+            ));
+
+            List<Order> orders = new ArrayList<>();
+            List<OrderItem> batchOrderItems = new ArrayList<>();
+            List<Delivery> deliveries = new ArrayList<>();
+
+            LocalDateTime orderDate = LocalDate.now().atStartOfDay();
+            for(int i=0; i<50000; i++){
+                int todayRandOrderCount = secureRandom.nextInt(maxOrderCount - minOrderCount + 1) + minOrderCount;
+
+                //하루 주문 생성
+                for(int j=0; j<todayRandOrderCount; j++){
+                    List<OrderItem> orderItems = new ArrayList<>();
+                    Long randMemberId = (long) (secureRandom.nextInt(maxMemberId - minMemberId + 1) + minMemberId);
+                    Member member = memberRepository.findById(randMemberId).get();
+                
+                    Long randStockId = (long) (secureRandom.nextInt(maxItemId - minItemId + 1) + minItemId);
+                    ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(randStockId).get();
+
+                    MemberAddress memberAddress = memberAddressMap.get(randMemberId);
+                    OrderRequest req = new OrderRequest(UUID.randomUUID().toString(), null, null,
+                            memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
+                            , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
+                            List.of(
+                                    new OrderItemRequest(randStockId, 1)
+                            ));
+
+                    //배송 엔티티 생성
+                    Delivery delivery = new Delivery(req.getZipCode(), req.getStreetAddress(), req.getDetailAddress(), req.getDeliveryMessage()
+                            , req.getReceiverNickname(), req.getReceiverPhone());
+
+                    int minNextOrderWaitTime = 5;
+                    int maxNextOrderWaitTime = 10;
+                    int nextOrderWaitTime = secureRandom.nextInt(maxNextOrderWaitTime - minNextOrderWaitTime + 1) + minNextOrderWaitTime;
+                    orderDate = orderDate.plusMinutes(nextOrderWaitTime);
+                    delivery.setCreatedAt(orderDate);
+                    delivery.setUpdatedAt(orderDate);
+                    deliveries.add(delivery);
+
+                    //orderItems 엔티티 생성
+                    for (OrderItemRequest orderItemRequest : req.getOrderItems()) {
+                        //가격 변동 or 할인 쿠폰 고려
+                        Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+                        int orderPrice = nowPrice;
+
+                        OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice)
+                                .count(orderItemRequest.getOrderCount()).build();
+                        batchOrderItems.add(orderItem);
+                        orderItems.add(orderItem);
+                    }
+
+                    //주문 엔티티 생성
+                    Order order = Order.createMemberOrder(req.getPaymentId(), member, delivery, null, 0, 0, 0, orderItems);
+                    order.setCreatedAt(orderDate);
+                    order.setUpdatedAt(orderDate);
+                    orders.add(order);
+                }
+
+                //아웃 오브 메모리 방지를 위해 저장후 clear
+                if(i % 100000 == 0){
+                    jdbcTemplateRepository.saveDeliveries(deliveries);
+                    ///key:createdAt, value:deliveryId
+                    Map<LocalDateTime, Long> deliveryMap = deliveryRepository.findAll().stream()
+                            .collect(Collectors.toMap(BaseEntity::getCreatedAt, Delivery::getId
+                            ));
+
+                    for (Delivery delivery : deliveries)
+                        delivery.setIdByBatchId(deliveryMap.get(delivery.getCreatedAt()));
+
+                    jdbcTemplateRepository.saveOrders(orders);
+                    ///key:createdAt, value:deliveryId
+                    Map<LocalDateTime, Long> foundOrderIdMap = orderRepository.findAll().stream()
+                            .collect(Collectors.toMap(
+                                    BaseEntity::getCreatedAt, Order::getId
+                            ));
+                    for (Order order : orders)
+                        order.setIdByBatchId(foundOrderIdMap.get(order.getCreatedAt()));
+
+                    jdbcTemplateRepository.saveOrderItems(batchOrderItems);
+                    deliveries.clear();
+                    batchOrderItems.clear();
+                    orders.clear();
+                }
+
+            }
+
+        }
+
+
         private void initManyOrder(int ORDER_COUNT) {
             log.info("initManyOrder 실행 중");
+
             List<ColorItemSizeStock> foundColorItemSizeStocks = colorItemSizeStockRepository.findAll();
 
             List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
