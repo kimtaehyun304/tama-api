@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ColorItemSizeStockRepository extends JpaRepository<ColorItemSizeStock, Long> {
 
@@ -15,6 +16,9 @@ public interface ColorItemSizeStockRepository extends JpaRepository<ColorItemSiz
 
     List<ColorItemSizeStock> findAllByColorItemIdIn(List<Long> colorItemIds);
 
+    //-------테스트 용
     List<ColorItemSizeStock> findAllByColorItemIdBetween(Long start, Long end);
+
+
 
 }

@@ -58,12 +58,15 @@ public class Init {
     public void init() {
         String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto");
 
+        //initService.initBigData();
+
+        /*
         //메서드 한번 거쳐서 호출해야함. initMember()이렇게 하면 npe 남
         if (!ddlAuto.equals("none")) {
             //initService.initCommon();
             initService.initBigData();
         }
-
+        */
         //캐시 메모리에 올려두는 거라 매번 초기화 해야함
         initService.initBestItemCache();
     }
@@ -143,7 +146,7 @@ public class Init {
             //initManyItem(100000);
             //initMember();
             //initMemberAddress();
-            //initManyRandomOrder();
+            initManyRandomOrder();
             initManyReview();
         }
 

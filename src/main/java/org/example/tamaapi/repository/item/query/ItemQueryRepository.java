@@ -28,6 +28,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import static org.example.tamaapi.domain.item.QColor.*;
 import static org.example.tamaapi.domain.item.QColorItem.colorItem;
 import static org.example.tamaapi.domain.item.QColorItemSizeStock.colorItemSizeStock;
 import static org.example.tamaapi.domain.item.QItem.*;
+import static org.example.tamaapi.domain.order.QOrder.order;
 import static org.example.tamaapi.domain.order.QOrderItem.orderItem;
 import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.util.StringUtils.hasText;
@@ -147,13 +150,18 @@ public class ItemQueryRepository {
     //★카테고리 베스트 아이템 (인기 상품 조회)
     //SQL SUM 함수 때문에 느려서 캐시 사용
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
+
+        LocalDateTime start = LocalDate.now().minusDays(1).atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
                         (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.originalPrice, item.nowPrice)).from(orderItem)
                 .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)
-                .where(categoryIdIn(categoryIds))
+                .leftJoin(orderItem.order, order)
+                .where(categoryIdIn(categoryIds), order.createdAt.goe(start), order.createdAt.lt(end))
                 .groupBy(colorItem.id)
                 .orderBy(orderItem.count.sum().desc())
-                .offset((long) (customPageRequest.getPage() - 1) *customPageRequest.getSize())
+                .offset((long) (customPageRequest.getPage() - 1) * customPageRequest.getSize())
                 .limit(customPageRequest.getSize())
                 .fetch();
 
@@ -183,6 +191,7 @@ public class ItemQueryRepository {
 
 
     //이상 없지만, IDE 에러 없애려고 cast 적용
+    //모든 사이즈 주문을 포함해야해서 colorItem.id로 그루핑
     private List<CategoryBestItemReviewQueryDto> findAvgRatingsCountInColorItemId(List<Long> colorItemIds) {
         String jpql = """
             select new org.example.tamaapi.repository.item.query.dto.CategoryBestItemReviewQueryDto(
@@ -193,7 +202,7 @@ public class ItemQueryRepository {
             from Review r
                 join r.orderItem oi
                 join oi.colorItemSizeStock isk
-            where isk.id in :colorItemIds
+            where isk.colorItem.id in :colorItemIds
             group by isk.colorItem.id
             """;
 

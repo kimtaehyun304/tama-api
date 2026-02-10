@@ -3,6 +3,7 @@ package org.example.tamaapi.service;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.domain.user.MemberAddress;
 import org.example.tamaapi.domain.user.coupon.CouponType;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Authority;
@@ -16,10 +17,12 @@ import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.dto.PortOneOrder;
 import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
 
+import org.example.tamaapi.dto.requestDto.order.OrderRequest;
 import org.example.tamaapi.exception.UsedPaymentIdException;
 import org.example.tamaapi.exception.OrderFailException;
 import org.example.tamaapi.exception.WillCancelPaymentException;
 import org.example.tamaapi.repository.JdbcTemplateRepository;
+import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
@@ -28,8 +31,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.example.tamaapi.util.ErrorMessageUtil.*;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_COUPON;
@@ -48,7 +53,9 @@ public class OrderService {
     private final PortOneService portOneService;
     private final ItemService itemService;
     private final MemberCouponRepository memberCouponRepository;
+    private final MemberAddressRepository memberAddressRepository;
     private final EntityManager em;
+
 
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;
@@ -443,7 +450,7 @@ public class OrderService {
             throw new OrderFailException("memberId가 누락됐습니다");
     }
 
-    //------------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------
 
     public void updateOrderStatusToCompleted(List<Long> orderIds) {
         int count = em.createQuery("update Order o set o.status = :completed, o.updatedAt = now() where o.id in :orderIds")
@@ -451,6 +458,53 @@ public class OrderService {
                 .setParameter("orderIds", orderIds)
                 .executeUpdate();
         log.info("{}건 자동 구매확정 처리 완료", count);
+    }
+
+    //------------------------------------------
+    public void saveTestOrder(){
+        SecureRandom secureRandom = new SecureRandom();
+
+        //상품 pk 범위
+        int minItemId = 400017;
+        int maxItemId = 400076;
+        Long randStockId = (long) (secureRandom.nextInt(maxItemId - minItemId + 1) + minItemId);
+
+        //1은 운영자 pk
+        int minMemberId = 2;
+        int maxMemberId = 12;
+        Long randMemberId = (long) (secureRandom.nextInt(maxMemberId - minMemberId + 1) + minMemberId);
+
+        ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(randStockId).get();
+        Member member = memberRepository.findById(randMemberId).get();
+        MemberAddress memberAddress = memberAddressRepository.findByMemberIdAndIsDefault(randMemberId, true).get();
+
+        OrderRequest req = new OrderRequest(UUID.randomUUID().toString(), null, null,
+                memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
+                , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
+                List.of(
+                        new OrderItemRequest(randStockId, 1)
+                ));
+
+        //배송 엔티티 생성
+        Delivery delivery = new Delivery(req.getZipCode(), req.getStreetAddress(), req.getDetailAddress(), req.getDeliveryMessage()
+                , req.getReceiverNickname(), req.getReceiverPhone());
+
+        List<OrderItem> batchOrderItems = new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (OrderItemRequest orderItemRequest : req.getOrderItems()) {
+            //가격 변동 or 할인 쿠폰 고려
+            Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+            int orderPrice = nowPrice;
+
+            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice)
+                    .count(orderItemRequest.getOrderCount()).build();
+            batchOrderItems.add(orderItem);
+            orderItems.add(orderItem);
+        }
+
+        Order order = Order.createMemberOrder(req.getPaymentId(), member, delivery, null, 0, 0, 0, orderItems);
+        jdbcTemplateRepository.saveOrderItems(batchOrderItems);
+        orderRepository.save(order);
     }
 
 }

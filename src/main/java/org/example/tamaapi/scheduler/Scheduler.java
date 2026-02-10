@@ -32,6 +32,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +50,9 @@ public class Scheduler {
     private final MemberCouponRepository memberCouponRepository;
     private final MemberRepository memberRepository;
     private final CouponRepository couponRepository;
+    private final OrderService orderService;
 
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul")
     private void saveBestItemCache(){
         CustomPageRequest customPageRequest = new CustomPageRequest(1,10);
 
@@ -69,6 +71,27 @@ public class Scheduler {
             List<CategoryBestItemQueryResponse> bestItems = itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
             cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
         }
+    }
+
+    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
+    private void saveTestOrder() throws InterruptedException {
+        SecureRandom secureRandom = new SecureRandom();
+
+        int minOrderCount = 40;
+        int maxOrderCount = 130;
+        int todayRandOrderCount = secureRandom.nextInt(maxOrderCount - minOrderCount + 1) + minOrderCount;
+
+        for(int i=0; i<todayRandOrderCount; i++){
+            orderService.saveTestOrder();
+            int minNextOrderWaitTime = 5;
+            int maxNextOrderWaitTime = 11;
+            int nextOrderWaitTime = secureRandom.nextInt(maxNextOrderWaitTime - minNextOrderWaitTime + 1) + minNextOrderWaitTime;
+
+            //마지막 시도는 굳이 안 기다려도 되서
+            if(i != todayRandOrderCount-1)
+                Thread.sleep(1000 * 60 * nextOrderWaitTime);
+        }
+
     }
 
     //사용하지 않는 이미지를 주기적으로 제거하려했는데, 이미지 수정할 때 비동기로 지워주면 됨!
