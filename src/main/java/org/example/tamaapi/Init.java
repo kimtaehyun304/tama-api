@@ -57,7 +57,7 @@ public class Init {
     @PostConstruct
     public void init() {
         String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto");
-
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
         //initService.initBigData();
 
         /*
@@ -816,7 +816,6 @@ public class Init {
             jdbcTemplateRepository.saveColorItemImages(colorItemImages);
         }
 
-
         private void initManyRandomOrder() {
             log.info("initManyRandomOrder 실행 중");
 
@@ -846,8 +845,8 @@ public class Init {
             List<Delivery> deliveries = new ArrayList<>();
 
             //ZoneId koreaZone = ZoneId.of("Asia/Seoul");
-            LocalDateTime orderDate = LocalDate.of(2022,11,19).atStartOfDay();
-            LocalDateTime today = LocalDate.now().atStartOfDay();
+            LocalDateTime orderDate = LocalDate.of(2023,1,1).atStartOfDay();
+            LocalDateTime today = LocalDate.now().atStartOfDay().plusDays(1);
             int totalOrderCount = 0;
 
             while (totalOrderCount <= 100000) {
@@ -908,9 +907,9 @@ public class Init {
                     orders.add(order);
                 }
 
-                //하루치 주문이 다 생성됐으므로 전날 시간으로 변경
-                orderDate = orderDate.minusDays(1).toLocalDate().atStartOfDay();
-                if(orderDate == today)
+                //하루치 주문이 다 생성됐으므로 다음날로
+                orderDate = orderDate.plusDays(1).toLocalDate().atStartOfDay();
+                if(orderDate.equals(today))
                     break;
                 totalOrderCount += todayRandOrderCount;
 
