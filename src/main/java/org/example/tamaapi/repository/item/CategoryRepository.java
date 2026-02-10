@@ -15,9 +15,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     //자식이 없는 것도 가져와야함 -> left join
     @Query("select c from Category c left join fetch c.children where c.id = :categoryId")
     Optional<Category> findWithChildrenById(Long categoryId);
+
     Optional<Category> findByName(String name);
 
     List<Category> findAllByParentIsNull();
-
 
 }

@@ -35,6 +35,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Base64;
 import java.util.Map;
 
@@ -243,8 +245,8 @@ public class OrderApiController {
     @GetMapping("/api/orders/sales")
     //@PreAuthentication
     //@PreAuthorize("hasRole('ADMIN')")
-    public AdminSalesResponse sales() {
-        return orderQueryRepository.findAdminSales();
+    public AdminSalesResponse sales(@RequestParam YearMonth yearMonth) {
+        return orderQueryRepository.findAdminSales(yearMonth);
     }
 
 

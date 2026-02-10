@@ -12,7 +12,6 @@ import java.util.Date;
 @Setter
 public class AdminMonthSalesResponse {
 
-
     private Date orderDate;
 
     private Long orderCount;

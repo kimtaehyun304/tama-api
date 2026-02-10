@@ -1,16 +1,18 @@
 package org.example.tamaapi.repository.order.query.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.tamaapi.domain.item.Category;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
-public class AdminCategorySalesResponse {
+public class ChildCategorySalesResponse {
+
+    @JsonIgnore
+    private String parentName;
 
     private String categoryName;
 
@@ -18,14 +20,12 @@ public class AdminCategorySalesResponse {
 
     private Integer orderTotal;
 
-    private List<ChildCategorySalesResponse> children;
-
     @QueryProjection
-    public AdminCategorySalesResponse(String categoryName, Long orderCount, Integer orderTotal) {
+    public ChildCategorySalesResponse(String parentName, String categoryName, Long orderCount, Integer orderTotal) {
+        this.parentName = parentName;
         this.categoryName = categoryName;
         this.orderCount = orderCount;
         this.orderTotal = orderTotal;
     }
-
 
 }

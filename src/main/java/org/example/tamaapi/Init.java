@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class Init {
 
         //메서드 한번 거쳐서 호출해야함. initMember()이렇게 하면 npe 남
         if (!ddlAuto.equals("none")) {
-            initService.initCommon();
+            //initService.initCommon();
             initService.initBigData();
         }
 
@@ -139,8 +140,10 @@ public class Init {
         }
 
         public void initBigData() {
-            initManyItem(100000);
-            initManyOrder(30000);
+            //initManyItem(100000);
+            //initMember();
+            //initMemberAddress();
+            //initManyRandomOrder();
             initManyReview();
         }
 
@@ -415,6 +418,7 @@ public class Init {
         }
 
         private void initMember() {
+            log.info("initMember 실행");
             String password = bCryptPasswordEncoder.encode("test");
 
             Member admin = Member.builder().provider(Provider.LOCAL).authority(Authority.ADMIN).email("admin@tama.com")
@@ -427,12 +431,12 @@ public class Init {
                     .height(160).weight(50).gender(Gender.MALE).point(1000000).build();
             memberRepository.save(OAUTH2_MEMBER);
 
-            //(체험 계정)
             Member ORIGINAL_MEMBER = Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
                     .email("burnaby033@naver.com").phone("01011111113").password(password).nickname("박유빈")
                     .height(170).weight(60).gender(Gender.FEMALE).point(1000000).build();
             memberRepository.save(ORIGINAL_MEMBER);
 
+            //(체험 계정)
             memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
                     .email("hayoon.choi@tama.com").phone("01011111114").password(password).nickname("최하윤")
                     .height(168).weight(57).gender(Gender.FEMALE).point(0).build());
@@ -468,19 +472,19 @@ public class Init {
             memberRepository.save(Member.builder().provider(Provider.LOCAL).authority(Authority.MEMBER)
                     .email("soobin.park@tama.com").phone("01011111122").password(password).nickname("박수빈")
                     .height(164).weight(53).gender(Gender.FEMALE).point(0).build());
-
-
+            log.info("initMember 종료");
         }
 
         private void initMemberAddress() {
+            log.info("initMemberAddress 실행");
             List<Member> members = memberRepository.findAllByAuthority(Authority.MEMBER);
-            /*
+
             memberService.saveMemberAddress(members.get(0).getId(), "우리집", members.get(0).getNickname(), members.get(0).getPhone(), "4756", "서울 성동구 마장로39나길 8 (마장동, (주)문일화학)", "연구소 1층");
             memberService.saveMemberAddress(members.get(0).getId(), "회사", members.get(0).getNickname(), members.get(0).getPhone(), "26454", "강원특별자치도 원주시 행구로 287 (행구동, 건영아파트)", "1동 101호");
 
             memberService.saveMemberAddress(members.get(1).getId(), "우리집", members.get(1).getNickname(), members.get(1).getPhone(), "23036", "인천 강화군 강화읍 관청리 89-1", "행복 빌라 101호");
             memberService.saveMemberAddress(members.get(1).getId(), "회사", members.get(1).getNickname(), members.get(1).getPhone(), "14713", "경기 부천시 소사구 송내동 303-5", "대룡타워 201호");
-            */
+
             memberService.saveMemberAddress(members.get(2).getId(), "우리집", members.get(2).getNickname(), members.get(2).getPhone(), "34126", "대전 유성구 대학로 99 (궁동)", "203호");
             memberService.saveMemberAddress(members.get(2).getId(), "회사", members.get(2).getNickname(), members.get(2).getPhone(), "34036", "대전 유성구 엑스포로 1 (도룡동)", "연구동 5층");
 
@@ -507,10 +511,11 @@ public class Init {
 
             memberService.saveMemberAddress(members.get(10).getId(), "우리집", members.get(10).getNickname(), members.get(10).getPhone(), "63092", "제주특별자치도 제주시 중앙로 14 (삼도이동)", "주택 1층");
             memberService.saveMemberAddress(members.get(10).getId(), "회사", members.get(10).getNickname(), members.get(10).getPhone(), "63566", "제주특별자치도 제주시 첨단로 213-65 (영평동)", "연구동 2층");
+            log.info("initMemberAddress 종료");
         }
 
         private void initCoupon() {
-                Coupon percentCoupon1 = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(1));
+            Coupon percentCoupon1 = new Coupon(CouponType.PERCENT_DISCOUNT, 10, LocalDate.now().plusYears(1));
             Coupon percentCoupon2 = new Coupon(CouponType.PERCENT_DISCOUNT, 20, LocalDate.now().plusYears(1));
             Coupon percentCoupon3 = new Coupon(CouponType.PERCENT_DISCOUNT, 30, LocalDate.now().plusYears(1));
 
@@ -808,44 +813,50 @@ public class Init {
             jdbcTemplateRepository.saveColorItemImages(colorItemImages);
         }
 
-        //5만개 가능
-        private void initManyRandomOrder(int ORDER_COUNT) {
+
+        private void initManyRandomOrder() {
             log.info("initManyRandomOrder 실행 중");
 
             SecureRandom secureRandom = new SecureRandom();
-            
+
             //상품 pk 범위
-            int minItemId = 200009;
-            int maxItemId = 200020;
+            int minItemId = 400017;
+            int maxItemId = 400076;
 
             int minOrderCount = 40;
             int maxOrderCount = 130;
 
-            int minMemberId = 3;
-            int maxMemberId = 36;
+            //1은 운영자 pk
+            int minMemberId = 2;
+            int maxMemberId = 12;
 
             //영속성 컨텍스트 올리기
             List<ColorItemSizeStock> foundColorItemSizeStocks = colorItemSizeStockRepository.findAllByColorItemIdBetween((long) minItemId, (long) maxItemId);
             List<Member> members = memberRepository.findAllByIdBetween((long) minMemberId, (long) maxMemberId);
             //key:memberId, value:this
             Map<Long, MemberAddress> memberAddressMap = memberAddressRepository.findAllByIsDefault(true).stream().collect(Collectors.toMap(
-                                    ma -> ma.getMember().getId(), ma -> ma
+                    ma -> ma.getMember().getId(), ma -> ma
             ));
 
             List<Order> orders = new ArrayList<>();
             List<OrderItem> batchOrderItems = new ArrayList<>();
             List<Delivery> deliveries = new ArrayList<>();
 
-            LocalDateTime orderDate = LocalDate.now().atStartOfDay();
-            for(int i=0; i<50000; i++){
+            //ZoneId koreaZone = ZoneId.of("Asia/Seoul");
+            LocalDateTime orderDate = LocalDate.of(2022,11,19).atStartOfDay();
+            LocalDateTime today = LocalDate.now().atStartOfDay();
+            int totalOrderCount = 0;
+
+            while (totalOrderCount <= 100000) {
                 int todayRandOrderCount = secureRandom.nextInt(maxOrderCount - minOrderCount + 1) + minOrderCount;
 
-                //하루 주문 생성
-                for(int j=0; j<todayRandOrderCount; j++){
+                //하루치 주문 생성
+                log.info("{} 주문은 {} 개입니다", orderDate, todayRandOrderCount);
+                for (int j = 0; j < todayRandOrderCount; j++) {
                     List<OrderItem> orderItems = new ArrayList<>();
                     Long randMemberId = (long) (secureRandom.nextInt(maxMemberId - minMemberId + 1) + minMemberId);
                     Member member = memberRepository.findById(randMemberId).get();
-                
+
                     Long randStockId = (long) (secureRandom.nextInt(maxItemId - minItemId + 1) + minItemId);
                     ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(randStockId).get();
 
@@ -861,15 +872,20 @@ public class Init {
                     Delivery delivery = new Delivery(req.getZipCode(), req.getStreetAddress(), req.getDetailAddress(), req.getDeliveryMessage()
                             , req.getReceiverNickname(), req.getReceiverPhone());
 
+                    //이렇게 해야 하루 안 넘김 60분 * 24 = 1440
+                    //(11분 * 130 주문 = 1430
+
                     int minNextOrderWaitTime = 5;
-                    int maxNextOrderWaitTime = 10;
+                    int maxNextOrderWaitTime = 11;
                     int nextOrderWaitTime = secureRandom.nextInt(maxNextOrderWaitTime - minNextOrderWaitTime + 1) + minNextOrderWaitTime;
+
                     orderDate = orderDate.plusMinutes(nextOrderWaitTime);
                     delivery.setCreatedAt(orderDate);
                     delivery.setUpdatedAt(orderDate);
                     deliveries.add(delivery);
 
                     //orderItems 엔티티 생성
+                    //테스트 데이터라 재고 감소 안 했음
                     for (OrderItemRequest orderItemRequest : req.getOrderItems()) {
                         //가격 변동 or 할인 쿠폰 고려
                         Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
@@ -883,39 +899,52 @@ public class Init {
 
                     //주문 엔티티 생성
                     Order order = Order.createMemberOrder(req.getPaymentId(), member, delivery, null, 0, 0, 0, orderItems);
+                    order.changeStatus(OrderStatus.COMPLETED);
                     order.setCreatedAt(orderDate);
                     order.setUpdatedAt(orderDate);
                     orders.add(order);
                 }
 
+                //하루치 주문이 다 생성됐으므로 전날 시간으로 변경
+                orderDate = orderDate.minusDays(1).toLocalDate().atStartOfDay();
+                if(orderDate == today)
+                    break;
+                totalOrderCount += todayRandOrderCount;
+
                 //아웃 오브 메모리 방지를 위해 저장후 clear
-                if(i % 100000 == 0){
-                    jdbcTemplateRepository.saveDeliveries(deliveries);
-                    ///key:createdAt, value:deliveryId
-                    Map<LocalDateTime, Long> deliveryMap = deliveryRepository.findAll().stream()
-                            .collect(Collectors.toMap(BaseEntity::getCreatedAt, Delivery::getId
-                            ));
-
-                    for (Delivery delivery : deliveries)
-                        delivery.setIdByBatchId(deliveryMap.get(delivery.getCreatedAt()));
-
-                    jdbcTemplateRepository.saveOrders(orders);
-                    ///key:createdAt, value:deliveryId
-                    Map<LocalDateTime, Long> foundOrderIdMap = orderRepository.findAll().stream()
-                            .collect(Collectors.toMap(
-                                    BaseEntity::getCreatedAt, Order::getId
-                            ));
-                    for (Order order : orders)
-                        order.setIdByBatchId(foundOrderIdMap.get(order.getCreatedAt()));
-
-                    jdbcTemplateRepository.saveOrderItems(batchOrderItems);
-                    deliveries.clear();
-                    batchOrderItems.clear();
-                    orders.clear();
-                }
-
+                if (orders.size() >= 10000)
+                    saveAndClear(deliveries, orders, batchOrderItems);
             }
 
+            // 마지막에 10000개가 쌓이지 못해서 saveAndClear가 동작을 안해서
+            if (!orders.isEmpty())
+                saveAndClear(deliveries, orders, batchOrderItems);
+        }
+
+        private void saveAndClear(List<Delivery> deliveries, List<Order> orders, List<OrderItem> batchOrderItems) {
+            log.info("리스트가 10,000개에 도달하여 저장 후 clear 합니다");
+            jdbcTemplateRepository.saveDeliveries(deliveries);
+            ///key:createdAt, value:deliveryId
+            Map<LocalDateTime, Long> deliveryMap = deliveryRepository.findAll().stream()
+                    .collect(Collectors.toMap(BaseEntity::getCreatedAt, Delivery::getId
+                    ));
+
+            for (Delivery delivery : deliveries)
+                delivery.setIdByBatchId(deliveryMap.get(delivery.getCreatedAt()));
+
+            jdbcTemplateRepository.saveOrders(orders);
+            ///key:createdAt, value:deliveryId
+            Map<LocalDateTime, Long> foundOrderIdMap = orderRepository.findAll().stream()
+                    .collect(Collectors.toMap(
+                            BaseEntity::getCreatedAt, Order::getId
+                    ));
+            for (Order order : orders)
+                order.setIdByBatchId(foundOrderIdMap.get(order.getCreatedAt()));
+
+            jdbcTemplateRepository.saveOrderItems(batchOrderItems);
+            deliveries.clear();
+            batchOrderItems.clear();
+            orders.clear();
         }
 
 
@@ -1031,38 +1060,152 @@ public class Init {
         private void initManyReview() {
             log.info("initManyReview 실행 중");
 
-            ArrayList<String> texts = new ArrayList<>(List.of(
-                    "원단이 부드럽고 착용감이 정말 좋아요.",
-                    "색상이 사진이랑 거의 똑같아서 만족합니다.",
-                    "생각보다 얇아서 여름에 입기 딱이에요.",
-                    "사이즈가 조금 작게 나온 것 같아요. 한 치수 크게 사세요.",
-                    "디자인이 예쁘고 마감도 깔끔합니다.",
-                    "빨아도 변형이 없어서 오래 입을 수 있을 것 같아요.",
-                    "겨울에 입기에는 조금 얇아서 아쉬워요.",
-                    "가격 대비 품질이 좋아서 추천합니다.",
-                    "재질이 탄탄해서 모양이 잘 잡혀요.",
-                    "배송이 빨랐고 포장도 깔끔했습니다."
-            ));
+            Map<String, Integer> reviewMap = new HashMap<>() {{
+                put("재질이 부드럽고 착용감이 좋아요", 5);          // 1
+                put("가격 대비 퀄리티가 만족스럽습니다", 5);        // 2
+                put("사이즈가 딱 맞아서 좋아요", 4);                // 3
+                put("색상이 화면이랑 거의 같아요", 4);              // 4
+                put("배송이 빨라서 좋았습니다", 5);                 // 5
+                put("마감이 깔끔해서 마음에 들어요", 5);            // 6
+                put("데일리로 입기 좋아요", 4);                     // 7
+                put("핏이 생각보다 예쁩니다", 5);                   // 8
+                put("세탁해도 변형이 거의 없어요", 5);              // 9
+                put("두께감이 적당해서 사계절용이에요", 4);          // 10
 
+                put("생각보다 얇아서 아쉬웠어요", 3);                // 11
+                put("사이즈가 조금 크게 나왔어요", 3);              // 12
+                put("색상이 약간 어둡게 느껴져요", 3);              // 13
+                put("무난한 디자인입니다", 4);                      // 14
+                put("출근룩으로 괜찮아요", 4);                      // 15
+                put("캐주얼하게 입기 좋아요", 4);                   // 16
+                put("가성비 좋은 상품이에요", 5);                   // 17
+                put("핏이 살짝 아쉽지만 괜찮아요", 3);              // 18
+                put("기본템으로 활용도 높아요", 5);                 // 19
+                put("레이어드하기 좋아요", 4);                      // 20
 
-            List<Review> reviews = new ArrayList<>();
+                put("생각보다 길이가 짧아요", 2);                    // 21
+                put("사이즈 교환했어요", 2);                        // 22
+                put("착용감은 괜찮은 편이에요", 3);                 // 23
+                put("사진보다 실물이 더 나아요", 5);                // 24
+                put("여름에 입기 시원해요", 5);                     // 25
+                put("겨울엔 단독으로는 추워요", 3);                 // 26
+                put("디자인이 깔끔해서 좋아요", 4);                 // 27
+                put("회사에서 입기 좋아요", 4);                     // 28
+                put("핏이 살짝 루즈해요", 3);                       // 29
+                put("전체적으로 만족합니다", 4);                   // 30
+
+                put("재구매 의사 있어요", 5);                       // 31
+                put("선물용으로 괜찮아요", 4);                      // 32
+                put("원단이 생각보다 좋아요", 5);                   // 33
+                put("가볍게 입기 좋아요", 4);                       // 34
+                put("활동하기 편합니다", 5);                        // 35
+                put("핏이 조금 애매해요", 2);                       // 36
+                put("디자인은 예쁜데 사이즈가 아쉬워요", 3);         // 37
+                put("무난무난한 스타일이에요", 3);                 // 38
+                put("색감이 예뻐요", 5);                            // 39
+                put("착용했을 때 편안해요", 5);                     // 40
+
+                put("원단이 생각보다 뻣뻣해요", 2);                 // 41
+                put("여유 있는 핏이라 좋아요", 4);                  // 42
+                put("몸에 잘 맞아요", 5);                          // 43
+                put("길이감이 딱 좋아요", 4);                       // 44
+                put("세탁 후 약간 줄었어요", 2);                    // 45
+                put("가격 생각하면 만족이에요", 4);                // 46
+                put("편하지만 디자인은 평범해요", 3);              // 47
+                put("계절감이 좋아요", 4);                          // 48
+                put("재질이 고급스러워 보여요", 5);                // 49
+                put("활용도가 높아요", 5);                          // 50
+
+                put("배송 포장이 깔끔했어요", 4);                  // 51
+                put("착용했을 때 라인이 예뻐요", 5);                // 52
+                put("기대 이상이었어요", 5);                       // 53
+                put("무난해서 손이 자주 가요", 4);                 // 54
+                put("사이즈 표 참고하길 잘했어요", 5);              // 55
+                put("단독으로 입기 좋아요", 4);                     // 56
+                put("레이어드용으로 좋아요", 4);                   // 57
+                put("조금 더 두꺼웠으면 좋겠어요", 3);              // 58
+                put("핏이 깔끔합니다", 5);                          // 59
+                put("기본 디자인이라 좋아요", 4);                  // 60
+
+                put("일상복으로 좋아요", 4);                        // 61
+                put("마감 처리가 괜찮아요", 4);                     // 62
+                put("가격이 합리적이에요", 5);                      // 63
+                put("살짝 비치는 편이에요", 2);                    // 64
+                put("촉감이 좋아요", 5);                           // 65
+                put("디자인이 심플해요", 4);                        // 66
+                put("편안한 착용감이에요", 5);                      // 67
+                put("출퇴근용으로 좋아요", 4);                      // 68
+                put("색상 선택 잘한 것 같아요", 5);                // 69
+                put("전체적으로 무난합니다", 3);                   // 70
+
+                put("가볍고 편해요", 5);                            // 71
+                put("핏이 예쁘게 떨어져요", 5);                     // 72
+                put("데일리 아이템으로 좋아요", 4);                // 73
+                put("재질이 생각보다 얇아요", 3);                   // 74
+                put("만족스러운 구매였습니다", 5);                  // 75
+                put("편하지만 특별하진 않아요", 3);                // 76
+                put("가격 대비 좋아요", 4);                        // 77
+                put("깔끔한 스타일이에요", 4);                     // 78
+                put("부담 없이 입기 좋아요", 5);                   // 79
+                put("전체적으로 괜찮은 상품이에요", 4);            // 80
+
+                put("핏이 살짝 크네요", 3);                         // 81
+                put("색상이 마음에 들어요", 5);                    // 82
+                put("착용감이 정말 좋아요", 5);                     // 83
+                put("기본으로 갖추기 좋아요", 4);                  // 84
+                put("재구매 할 것 같아요", 5);                     // 85
+                put("원단이 부드러워요", 5);                       // 86
+                put("무난해서 좋아요", 4);                          // 87
+                put("편하게 입기 좋아요", 5);                      // 88
+                put("가격 대비 만족도 높아요", 5);                  // 89
+                put("디자인이 깔끔합니다", 4);                     // 90
+
+                put("핏이 생각보다 괜찮아요", 4);                  // 91
+                put("데일리로 자주 입어요", 5);                    // 92
+                put("사이즈가 적당해요", 4);                        // 93
+                put("무난한 기본템이에요", 4);                     // 94
+                put("착용했을 때 편안합니다", 5);                  // 95
+                put("전체적으로 만족스러워요", 5);                  // 96
+                put("가격 대비 괜찮은 선택이에요", 4);              // 97
+                put("활용도가 높습니다", 5);                        // 98
+                put("기본으로 입기 좋아요", 4);                     // 99
+                put("다음에도 구매할게요", 5);                      // 100
+            }};
+
+            List<Map.Entry<String, Integer>> entries = new ArrayList<>(reviewMap.entrySet());
+            List<Review> batchReviews = new ArrayList<>();
             List<OrderItem> orderItems = orderItemRepository.findAllWithOrderWithMember();
 
-            LocalDateTime createdDate = LocalDateTime.parse("2020-01-01T00:00:00");
+            SecureRandom secureRandom = new SecureRandom();
+            int minOrderCount = 0;
+            int maxOrderCount = 99;
+
             for (OrderItem orderItem : orderItems) {
+                int randomInt = secureRandom.nextInt(maxOrderCount - minOrderCount + 1) + minOrderCount;
+                Map.Entry<String, Integer> selectedReview = entries.get(randomInt);
+
                 Review review = Review.builder().member(orderItem.getOrder().getMember())
                         .orderItem(orderItem)
-                        .rating(2)
-                        .comment(texts.get(0))
+                        .rating(selectedReview.getValue())
+                        .comment(selectedReview.getKey())
                         .build();
 
-                createdDate = createdDate.plusHours(1);
+                LocalDateTime createdDate = orderItem.getOrder().getCreatedAt().plusHours(1);
                 review.setCreatedAt(createdDate);
                 review.setUpdatedAt(createdDate);
-                reviews.add(review);
+                batchReviews.add(review);
+
+                //oom 방지
+                if (batchReviews.size() >= 10000) {
+                    log.info("리스트가 만개를 넘어 저장후 clear 합니다");
+                    jdbcTemplateRepository.saveReviews(batchReviews);
+                    batchReviews.clear();
+                }
             }
 
-            jdbcTemplateRepository.saveReviews(reviews);
+            //10000개 못넘어서 저장 한한 배치 저장
+            if (!batchReviews.isEmpty())
+                jdbcTemplateRepository.saveReviews(batchReviews);
         }
 
 
