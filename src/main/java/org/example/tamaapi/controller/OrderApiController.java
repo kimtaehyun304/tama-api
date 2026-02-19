@@ -133,7 +133,7 @@ public class OrderApiController {
         log.info("주문 처리 중.. memberId:{}", memberId);
         int orderItemsPrice = orderService.getOrderItemsPrice(req.getOrderItems());
 
-        //orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
+        orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
 
         orderService.saveMemberFreeOrder(
                 memberId,
