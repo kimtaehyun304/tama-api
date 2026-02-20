@@ -18,10 +18,10 @@
         </encoder>
     </appender>
 
-    <!-- 배포용 콘솔 (색상 제거 + yyyy만 출력) os syslog 자동으로 붙어서 yyyy만 필요 -->
+    <!-- 배포용 콘솔 (색상 제거) os syslog가 자동으로 붙지만 Feb 7 이런식으로 나와서 yyyy-mm-dd 추가-->
     <appender name="STDOUT_PROD" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy} [%thread] [%-3level] %logger{5} [%X{reqId}] %msg %n</pattern>
+            <pattern>%d{yyyy-mm-dd} [%thread] [%-3level] %logger{5} [%X{reqId}] %msg %n</pattern>
         </encoder>
     </appender>
 
