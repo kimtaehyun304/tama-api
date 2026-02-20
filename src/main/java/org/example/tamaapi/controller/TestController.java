@@ -21,7 +21,7 @@ public class TestController {
     private final ColorItemImageRepository colorItemImageRepository;
     private final PortOneService portOneService;
     private final ItemRepository itemRepository;
-
+    /*
     @PostMapping(value = "/api/v1/character")
     public void saveCharacter(@RequestBody CharacterCreateRequest request) {
         log.info("이름 : {}, 나이 : {}", request.getAge(), request.getName());
@@ -81,5 +81,5 @@ public class TestController {
         System.out.println("loginRequest.getPassword() = " + loginRequest.getPassword());
         return "OK";
     }
-
+    */
 }
