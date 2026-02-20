@@ -243,11 +243,10 @@ public class OrderApiController {
     }
 
     @GetMapping("/api/orders/sales")
-    //@PreAuthentication
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthentication
+    @PreAuthorize("hasRole('ADMIN')")
     public AdminSalesResponse sales(@RequestParam YearMonth yearMonth) {
         return orderQueryRepository.findAdminSales(yearMonth);
     }
-
 
 }
