@@ -7,50 +7,28 @@
     <property name="CONSOLE_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%thread]) %highlight([%-3level]) %logger{5} [%X{reqId}] %msg %n"/>
 
-    <property name="ROLLING_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %logger{5} [%X{reqId}] %msg %n"/>
-
-    <property name="FILE_NAME" value="./logs/tama.log"/>
-    <property name="LOG_NAME_PATTERN" value="./logs/tama-%d{yyyy-MM-dd}.%i.log"/>
-
-    <property name="MAX_FILE_SIZE" value="10MB"/>
-    <property name="TOTAL_SIZE" value="1000MB"/>
-    <property name="MAX_HISTORY" value="90"/>
-
     <!-- ===================== -->
     <!--        APPENDERS      -->
     <!-- ===================== -->
 
-    <!-- 콘솔 출력 -->
+    <!-- 기본 콘솔 (local 전용, 색상 포함) -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_PATTERN}</pattern>
         </encoder>
     </appender>
 
-    <!-- 파일 롤링 -->
-    <appender name="ROLLING_LOG_FILE"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${FILE_NAME}</file>
-
+    <!-- 배포용 콘솔 (색상 제거 + yyyy만 출력) os syslog 자동으로 붙어서 yyyy만 필요 -->
+    <appender name="STDOUT_PROD" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${ROLLING_PATTERN}</pattern>
+            <pattern>%d{yyyy} [%thread] [%-3level] %logger{5} [%X{reqId}] %msg %n</pattern>
         </encoder>
-
-        <rollingPolicy
-                class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_NAME_PATTERN}</fileNamePattern>
-            <maxHistory>${MAX_HISTORY}</maxHistory>
-            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
-            <totalSizeCap>${TOTAL_SIZE}</totalSizeCap>
-        </rollingPolicy>
     </appender>
 
     <!-- ===================== -->
     <!--        LOCAL PROFILE  -->
     <!-- ===================== -->
     <springProfile name="local">
-        <!-- 콘솔만 -->
         <root level="info">
             <appender-ref ref="STDOUT"/>
         </root>
@@ -62,17 +40,15 @@
     <!--     NON-LOCAL PROFILE -->
     <!-- ===================== -->
     <springProfile name="!local">
-        <!-- 콘솔 + 파일 -->
+
         <root level="info">
-            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="STDOUT_PROD"/>
             <!--aws beanstalk는 이미 s3에 로그 보관하니 파일로 안남겨도 됨 -->
-            <!--<appender-ref ref="ROLLING_LOG_FILE"/>-->
         </root>
 
-        <!-- 불필요한 SQL 로그 차단 -->
         <logger name="org.springframework.jdbc.core.JdbcTemplate" level="ERROR"/>
-
         <logger name="org.hibernate.SQL" level="ERROR"/>
+
     </springProfile>
 
 </configuration>

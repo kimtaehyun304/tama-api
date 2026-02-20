@@ -502,8 +502,8 @@ public class OrderService {
         }
 
         Order order = Order.createMemberOrder(req.getPaymentId(), member, delivery, null, 0, 0, 0, orderItems);
-        jdbcTemplateRepository.saveOrderItems(batchOrderItems);
         orderRepository.save(order);
+        jdbcTemplateRepository.saveOrderItems(batchOrderItems);
     }
 
 }
