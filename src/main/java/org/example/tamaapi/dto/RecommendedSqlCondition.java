@@ -41,6 +41,6 @@ public class RecommendedSqlCondition {
     @JsonIgnore
     private Boolean isContainSoldOut;
 
-    @JsonProperty("설명키워드")
+    @JsonProperty("설명 키워드")
     private List<String> descriptionKeywords;
 }

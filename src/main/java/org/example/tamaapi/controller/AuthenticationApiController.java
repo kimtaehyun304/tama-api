@@ -31,16 +31,16 @@ import java.security.Principal;
 public class AuthenticationApiController {
 
     private final MemberRepository memberRepository;
-    private final RedisCacheService redisCacheService;
+    private final CacheService cacheService;
     private final EmailService emailService;
 
     @PostMapping("/api/auth/access-token")
     public ResponseEntity<AccessTokenResponse> accessToken(@Valid @RequestBody MyTokenRequest tokenRequest) {
-        String accessToken = (String) redisCacheService.get(MyCacheType.SIGN_IN_TEMP_TOKEN, tokenRequest.getTempToken());
+        String accessToken = (String) cacheService.get(MyCacheType.SIGN_IN_TEMP_TOKEN, tokenRequest.getTempToken());
         if(!StringUtils.hasText(accessToken))
             throw new IllegalArgumentException("일치하는 accessToken이 없습니다.");
 
-        redisCacheService.evict(MyCacheType.SIGN_IN_TEMP_TOKEN, tokenRequest.getTempToken());
+        cacheService.evict(MyCacheType.SIGN_IN_TEMP_TOKEN, tokenRequest.getTempToken());
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
 
@@ -51,7 +51,7 @@ public class AuthenticationApiController {
         });
 
         String authString = RandomStringGenerator.generateRandomString(6);
-        redisCacheService.save(MyCacheType.SIGN_UP_AUTH_STRING, emailRequest.getEmail(), authString);
+        cacheService.save(MyCacheType.SIGN_UP_AUTH_STRING, emailRequest.getEmail(), authString);
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }

@@ -212,8 +212,6 @@ public class ItemQueryRepository {
         return query.getResultList();
     }
 
-
-    @LogExecutionTime
     public List<RecommendedItemQueryResponse> findRecommendedItem(RecommendedSqlCondition sc) {
         //4개가 모바일 화면에 적당함
         CustomPageRequest customPageRequest = new CustomPageRequest(1, 4);
@@ -240,14 +238,12 @@ public class ItemQueryRepository {
         return categoryBestItemQueryResponses;
     }
 
-    // (a) or (b) or (c)
+    //유연한 검색을 위해 or도 섞음
+    // (a) or (b) and (c)
     // c는 (q) and (w) and (e) 구조
     // BooleanExpression은 a.or(b) 할때 a가 null 이면 npe 발생해서 안 됨
     private BooleanBuilder recommendCondition(RecommendedSqlCondition sc) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.or(descriptionContains(sc.getDescriptionKeywords()));
-        builder.or(yearSeasonContains(sc.getSeasonKeyword()));
-
         BooleanBuilder builder2 = new BooleanBuilder();
         builder2.and(categoryNameLike(sc.getCategoryNames()));
         builder2.and(minPriceGoe(sc.getMinPrice()));
@@ -255,7 +251,14 @@ public class ItemQueryRepository {
         builder2.and(colorNameLike(sc.getColorNames()));
         builder2.and(genderIn(sc.getGenders()));
         builder2.and(isContainSoldOut(sc.getIsContainSoldOut()));
-        return builder.or(builder2);
+
+        //한번에 구조 보이는 게 안 헷갈림
+        //descriptionContains가 or 연산이라 뒤를 or로 연결하면 괄호로 묵이는 문제 발생
+        //그래서 or을 맨뒤에 뒀음
+        builder.and(descriptionContains(sc.getDescriptionKeywords()));
+        builder.and(builder2);
+        builder.or(yearSeasonContains(sc.getSeasonKeyword()));
+        return builder;
     }
 
     //--------------------------------------------------------------------------------------------------------------------------------------------------------

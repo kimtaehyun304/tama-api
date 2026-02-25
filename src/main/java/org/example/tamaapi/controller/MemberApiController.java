@@ -47,7 +47,7 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 public class MemberApiController {
 
     private final MemberRepository memberRepository;
-    private final RedisCacheService redisCacheService;
+    private final CacheService cacheService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
@@ -58,7 +58,7 @@ public class MemberApiController {
     @PostMapping("/api/member/new")
     public ResponseEntity<SimpleResponse> signUp(@Valid @RequestBody SignUpMemberRequest request) {
         memberService.validateIsExists(request.getEmail(), request.getPhone());
-        String authString = (String) redisCacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
+        String authString = (String) cacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         if (!StringUtils.hasText(authString))
             throw new IllegalArgumentException("유효하지 않는 인증문자");
@@ -66,7 +66,7 @@ public class MemberApiController {
         if(!request.getAuthString().equals(authString))
             throw new IllegalArgumentException("인증문자 불일치");
 
-        redisCacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
+        cacheService.evict(MyCacheType.SIGN_UP_AUTH_STRING, request.getEmail());
 
         String password = bCryptPasswordEncoder.encode(request.getPassword());
         Member member = Member.builder()
