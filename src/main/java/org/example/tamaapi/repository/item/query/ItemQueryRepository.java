@@ -1,20 +1,21 @@
 package org.example.tamaapi.repository.item.query;
 
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 
+import org.example.tamaapi.aspect.LogExecutionTime;
 import org.example.tamaapi.domain.Gender;
 
 import org.example.tamaapi.domain.item.*;
+import org.example.tamaapi.dto.RecommendedSqlCondition;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.requestDto.CustomSort;
@@ -122,7 +123,7 @@ public class ItemQueryRepository {
     //카테고리 아이템 자식 컬렉션 & InItemIds로 item 컬럼에 해당하는 검색 조건 대체 가능
     private Map<Long, List<RelatedColorItemResponse>> findCategoryItemsChildrenMap(List<Long> itemIds, List<Long> colorIds, Boolean isContainSoldOut) {
         //item.id.in(itemIds)에서 itemIds가 비어있으면 where 1=2 되면서 그룹바이 에러 발생 -> 빈 map 반환
-        if(CollectionUtils.isEmpty(itemIds))
+        if (CollectionUtils.isEmpty(itemIds))
             return Collections.emptyMap();
 
         List<RelatedColorItemResponse> relatedColorItems = queryFactory.select
@@ -194,22 +195,69 @@ public class ItemQueryRepository {
     //모든 사이즈 주문을 포함해야해서 colorItem.id로 그루핑
     private List<CategoryBestItemReviewQueryDto> findAvgRatingsCountInColorItemId(List<Long> colorItemIds) {
         String jpql = """
-            select new org.example.tamaapi.repository.item.query.dto.CategoryBestItemReviewQueryDto(
-                isk.colorItem.id,
-                CAST(ROUND(AVG(r.rating), 1) AS double),
-                count(isk.colorItem.id)
-            )
-            from Review r
-                join r.orderItem oi
-                join oi.colorItemSizeStock isk
-            where isk.colorItem.id in :colorItemIds
-            group by isk.colorItem.id
-            """;
+                select new org.example.tamaapi.repository.item.query.dto.CategoryBestItemReviewQueryDto(
+                    isk.colorItem.id,
+                    CAST(ROUND(AVG(r.rating), 1) AS double),
+                    count(isk.colorItem.id)
+                )
+                from Review r
+                    join r.orderItem oi
+                    join oi.colorItemSizeStock isk
+                where isk.colorItem.id in :colorItemIds
+                group by isk.colorItem.id
+                """;
 
         TypedQuery<CategoryBestItemReviewQueryDto> query = em.createQuery(jpql, CategoryBestItemReviewQueryDto.class);
         query.setParameter("colorItemIds", colorItemIds);
         return query.getResultList();
     }
+
+
+    @LogExecutionTime
+    public List<RecommendedItemQueryResponse> findRecommendedItem(RecommendedSqlCondition sc) {
+        //4개가 모바일 화면에 적당함
+        CustomPageRequest customPageRequest = new CustomPageRequest(1, 4);
+        List<RecommendedItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
+                        (new QRecommendedItemQueryResponse(item.id, colorItem.id, item.name, item.originalPrice, item.nowPrice)).from(orderItem)
+                .join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)
+                .leftJoin(orderItem.order, order).join(item.category, category).join(colorItem.color, color)
+                .where(recommendCondition(sc))
+                .groupBy(colorItem.id)
+                .orderBy(orderItem.count.sum().desc())
+                .offset((long) (customPageRequest.getPage() - 1) * customPageRequest.getSize())
+                .limit(customPageRequest.getSize())
+                .fetch();
+
+        //상품 이미지 세팅
+        List<Long> colorItemIds = categoryBestItemQueryResponses.stream().map(RecommendedItemQueryResponse::getColorItemId).toList();
+        List<ColorItemImage> colorItemImages = colorItemImageRepository.findAllByColorItemIdInAndSequence(colorItemIds, 1);
+        Map<Long, UploadFile> uploadFileMap = colorItemImages.stream().collect(Collectors.toMap(c -> c.getColorItem().getId(), ColorItemImage::getUploadFile));
+        categoryBestItemQueryResponses.forEach(cbi -> cbi.setUploadFile(
+                uploadFileMap.get(cbi.getColorItemId())
+        ));
+
+
+        return categoryBestItemQueryResponses;
+    }
+
+    // (a) or (b) or (c)
+    // c는 (q) and (w) and (e) 구조
+    // BooleanExpression은 a.or(b) 할때 a가 null 이면 npe 발생해서 안 됨
+    private BooleanBuilder recommendCondition(RecommendedSqlCondition sc) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.or(descriptionContains(sc.getDescriptionKeywords()));
+        builder.or(yearSeasonContains(sc.getSeasonKeyword()));
+
+        BooleanBuilder builder2 = new BooleanBuilder();
+        builder2.and(categoryNameLike(sc.getCategoryNames()));
+        builder2.and(minPriceGoe(sc.getMinPrice()));
+        builder2.and(maxPriceLoe(sc.getMaxPrice()));
+        builder2.and(colorNameLike(sc.getColorNames()));
+        builder2.and(genderIn(sc.getGenders()));
+        builder2.and(isContainSoldOut(sc.getIsContainSoldOut()));
+        return builder.or(builder2);
+    }
+
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     //queryDsl 검색 조건
     private OrderSpecifier<?> categoryItemSort(CustomSort sort) {
@@ -227,9 +275,38 @@ public class ItemQueryRepository {
         };
     }
 
+
+    private BooleanExpression descriptionContains(List<String> descriptionKeywords) {
+        if (descriptionKeywords == null || descriptionKeywords.isEmpty())
+            return null; // null이면 QueryDSL에서 무시됨
+
+        BooleanExpression result = null;
+
+        for (String keyword : descriptionKeywords) {
+            BooleanExpression expr = item.description.contains(keyword);
+            result = (result == null) ? expr : result.or(expr); // OR로 연결
+        }
+
+        return result;
+    }
+
+
     private BooleanExpression itemNameContains(String itemName) {
         return hasText(itemName) ? item.name.contains(itemName) : null;
     }
+
+    private BooleanExpression yearSeasonContains(String yearSeason) {
+        return hasText(yearSeason) ? item.yearSeason.contains(yearSeason) : null;
+    }
+
+    private BooleanExpression categoryNameLike(List<String> categoryNames) {
+        return isEmpty(categoryNames) ? null : category.name.in(categoryNames);
+    }
+
+    private BooleanExpression colorNameLike(List<String> colorNames) {
+        return isEmpty(colorNames) ? null : color.name.in(colorNames);
+    }
+
 
     private BooleanExpression categoryIdIn(List<Long> categoryIds) {
         return isEmpty(categoryIds) ? null : category.id.in(categoryIds);

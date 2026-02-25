@@ -3,6 +3,8 @@ package org.example.tamaapi.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.example.tamaapi.dto.responseDto.SimpleResponse;
 
+import org.springframework.ai.retry.NonTransientAiException;
+import org.springframework.ai.retry.autoconfigure.SpringAiRetryAutoConfiguration;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -117,4 +119,12 @@ public class CommonExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse(exception.getMessage()));
     }
 
+    //공통예외 처리가 안되네
+    @ExceptionHandler(NonTransientAiException.class)
+    public ResponseEntity<SimpleResponse> NonTransientAiException(NonTransientAiException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new SimpleResponse("서버가 ai 쿼타를 소진했습니다."));
+    }
+
 }
+
+

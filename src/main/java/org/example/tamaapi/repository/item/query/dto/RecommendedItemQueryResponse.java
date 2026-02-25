@@ -7,9 +7,8 @@ import lombok.Setter;
 import org.example.tamaapi.dto.UploadFile;
 
 @Getter
-//categoryItem에서 사용
 @Setter
-public class CategoryBestItemQueryResponse {
+public class RecommendedItemQueryResponse {
 
     @JsonIgnore
     private Long itemId;
@@ -18,25 +17,20 @@ public class CategoryBestItemQueryResponse {
 
     private String name;
 
-    private Integer price;
+    private Integer originalPrice;
 
-    private Integer discountedPrice;
+    private Integer nowPrice;
 
     //대표 이미지
     private UploadFile uploadFile;
 
-    private Double avgRating = 0D;
-
-    private Long reviewCount = 0L;
-
     @QueryProjection
-    public CategoryBestItemQueryResponse(Long itemId, Long colorItemId, String itemName, Integer price, Integer discountedPrice) {
+    public RecommendedItemQueryResponse(Long itemId, Long colorItemId, String itemName, Integer originalPrice, Integer nowPrice) {
         this.itemId = itemId;
         this.colorItemId = colorItemId;
         this.name = itemName;
-        this.price = price;
-        this.discountedPrice = discountedPrice;
+        this.originalPrice = originalPrice;
+        this.nowPrice = nowPrice;
     }
-
 
 }
