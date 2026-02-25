@@ -1210,7 +1210,6 @@ public class Init {
                 jdbcTemplateRepository.saveReviews(batchReviews);
         }
 
-
         public void initBestItemCache() {
             CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
 
