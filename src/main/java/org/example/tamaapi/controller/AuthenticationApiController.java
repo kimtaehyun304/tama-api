@@ -55,7 +55,6 @@ public class AuthenticationApiController {
         emailService.sendAuthenticationEmail(emailRequest.getEmail(), authString);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("인증메일 발송 완료. 유효기간 3분"));
     }
-
     @GetMapping("/api/auth/isAdmin")
     public ResponseEntity<IsAdminResponse> isAdmin(@AuthenticationPrincipal Long memberId) {
         if (memberId == null)
