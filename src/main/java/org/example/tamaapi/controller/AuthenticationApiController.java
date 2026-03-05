@@ -43,7 +43,6 @@ public class AuthenticationApiController {
         cacheService.evict(MyCacheType.SIGN_IN_TEMP_TOKEN, tokenRequest.getTempToken());
         return ResponseEntity.status(HttpStatus.OK).body(new AccessTokenResponse(accessToken));
     }
-
     @PostMapping("/api/auth/email")
     public ResponseEntity<SimpleResponse> email(@Valid @RequestBody EmailRequest emailRequest) {
         memberRepository.findByEmail(emailRequest.getEmail()).ifPresent(m -> {
