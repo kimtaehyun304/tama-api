@@ -42,12 +42,14 @@ public class AppConfig {
     }
 
     //Response Json xss 방지
+    /* faq에서 <br> 이나 → 가 이스케이프되서 비활성화 (입력받을때 jsoup clean 해야할 듯)
     @Bean
     public MappingJackson2HttpMessageConverter jsonEscapeConverter() {
         ObjectMapper copy = objectMapper().copy();
         copy.getFactory().setCharacterEscapes(new HtmlCharacterEscapes());
         return new MappingJackson2HttpMessageConverter(copy);
     }
+    */
 
     @Bean
     public JPAQueryFactory jpaQueryFactory(EntityManager em) {

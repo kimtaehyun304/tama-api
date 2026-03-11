@@ -2,6 +2,8 @@ package org.example.tamaapi.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.domain.CustomerSupport;
+import org.example.tamaapi.domain.CustomerSupportFaq;
 import org.example.tamaapi.domain.item.*;
 import org.example.tamaapi.domain.order.Delivery;
 import org.example.tamaapi.domain.order.Order;
@@ -237,7 +239,28 @@ public class JdbcTemplateRepository {
         });
     }
 
+    public void saveCustomerSupportFaqs(List<CustomerSupportFaq> faqs) {
 
+        String sql = "INSERT INTO customer_support_faq (" +
+                "question, answer, category, created_at, updated_at" +
+                ") VALUES (?, ?, ?, now(), now())";
+
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                CustomerSupportFaq faq = faqs.get(i);
+                ps.setString(1, faq.getQuestion());
+                ps.setString(2, faq.getAnswer());
+                ps.setString(3, faq.getCategory());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return faqs.size();
+            }
+        });
+    }
 
 }
 

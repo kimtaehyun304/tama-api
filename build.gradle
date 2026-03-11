@@ -43,8 +43,12 @@ dependencies {
     //implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.retry:spring-retry'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    //ai
     implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
     implementation "org.springframework.ai:spring-ai-starter-model-openai"
+    implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
+    implementation 'org.postgresql:postgresql'
 
     implementation 'com.github.ben-manes.caffeine:caffeine'
     developmentOnly  'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'

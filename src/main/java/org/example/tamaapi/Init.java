@@ -30,7 +30,12 @@ import org.example.tamaapi.repository.order.DeliveryRepository;
 import org.example.tamaapi.repository.order.OrderItemRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.*;
+import org.example.tamaapi.dto.responseDto.CustomerSupportFaqResponse;
 import org.example.tamaapi.util.ErrorMessageUtil;
+import org.example.tamaapi.util.FileLoader;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,7 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +57,14 @@ public class Init {
 
     private final InitService initService;
     private final Environment environment;
+    //private final EmbeddingModel embeddingModel;
+
+    /*
+    @PostConstruct
+    public void check() {
+        System.out.println("embeddingModel: "+ embeddingModel.dimensions());
+    }
+    */
 
     @PostConstruct
     public void init() {
@@ -69,6 +81,7 @@ public class Init {
         */
         //캐시 메모리에 올려두는 거라 매번 초기화 해야함
         initService.initBestItemCache();
+
     }
 
     @Component
@@ -97,7 +110,8 @@ public class Init {
         private final CouponRepository couponRepository;
         private final MemberCouponRepository memberCouponRepository;
         private final OrderService orderService;
-
+        private final FileLoader fileLoader;
+        private final VectorService vectorService;
 
         /*
         private void crawlItem(){
@@ -146,8 +160,10 @@ public class Init {
             //initManyItem(100000);
             //initMember();
             //initMemberAddress();
-            initManyRandomOrder();
-            initManyReview();
+            //initManyRandomOrder();
+            //initManyReview();
+            //initCustomerSupportFaqs();
+            //initFaqVector();
         }
 
         private void initCategory() {
@@ -643,7 +659,6 @@ public class Init {
                     .comment("맘에 들어요. 편하게 잘 입을것 같아요. 블랙 사고싶네요").build());
         }
 
-
         private void createMemberOrder(Long memberId, OrderRequest request) {
             Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("등록되지 않은 회원입니다."));
             Delivery delivery = new Delivery(request.getZipCode(), request.getStreetAddress(), request.getDetailAddress(), request.getDeliveryMessage(), request.getReceiverNickname(), request.getReceiverPhone());
@@ -845,7 +860,7 @@ public class Init {
             List<Delivery> deliveries = new ArrayList<>();
 
             //ZoneId koreaZone = ZoneId.of("Asia/Seoul");
-            LocalDateTime orderDate = LocalDate.of(2023,1,1).atStartOfDay();
+            LocalDateTime orderDate = LocalDate.of(2023, 1, 1).atStartOfDay();
             LocalDateTime today = LocalDate.now().atStartOfDay().plusDays(1);
             int totalOrderCount = 0;
 
@@ -909,7 +924,7 @@ public class Init {
 
                 //하루치 주문이 다 생성됐으므로 다음날로
                 orderDate = orderDate.plusDays(1).toLocalDate().atStartOfDay();
-                if(orderDate.equals(today))
+                if (orderDate.equals(today))
                     break;
                 totalOrderCount += todayRandOrderCount;
 
@@ -948,7 +963,6 @@ public class Init {
             batchOrderItems.clear();
             orders.clear();
         }
-
 
         private void initManyOrder(int ORDER_COUNT) {
             log.info("initManyOrder 실행 중");
@@ -1208,6 +1222,16 @@ public class Init {
             //10000개 못넘어서 저장 한한 배치 저장
             if (!batchReviews.isEmpty())
                 jdbcTemplateRepository.saveReviews(batchReviews);
+        }
+
+        private void initCustomerSupportFaqs() {
+            List<CustomerSupportFaq> faqs = fileLoader.loadCustomerSupportFaqs();
+            jdbcTemplateRepository.saveCustomerSupportFaqs(faqs);
+        }
+
+        private void initFaqVector() {
+            List<CustomerSupportFaq> faqs = fileLoader.loadCustomerSupportFaqs();
+            vectorService.saveFaqVectors(faqs);
         }
 
         public void initBestItemCache() {

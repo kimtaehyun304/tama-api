@@ -124,6 +124,7 @@ class TamaApiApplicationTests {
         assertThat(1).isEqualTo(1);
     }
 
+    /*
     void 레디스_테스트() {
         String authString = RandomStringGenerator.generateRandomString(6);
         String email = "burnaby@naver.com";
@@ -132,7 +133,7 @@ class TamaApiApplicationTests {
         String redisAuthString = (String) redisCacheService.get(MyCacheType.SIGN_UP_AUTH_STRING, email);
         assertThat(authString).isEqualTo(redisAuthString);
     }
-
+    */
     void generateToken() {
         String token = tokenProvider.generateToken(new Member(2L));
         System.out.println("token = " + token);
