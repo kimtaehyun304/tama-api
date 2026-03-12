@@ -39,6 +39,7 @@ public class ChatBotController {
 
     @PostMapping("/api/chatbot/faq")
     public FaqBotResponse faqBot(@RequestBody FaqBotRequest faqBotRequest) {
+        System.out.println("faqBotRequest.getUserInputPrompt() = " + faqBotRequest.getUserInputPrompt());
         String answer = vectorService.searchSimilarAnswer(faqBotRequest.getUserInputPrompt());
         return new FaqBotResponse(answer);
     }
