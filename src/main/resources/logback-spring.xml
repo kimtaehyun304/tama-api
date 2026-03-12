@@ -5,7 +5,7 @@
     <!--        PROPERTIES     -->
     <!-- ===================== -->
     <property name="CONSOLE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%thread]) %highlight([%-3level]) %logger{5} [%X{reqId}] %msg %n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%thread]) %highlight([%-3level]) %logger{5} %msg %n"/>
 
     <!-- ===================== -->
     <!--        APPENDERS      -->
@@ -32,8 +32,8 @@
         <root level="info">
             <appender-ref ref="STDOUT"/>
         </root>
-
-        <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG"/>
+        <!--p6spy 없을땐 DEBUG로해야 로그 뜸-->
+        <logger name="org.springframework.jdbc.core.JdbcTemplate" level="OFF"/>
     </springProfile>
 
     <!-- ===================== -->

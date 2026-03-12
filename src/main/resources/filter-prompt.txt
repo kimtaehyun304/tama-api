@@ -10,7 +10,7 @@ JSON 필드:
 
 * gender: 남자는 "MALE", 여자는 "FEMALE", 공용은 "BOTH"
 * seasonKeyword: 봄,여름은 "S/S"이고 가을,겨울은 "F/W"
-* category: 예시는 "자켓", "티셔츠"
+* category: 예시는 "자켓", "티셔츠"이다. "여성의류" 이런건 제외하라.
 * minPrice: 숫자
 * maxPrice: 숫자
 * color: 예시는 ["화이트", "블랙"] 같은 배열
