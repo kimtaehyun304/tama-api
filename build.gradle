@@ -51,10 +51,10 @@ dependencies {
     implementation 'org.postgresql:postgresql'
 
     implementation 'com.github.ben-manes.caffeine:caffeine'
-    //최신버전으로 하면 안되서
-    //developmentOnly  'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
-    //testImplementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+    //최신버전으로 하니까 로그가 안뜸
+    developmentOnly  'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+    testImplementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+    //implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
