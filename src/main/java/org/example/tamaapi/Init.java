@@ -163,7 +163,8 @@ public class Init {
             //initManyRandomOrder();
             //initManyReview();
             //initCustomerSupportFaqs();
-            initFaqVector();
+            //배포환경에서 직접해야함. export & import 했더니 유사도 검색이 안됐음
+            //initFaqVector();
         }
 
         private void initCategory() {
