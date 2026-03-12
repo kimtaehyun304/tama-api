@@ -127,7 +127,7 @@ public class ItemApiController {
     }
 
     @GetMapping("/api/items/best")
-    public List<CategoryBestItemQueryResponse> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute CustomPageRequest customPageRequest) {
+    public List<CategoryBestItemQueryResponse> categoryBestItem(@RequestParam(required = false) Long categoryId, @ModelAttribute @Valid CustomPageRequest customPageRequest) {
         BestItem bestItem = BestItem.ALL_BEST_ITEM;
 
         List<Long> categoryIds = new ArrayList<>();
