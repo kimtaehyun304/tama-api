@@ -27,7 +27,7 @@ public class VectorService {
                         .similarityThreshold(0.35)
                         .build()
         );
-
+        System.out.println("documents.isEmpty() = " + documents.isEmpty());
         if(documents.isEmpty()) return "";
 
         return documents.get(0).getMetadata().get("answer").toString();

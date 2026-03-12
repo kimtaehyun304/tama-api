@@ -163,7 +163,7 @@ public class Init {
             //initManyRandomOrder();
             //initManyReview();
             //initCustomerSupportFaqs();
-            //initFaqVector();
+            initFaqVector();
         }
 
         private void initCategory() {
