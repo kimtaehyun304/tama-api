@@ -234,7 +234,6 @@ public class ItemQueryRepository {
                 uploadFileMap.get(cbi.getColorItemId())
         ));
 
-
         return categoryBestItemQueryResponses;
     }
 

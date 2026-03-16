@@ -27,7 +27,7 @@ public class VectorService {
                         .similarityThreshold(0.35)
                         .build()
         );
-        System.out.println("documents.isEmpty() = " + documents.isEmpty());
+
         if(documents.isEmpty()) return "";
 
         return documents.get(0).getMetadata().get("answer").toString();
@@ -39,6 +39,7 @@ public class VectorService {
         for (CustomerSupportFaq faq : faqs) {
             String replacedAnswer = faq.getAnswer().replaceAll("\n", " ");
 
+            //content 컬럼에 question + answer 저장
             Document doc = new Document(
                     String.format("Q: %s A: %s", faq.getQuestion(), replacedAnswer),
                     Map.of(

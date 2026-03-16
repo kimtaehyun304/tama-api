@@ -38,6 +38,7 @@ public class AiConfig {
 
     @Bean
     @Primary
+    //ai 외 일반 api는 원래 db인 mysql 쓰게하려고
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
@@ -56,7 +57,7 @@ public class AiConfig {
 
     @Bean
     @Primary
-    //vectorStore로 메서드 이름 지으면 기본 설정(overrride) 바꿔야 해서 이렇게
+    //메서드 이름을 vectorStore로 지으려면 기본 설정을 바꿔야함 -> 대신 myVectorStore + @Primary
     public VectorStore myVectorStore(@Qualifier("vectorJdbcTemplate") JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
         return PgVectorStore.builder(jdbcTemplate, embeddingModel)
                 .vectorTableName(VECTOR_TABLE)
