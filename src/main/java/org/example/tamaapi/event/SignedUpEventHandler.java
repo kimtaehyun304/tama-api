@@ -31,16 +31,12 @@ public class SignedUpEventHandler {
     private final MemberService memberService;
 
     @EventListener
-    @Async
     public void sendEmail(SignedUpEvent event) {
         //종속성 분리를 위하여, 조회하여 이메일 가져옴
         Member member = memberRepository.findById(event.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessageUtil.NOT_FOUND_MEMBER));
-        if (!StringUtils.hasText(member.getEmail())) {
-            String msg = "등록된 이메일이 아닙니다";
-            log.error(msg);
-            throw new IllegalArgumentException(msg);
-        }
+        if (!StringUtils.hasText(member.getEmail()))
+            throw new IllegalArgumentException("등록된 이메일이 아닙니다");
         emailService.sendSignedUpEmail(member.getEmail());
     }
 

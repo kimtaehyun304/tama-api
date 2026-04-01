@@ -75,6 +75,8 @@ public class MemberApiController {
                 .provider(Provider.LOCAL).authority(Authority.MEMBER)
                 .build();
         memberRepository.save(member);
+
+        //비동기로 해도되지만, 관심사 분리를 위해 이벤트 사용
         eventPublisher.publishEvent(new SignedUpEvent(member.getId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("회원가입 성공"));
     }
