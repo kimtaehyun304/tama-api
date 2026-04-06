@@ -5,13 +5,12 @@ set -e
 if [ ! -f /etc/letsencrypt/live/README ]; then
   echo "[WARN] try to recover certificate..."
    #nignx.conf 자동 적용
-   certbot --nginx \
+  certbot --nginx \
         -d dldm.kr \
         --email kimapbel@gmail.com \
         --agree-tos \
         --no-eff-email \
         --non-interactive
-
   systemctl enable --now certbot-renew.timer
 fi
 

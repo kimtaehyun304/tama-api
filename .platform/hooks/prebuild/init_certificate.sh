@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+# cerbot은 있는데, 인증서만 날라간 경우가 있어서 수정해야함
 # certbot 설치 여부 확인
 if ! command -v certbot >/dev/null 2>&1; then
     echo "Certbot not installed. installing..."
