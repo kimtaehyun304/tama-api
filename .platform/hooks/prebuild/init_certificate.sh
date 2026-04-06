@@ -13,6 +13,9 @@ if ! command -v certbot >/dev/null 2>&1; then
         --agree-tos \
         --no-eff-email \
         --non-interactive
+
+    systemctl enable --now certbot-renew.timer
+
 else
     echo "Certbot is already installed, skipping installation."
 fi
