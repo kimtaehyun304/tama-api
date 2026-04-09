@@ -51,6 +51,7 @@ public class Scheduler {
     private final MemberRepository memberRepository;
     private final CouponRepository couponRepository;
     private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
     @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul")
     private void saveBestItemCache(){
@@ -127,4 +128,16 @@ public class Scheduler {
             memberCouponRepository.save(new MemberCoupon(coupons.get(5), experienceAccount, false));
         }
     }
+
+    //3시간 마다 실행
+    @Scheduled(fixedDelay = 1000*60*60*3)
+    public void retryCancelPayment() {
+        //포트원에서 헬스체크 API를 제공하지 않아서 그냥 진행
+
+        //설마 많아서 OOM 발생하진 않겠지?
+        List<Long> orderIds = orderRepository.findAllByStatus(OrderStatus.CANCEL_RECEIVED)
+                .stream().map(Order::getId).toList();
+        orderService.updateOrderStatusToRefund(orderIds);
+    }
+
 }

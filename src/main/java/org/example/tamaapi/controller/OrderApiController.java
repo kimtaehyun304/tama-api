@@ -100,7 +100,7 @@ public class OrderApiController {
         Map<String, Object> paymentResponse = portOneService.findByPaymentId(paymentId);
         PortOnePaymentStatus paymentStatus = PortOnePaymentStatus.valueOf((String) paymentResponse.get("status"));
         PortOneOrder portOneOrder = portOneService.convertCustomData((String) paymentResponse.get("customData"), paymentId);
-        log.info("주문 처리 중.. paymentId:{}, memberId:{}",paymentId, memberId);
+        log.info("주문 처리 중.. paymentId:{}",paymentId);
 
         int clientTotal = (int) ((Map<String, Object>) paymentResponse.get("amount")).get("total");
 
@@ -120,8 +120,8 @@ public class OrderApiController {
                 portOneOrder.getUsedPoint(),
                 portOneOrder.getOrderItems()
         );
-        log.info("[Controller] 주문 저장 완료! paymentId:{}, memberId:{}",paymentId, memberId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
+        log.info("주문 저장 완료! paymentId:{}", paymentId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("주문 완료"));
     }
 
     //멤버 무료 주문 저장
@@ -130,7 +130,7 @@ public class OrderApiController {
     @PostMapping("/api/orders/free/member")
     public ResponseEntity<SimpleResponse> saveMemberOrder(@AuthenticationPrincipal Long memberId
             ,@RequestBody @Valid OrderRequest req) {
-        log.info("주문 처리 중.. memberId:{}", memberId);
+        log.info("무료 주문 처리 중.. memberId:{}", memberId);
         int orderItemsPrice = orderService.getOrderItemsPrice(req.getOrderItems());
 
         orderService.validateMemberFreeOrderPrice(orderItemsPrice, req.getMemberCouponId(), req.getUsedPoint(), memberId);
@@ -148,7 +148,7 @@ public class OrderApiController {
                 req.getOrderItems()
         );
         log.info("주문 저장 완료! memberId:{}", memberId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("주문 완료"));
     }
 
     //비로그인 주문 저장
@@ -179,27 +179,22 @@ public class OrderApiController {
 
         emailService.sendGuestOrderEmailAsync(portOneOrder.getSenderEmail(), portOneOrder.getSenderNickname(), newOrderId);
         log.info("주문 저장 완료! paymentId:{}", paymentId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("결제 완료"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("주문 완료"));
     }
 
     //멤버 주문 취소
-    @PutMapping("/api/orders/member/cancel")
-    public ResponseEntity<SimpleResponse> cancelMemberOrder(@Valid @RequestBody CancelMemberOrderRequest cancelMemberOrderRequest, @AuthenticationPrincipal Long memberId) {
+    @PutMapping("/api/orders/member/cancel/received")
+    public ResponseEntity<SimpleResponse> cancelReceivedMemberOrder(@Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
         if (memberId == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
-        //사용자가 주문 취소 사유를 입력하도록 변경 필요
-        if(cancelMemberOrderRequest.getIsFreeOrder())
-            orderService.cancelMemberFreeOrder(cancelMemberOrderRequest.getOrderId(), memberId);
-        else
-            orderService.cancelMemberOrder(cancelMemberOrderRequest.getOrderId(), memberId, "구매자 취소 요청");
-
-        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
+        orderService.receiveCancelMemberOrder(req.getOrderId(), memberId, req.getReason());
+        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 접수 완료"));
     }
 
     //게스트 주문 취소
-    @PutMapping("/api/orders/guest/cancel")
-    public ResponseEntity<SimpleResponse> cancelGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    @PutMapping("/api/orders/guest/cancel/received")
+    public ResponseEntity<SimpleResponse> cancelReceivedGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
         if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new IllegalArgumentException(INVALID_HEADER);
@@ -215,13 +210,8 @@ public class OrderApiController {
         String buyerName = values[0];
         Long orderId = Long.parseLong(values[1]);
 
-        Order order = orderRepository.findAllWithOrderItemAndDeliveryByOrderId(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        //사용자 검증
-        if (!order.getGuest().getNickname().equals(buyerName))
-            throw new IllegalArgumentException(NOT_FOUND_ORDER);
-
-        orderService.cancelGuestOrder(orderId, "구매자 취소 요청");
-        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("결제 취소 완료"));
+        orderService.receiveCancelGuestOrder(orderId, buyerName, "구매자 취소 요청");
+        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 접수 완료"));
     }
 
     //localhost는 webhook 못씀
@@ -249,4 +239,22 @@ public class OrderApiController {
         return orderQueryRepository.findAdminSales(yearMonth);
     }
 
+    @GetMapping("/api/orders/cancel/received")
+    @PreAuthentication
+    @PreAuthorize("hasRole('ADMIN')")
+    //주문 취소 접수된 주문
+    public CustomPage<AdminOrderResponse> getCancelReceivedOrders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
+        return orderQueryRepository.findAdminCancelReceivedOrdersWithPaging(customPageRequest);
+    }
+
+    @PutMapping("/api/orders/cancel")
+    @PreAuthentication
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SimpleResponse> cancelOrder(@Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
+        if (memberId == null)
+            throw new MyBadRequestException("액세스 토큰이 비었습니다.");
+
+        orderService.refundOrder(req.getIsFreeOrder(), req.getOrderId(), req.getReason());
+        return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 완료"));
+    }
 }

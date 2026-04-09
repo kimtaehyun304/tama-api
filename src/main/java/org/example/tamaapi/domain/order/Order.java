@@ -103,8 +103,8 @@ public class Order extends BaseEntity {
         return new Order(paymentId, guest, delivery, shippingFee, orderItems);
     }
 
-    public void cancelOrder() {
-        status = OrderStatus.CANCEL_RECEIVED;
+    public void updateStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public void setIdByBatchId(Long id) {

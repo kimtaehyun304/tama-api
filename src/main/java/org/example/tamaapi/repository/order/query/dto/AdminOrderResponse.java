@@ -30,6 +30,12 @@ public class AdminOrderResponse {
 
     private List<OrderItemResponse> orderItems = new ArrayList<>();
 
+    private int usedCouponPrice;
+
+    private int usedPoint;
+
+    private int shippingFee;
+
     @QueryProjection
     public AdminOrderResponse(Order order, String nickname) {
         id = order.getId();
@@ -37,6 +43,9 @@ public class AdminOrderResponse {
         status = order.getStatus();
         buyerName = StringUtils.hasText(nickname) ? nickname : order.getGuest().getNickname();
         delivery = new DeliveryResponse(order.getDelivery());
+        usedCouponPrice = order.getUsedCouponPrice();
+        usedPoint = order.getUsedPoint();
+        shippingFee = order.getShippingFee();
     }
 
 }

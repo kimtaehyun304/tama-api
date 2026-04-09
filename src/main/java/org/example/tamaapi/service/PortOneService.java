@@ -3,16 +3,26 @@ package org.example.tamaapi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.domain.order.Order;
+import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.domain.order.PortOnePaymentStatus;
 import org.example.tamaapi.dto.PortOneOrder;
 import org.example.tamaapi.dto.requestDto.order.OrderRequest;
 import org.example.tamaapi.exception.OrderFailException;
+import org.example.tamaapi.exception.UsedPaymentIdException;
 import org.example.tamaapi.exception.WillCancelPaymentException;
+import org.example.tamaapi.repository.order.OrderRepository;
+import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.retry.annotation.Backoff;
+
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
@@ -29,7 +39,8 @@ public class PortOneService {
     @Value("${portOne.secret}")
     private String PORT_ONE_SECRET;
     private final ObjectMapper objectMapper;
-
+    private final OrderTxService orderTxService;
+    private final OrderRepository orderRepository;
 
     //결제내역 단건 조회
     public Map<String, Object> findByPaymentId(String paymentId) {
@@ -49,6 +60,10 @@ public class PortOneService {
 
     }
 
+    //@Retryable은 retey 실패가 서큣브레이커에 포함 안되서
+    //retry 실패시 PG_CANCEL_ERROR상태로 변경하고 스케줄러로 나중에 재시도
+    @Retry(name = "portone", fallbackMethod = "cancelFallback")
+    @CircuitBreaker(name = "portone", fallbackMethod = "cancelFallback")
     public void cancelPayment(String paymentId, String reason) {
         RestClient.create().post()
                 .uri("https://api.portone.io/payments/{paymentId}/cancel", paymentId)
@@ -57,15 +72,25 @@ public class PortOneService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     //res 포함하면 복잡해서 포함 안했음. 보안상 민감한 내용 있을수도 있고
-                    String clientMsg = String.format("결제 취소를 실패했습니다. 원인: 포트원 결제 취소 API 호출 실패");
-
-                    String serverMsg = String.format("결제 취소를 실패했습니다. 원인: 포트원 결제 취소 API 호출 실패, res:%s", res);
+                    String clientMsg = String.format("PG 서버 문제로 인해 결제 취소를 실패했습니다");
+                    String serverMsg = String.format("포트원 결제 취소 API 호출 실패로 인해 결제 취소를 실패했습니다., res:%s", res);
                     log.error(serverMsg);
                     throw new IllegalArgumentException(clientMsg);
                 })
                 .toBodilessEntity();
         //예외로 인해 결제가 자동 취소되는 경우가 있는데, 이 때 잘 취소됐는지 확인을 위해
         log.debug(String.format("결제가 취소됐습니다. 이유:%s, 결제번호:%s", reason, paymentId));
+    }
+
+    public void cancelFallback(String paymentId, String reason, Throwable t) {
+        IllegalStateException exception = new IllegalStateException("PG 서버 장애로 결제를 취소하지 못했습니다. 3시간 후 자동으로 재시도합니다");
+
+        //주문 저장 전 단계에서 실패한 경우도 있으므로 ifPresent
+        orderRepository.findByPaymentId(paymentId)
+                .ifPresent(order -> {
+                    orderTxService.updateOrderStatus(order.getId(), OrderStatus.PG_CANCEL_ERROR);
+                });
+        throw exception;
     }
 
     //프론트에서 customData 양식 못 맞추면 예외 발생 가능

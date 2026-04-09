@@ -59,7 +59,7 @@ public class AppConfig {
     @Bean
     public RestClient restClient(RestClient.Builder restClientBuilder) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        int CONNECTION_TIMEOUT_SECONDS = 1;
+        int CONNECTION_TIMEOUT_SECONDS = 3;
         int READ_TIMEOUT_SECONDS = 5;
         requestFactory.setConnectTimeout(CONNECTION_TIMEOUT_SECONDS);
         requestFactory.setReadTimeout(READ_TIMEOUT_SECONDS);
@@ -68,9 +68,9 @@ public class AppConfig {
                 .defaultStatusHandler(
                         HttpStatusCode::isError,
                         (request, response) -> {
-                            log.error("HTTP request failed.");
-                            log.error("Request: {} {}", request.getMethod(), request.getURI());
-                            log.error("Response: {} {}", response.getStatusCode(), response.getStatusText());
+                            log.error("restClient failed.");
+                            //log.error("Request: {} {}", request.getMethod(), request.getURI());
+                            //log.error("Response: {} {}", response.getStatusCode(), response.getStatusText());
                             throw new RuntimeException(response.getStatusText());
                         }
                 )

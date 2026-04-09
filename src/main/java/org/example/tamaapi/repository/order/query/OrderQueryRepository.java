@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.tamaapi.domain.item.Category;
 import org.example.tamaapi.domain.item.ColorItemImage;
 import org.example.tamaapi.domain.item.QCategory;
+import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.dto.UploadFile;
 import org.example.tamaapi.dto.requestDto.CustomPageRequest;
 import org.example.tamaapi.dto.responseDto.CustomPage;
@@ -91,7 +92,6 @@ public class OrderQueryRepository {
         List<Long> orderIds = content.stream().map(MemberOrderResponse::getId).toList();
         Map<Long, List<OrderItemResponse>> childrenMap = findOrdersChildrenMap(orderIds);
 
-
         content.forEach(o -> o.setOrderItems(childrenMap.get(o.getId())));
         return new CustomPage<>(content, customPageRequest, count);
     }
@@ -124,6 +124,25 @@ public class OrderQueryRepository {
         content.forEach(o -> o.setOrderItems(childrenMap.get(o.getId())));
         return new CustomPage<>(content, customPageRequest, count);
     }
+
+    public CustomPage<AdminOrderResponse> findAdminCancelReceivedOrdersWithPaging(CustomPageRequest customPageRequest) {
+        List<AdminOrderResponse> content = queryFactory.select(new QAdminOrderResponse(order, member.nickname)).from(order)
+                .join(order.delivery, delivery).fetchJoin().join(order.member, member)
+                .where(order.status.eq(OrderStatus.CANCEL_RECEIVED))
+                .offset((long) (customPageRequest.getPage() - 1) * customPageRequest.getSize())
+                .limit(customPageRequest.getSize())
+                .orderBy(new OrderSpecifier<>(Order.DESC, order.id))
+                .fetch();
+
+        Long count = queryFactory.select(order.count()).from(order).where(order.status.eq(OrderStatus.CANCEL_RECEIVED)).fetchOne();
+
+        List<Long> orderIds = content.stream().map(AdminOrderResponse::getId).toList();
+        Map<Long, List<OrderItemResponse>> childrenMap = findOrdersChildrenMap(orderIds);
+
+        content.forEach(o -> o.setOrderItems(childrenMap.get(o.getId())));
+        return new CustomPage<>(content, customPageRequest, count);
+    }
+
 
     //-------------------------------------------------------------------------------------------------------------------------------
 

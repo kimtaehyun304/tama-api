@@ -3,6 +3,7 @@ package org.example.tamaapi.service;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.example.tamaapi.domain.user.MemberAddress;
 import org.example.tamaapi.domain.user.coupon.CouponType;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
@@ -41,7 +42,6 @@ import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_COUPON;
 import static org.example.tamaapi.util.ErrorMessageUtil.NOT_FOUND_MEMBER;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
@@ -55,6 +55,7 @@ public class OrderService {
     private final MemberCouponRepository memberCouponRepository;
     private final MemberAddressRepository memberAddressRepository;
     private final EntityManager em;
+    private final OrderTxService orderTxService;
 
 
     @Value("${portOne.secret}")
@@ -62,6 +63,7 @@ public class OrderService {
 
     private Double POINT_ACCUMULATION_RATE = 0.005;
 
+    @Transactional
     public void saveMemberOrder(String paymentId, Long memberId,
                                 String receiverNickname,
                                 String receiverPhone,
@@ -73,7 +75,7 @@ public class OrderService {
                                 Integer usedPoint,
                                 List<OrderItemRequest> orderItems) {
         try {
-            log.info("주문 저장 중.. paymentId:{}, memberId:{}",paymentId, memberId);
+            log.info("주문 저장 중.. paymentId:{}, memberId:{}", paymentId, memberId);
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new OrderFailException(NOT_FOUND_MEMBER));
 
@@ -96,11 +98,6 @@ public class OrderService {
             int orderItemsPrice = getOrderItemsPrice(orderItems);
             int accumulatedPoint = (int) ((orderItemsPrice - getCouponPrice(memberCoupon, orderItemsPrice) - usedPoint) * POINT_ACCUMULATION_RATE);
             member.plusPoint(accumulatedPoint);
-        } catch (OrderFailException e) {
-            //악의적인 시도 로깅을 위해 커스텀 예외 사용
-            log.warn(e.getMessage());
-            portOneService.cancelPayment(paymentId, e.getMessage());
-            throw new WillCancelPaymentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -109,6 +106,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public void saveMemberFreeOrder(Long memberId,
                                     String receiverNickname,
                                     String receiverPhone,
@@ -120,8 +118,6 @@ public class OrderService {
                                     Integer usedPoint,
                                     List<OrderItemRequest> orderItems) {
         try {
-            log.info("주문 저장 중.. memberId:{}",memberId);
-
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new OrderFailException(NOT_FOUND_MEMBER));
 
@@ -149,6 +145,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public Long saveGuestOrder(String paymentId,
                                String senderNickname,
                                String senderEmail,
@@ -164,10 +161,6 @@ public class OrderService {
             Guest guest = new Guest(senderNickname, senderEmail);
             return saveOrder(paymentId, null, guest, receiverNickname, receiverPhone,
                     zipCode, streetAddress, detailAddress, message, null, 0, orderItems);
-        } catch (OrderFailException e) {
-            log.warn(e.getMessage());
-            portOneService.cancelPayment(paymentId, e.getMessage());
-            throw new WillCancelPaymentException(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -203,8 +196,31 @@ public class OrderService {
         return order.getId();
     }
 
-    public void cancelGuestOrder(Long orderId, String reason) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+    //환불 확정
+    public void refundOrder(boolean isFreeOrder, Long orderId, String reason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+
+        OrderStatus status = order.getStatus();
+        //나머지 케이스는 취소 불가
+        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED)) {
+            String message = "주문 취소 가능 단계가 아닙니다.";
+            log.warn(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        if(!isFreeOrder)
+            portOneService.cancelPayment(order.getPaymentId(), reason);
+        orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
+    }
+
+    public void receiveCancelGuestOrder(Long orderId, String buyerName, String reason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
+
+        if (!order.getGuest().getNickname().equals(buyerName))
+            throw new IllegalArgumentException("주문한 고객이 아닙니다");
+
         OrderStatus status = order.getStatus();
         //나머지 케이스는 취소 불가
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
@@ -213,11 +229,11 @@ public class OrderService {
             throw new IllegalArgumentException(message);
         }
 
-        order.cancelOrder();
-        portOneService.cancelPayment(order.getPaymentId(), reason);
+        //주문 취소 '접수' 단계라 pg 취소 필요 없음
+        orderTxService.updateOrderStatus(orderId, OrderStatus.CANCEL_RECEIVED);
     }
 
-    public void cancelMemberOrder(Long orderId, Long memberId, String reason) {
+    public void receiveCancelMemberOrder(Long orderId, Long memberId, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
         Member member = memberRepository.findById(memberId)
@@ -237,37 +253,9 @@ public class OrderService {
             throw new IllegalArgumentException(message);
         }
 
-        //포인트, 쿠폰 롤백은 취소 확정 됐을때 처리
-
-        order.cancelOrder();
-        portOneService.cancelPayment(order.getPaymentId(), reason);
+        //주문 취소 '접수' 단계라 pg 취소 필요 없음
+        orderTxService.updateOrderStatus(orderId, OrderStatus.CANCEL_RECEIVED);
     }
-
-    public void cancelMemberFreeOrder(Long orderId, Long memberId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-
-        if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
-            String message = "주문한 사용자가 아닙니다.";
-            log.warn(message);
-            throw new IllegalArgumentException(message);
-        }
-
-        OrderStatus status = order.getStatus();
-        //나머지 케이스는 취소 불가 (운영자여도 마찬가지)
-        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
-            String message = "주문 취소 가능 단계가 아닙니다.";
-            log.warn(message);
-            throw new IllegalArgumentException(message);
-        }
-
-        //포인트, 쿠폰 롤백은 취소 확정 됐을때 처리
-
-        order.cancelOrder();
-    }
-
 
     //saveOrder 공통 로직
     private List<OrderItem> createOrderItem(List<OrderItemRequest> orderItemRequests) {
@@ -319,6 +307,12 @@ public class OrderService {
         };
     }
 
+    public int getShippingFee(int orderItemsPrice) {
+        return orderItemsPrice > 40000 ? 0 : 3000;
+    }
+
+    //------ 검증 로직
+
     private void validateCoupon(MemberCoupon memberCoupon, int orderItemsPrice) {
         String cancelMsg = null;
         int couponPrice = getCouponPrice(memberCoupon, orderItemsPrice);
@@ -331,12 +325,9 @@ public class OrderService {
             cancelMsg = "쿠폰 금액은 주문 가격보다 넘게 사용할 수 없습니다.";
 
         if (cancelMsg != null)
-            throw new OrderFailException(cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
     }
 
-    public int getShippingFee(int orderItemsPrice) {
-        return orderItemsPrice > 40000 ? 0 : 3000;
-    }
 
     public void validateMemberOrder(PortOneOrder order, int clientTotal, Long memberId) {
         try {
@@ -344,16 +335,14 @@ public class OrderService {
             validatePaymentId(order.getPaymentId());
             validateMemberOrderPrice(getOrderItemsPrice(order.getOrderItems()), order.getMemberCouponId(), order.getUsedPoint(), clientTotal, memberId);
         } catch (UsedPaymentIdException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        } catch (OrderFailException e) {
-            log.warn(e.getMessage());
-            portOneService.cancelPayment(order.getPaymentId(), e.getMessage());
-            throw new WillCancelPaymentException(e.getMessage());
+            //이미 결제된건 굳이 취소할 필요 없음
+            throw e;
         } catch (Exception e) {
+            String errorMsg = e.getMessage();
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
-            portOneService.cancelPayment(order.getPaymentId(), e.getMessage());
-            throw new WillCancelPaymentException(e.getMessage());
+            portOneService.cancelPayment(order.getPaymentId(), errorMsg);
+            throw new WillCancelPaymentException(errorMsg);
         }
     }
 
@@ -374,7 +363,7 @@ public class OrderService {
 
         int serverTotal = orderPriceUsedCoupon - usedPoint + SHIPPING_FEE;
         if (clientTotal != serverTotal)
-            throw new OrderFailException("결제 금액이 위변조 됐습니다.");
+            throw new IllegalArgumentException("결제 금액이 위변조 됐습니다.");
     }
 
     //무료 주문은 PG사 결제를 안 거쳤으므로, 결제 취소 없음
@@ -407,11 +396,7 @@ public class OrderService {
         try {
             validatePaymentId(order.getPaymentId());
             if (getOrderItemsPrice(order.getOrderItems()) != clientTotal)
-                throw new OrderFailException("결제 금액이 위변조 됐습니다.");
-        } catch (OrderFailException e) {
-            log.warn(e.getMessage());
-            portOneService.cancelPayment(order.getPaymentId(), e.getMessage());
-            throw new WillCancelPaymentException(e.getMessage());
+                throw new IllegalArgumentException("결제 금액이 위변조 됐습니다.");
         } catch (Exception e) {
             log.error(e.getMessage());
             //주문 취소안하고, DB 장애 해결되면, 관리자 페이지에서 로그 조회하여 주문 재등록하게 하는 방법도 있음
@@ -434,7 +419,7 @@ public class OrderService {
             cancelMsg = "주문 가격보다 많은 포인트를 사용할 수 없습니다.";
 
         if (cancelMsg != null)
-            throw new OrderFailException(cancelMsg);
+            throw new IllegalArgumentException(cancelMsg);
     }
 
     private void validatePaymentId(String paymentId) {
@@ -446,11 +431,12 @@ public class OrderService {
 
     private void validateMemberId(Long memberId) {
         if (memberId == null)
-            throw new OrderFailException("memberId가 누락됐습니다");
+            throw new IllegalArgumentException("memberId가 누락됐습니다");
     }
 
-    //------------------------------------------
+    //----------배치 로직
 
+    @Transactional
     public void updateOrderStatusToCompleted(List<Long> orderIds) {
         int count = em.createQuery("update Order o set o.status = :completed, o.updatedAt = now() where o.id in :orderIds")
                 .setParameter("completed", OrderStatus.COMPLETED)
@@ -459,8 +445,18 @@ public class OrderService {
         log.info("{}건 자동 구매확정 처리 완료", count);
     }
 
+    @Transactional
+    public void updateOrderStatusToRefund(List<Long> orderIds) {
+        int count = em.createQuery("update Order o set o.status = :completed, o.updatedAt = now() where o.id in :orderIds")
+                .setParameter("completed", OrderStatus.REFUNDED)
+                .setParameter("orderIds", orderIds)
+                .executeUpdate();
+        log.info("{}건 자동 환불 처리 완료", count);
+    }
+
     //------------------------------------------
-    public void saveTestOrder(){
+    @Transactional
+    public void saveTestOrder() {
         SecureRandom secureRandom = new SecureRandom();
 
         //상품 pk 범위

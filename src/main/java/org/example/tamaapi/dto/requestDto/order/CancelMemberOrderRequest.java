@@ -18,6 +18,9 @@ public class CancelMemberOrderRequest {
     private Long orderId;
 
     @NotNull
+    //클라이어언트에서 조작해서 보내도 상관x
     private Boolean isFreeOrder = false;
+
+    private String reason = "구매자 취소 요청";
 
 }
