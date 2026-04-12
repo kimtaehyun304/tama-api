@@ -8,6 +8,7 @@ import org.example.tamaapi.domain.BaseEntity;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
 import org.example.tamaapi.domain.user.Guest;
 import org.example.tamaapi.domain.user.Member;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "orders")
+@DynamicUpdate
 public class Order extends BaseEntity {
 
     @Id

@@ -20,7 +20,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.sql.SQLIntegrityConstraintViolationException;
 
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = {"org.example.tamaapi.controller"})
 @Slf4j
 //필터에서 발생한 예외는 못잡음
 public class CommonExceptionHandler {

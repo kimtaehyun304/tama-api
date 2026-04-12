@@ -205,7 +205,6 @@ public class OrderService {
         //나머지 케이스는 취소 불가
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED)) {
             String message = "주문 취소 가능 단계가 아닙니다.";
-            log.warn(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -225,7 +224,6 @@ public class OrderService {
         //나머지 케이스는 취소 불가
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
             String message = "주문 취소 가능 단계가 아닙니다.";
-            log.warn(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -241,7 +239,6 @@ public class OrderService {
 
         if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
             String message = "주문한 사용자가 아닙니다.";
-            log.warn(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -249,7 +246,6 @@ public class OrderService {
         //나머지 케이스는 취소 불가 (운영자여도 마찬가지)
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
             String message = "주문 취소 가능 단계가 아닙니다.";
-            log.warn(message);
             throw new IllegalArgumentException(message);
         }
 

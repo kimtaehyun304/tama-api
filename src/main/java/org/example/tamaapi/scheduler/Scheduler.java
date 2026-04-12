@@ -130,12 +130,12 @@ public class Scheduler {
     }
 
     //3시간 마다 실행
-    @Scheduled(fixedDelay = 1000*60*60*3)
+    //@Scheduled(fixedDelay = 1000*60*60*3)
     public void retryCancelPayment() {
         //포트원에서 헬스체크 API를 제공하지 않아서 그냥 진행
 
         //설마 많아서 OOM 발생하진 않겠지?
-        List<Long> orderIds = orderRepository.findAllByStatus(OrderStatus.CANCEL_RECEIVED)
+        List<Long> orderIds = orderRepository.findAllByStatus(OrderStatus.PG_CANCEL_ERROR)
                 .stream().map(Order::getId).toList();
         orderService.updateOrderStatusToRefund(orderIds);
     }

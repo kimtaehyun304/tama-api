@@ -3,6 +3,7 @@ package org.example.tamaapi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
@@ -62,9 +63,12 @@ public class PortOneService {
 
     //@Retryable은 retey 실패가 서큣브레이커에 포함 안되서
     //retry 실패시 PG_CANCEL_ERROR상태로 변경하고 스케줄러로 나중에 재시도
-    @Retry(name = "portone", fallbackMethod = "cancelFallback")
-    @CircuitBreaker(name = "portone", fallbackMethod = "cancelFallback")
+    @Retry(name = "portone", fallbackMethod = "cancelRetryFallback")
+    @CircuitBreaker(name = "portone", fallbackMethod = "cancelCircuitFallback")
     public void cancelPayment(String paymentId, String reason) {
+        log.info("hello");
+        throw new RuntimeException("에러!");
+        /*
         RestClient.create().post()
                 .uri("https://api.portone.io/payments/{paymentId}/cancel", paymentId)
                 .header("Authorization", "PortOne " + PORT_ONE_SECRET)
@@ -80,17 +84,52 @@ public class PortOneService {
                 .toBodilessEntity();
         //예외로 인해 결제가 자동 취소되는 경우가 있는데, 이 때 잘 취소됐는지 확인을 위해
         log.debug(String.format("결제가 취소됐습니다. 이유:%s, 결제번호:%s", reason, paymentId));
+
+         */
     }
 
-    public void cancelFallback(String paymentId, String reason, Throwable t) {
-        IllegalStateException exception = new IllegalStateException("PG 서버 장애로 결제를 취소하지 못했습니다. 3시간 후 자동으로 재시도합니다");
+
+    public void cancelRetryFallback(String paymentId, String reason, Throwable t) throws Throwable {
+        String errorMsg = "[retry] PG 서버 장애로 결제를 취소하지 못했습니다. 3시간 이내로 자동으로 재시도합니다";
+        //log.info(errorMsg);
+
+        System.out.println("t = " + t);
+        System.out.println("t.getMessage() = " + t.getMessage());
+        System.out.println("t.getCause() = " + t.getCause());
+        //서큣 열렸을떄도 fallback을 retry fallback이 캐치해서 불필요한 sql 동작하는거 막으랴고
+        if (t instanceof CallNotPermittedException) {
+            System.out.println("if true");
+            throw new IllegalArgumentException(t.getMessage());
+        }
 
         //주문 저장 전 단계에서 실패한 경우도 있으므로 ifPresent
         orderRepository.findByPaymentId(paymentId)
                 .ifPresent(order -> {
-                    orderTxService.updateOrderStatus(order.getId(), OrderStatus.PG_CANCEL_ERROR);
+                    if(!order.getStatus().equals(OrderStatus.PG_CANCEL_ERROR))
+                        orderTxService.updateOrderStatus(order.getId(), OrderStatus.PG_CANCEL_ERROR);
                 });
-        throw exception;
+
+        throw new IllegalStateException(errorMsg);
+    }
+
+    //fallback 합쳐도 되는데 서큣브레이커 잘되는지 확인하려고 분리
+    //retry여도 서큿브레이커 자체가 두번 되는거라, 서큣 브레이카 fallback 두번 후, retry fallback이 캐치
+    public void cancelCircuitFallback(String paymentId, String reason, Throwable t) {
+        String errorMsg = "[서큣브레이커] PG 서버 장애로 결제를 취소하지 못했습니다. 3시간 이내로 자동으로 재시도합니다";
+        //log.info(errorMsg);
+
+        //서큣브레이는 정상 실행하는 경우도 자기가 일해서 자기 fallback 쓰므로
+        //retry 실패후 또는 서쿳 open일때만 상태 변경 하는게 목적이라 이렇게
+        if (t instanceof CallNotPermittedException) {
+            // 🔥 Circuit OPEN → 즉시 실패 처리
+            //log.error("[서킷 OPEN] 즉시 실패 처리");
+            //주문 저장 전 단계에서 실패한 경우도 있으므로 ifPresent
+            orderRepository.findByPaymentId(paymentId)
+                    .ifPresent(order -> {
+                        if (!order.getStatus().equals(OrderStatus.PG_CANCEL_ERROR))
+                            orderTxService.updateOrderStatus(order.getId(), OrderStatus.PG_CANCEL_ERROR);
+                    });
+        }
     }
 
     //프론트에서 customData 양식 못 맞추면 예외 발생 가능
