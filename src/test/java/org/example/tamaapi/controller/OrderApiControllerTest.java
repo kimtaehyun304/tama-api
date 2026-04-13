@@ -43,7 +43,7 @@ class OrderApiControllerTest {
 
    RestTemplate restTemplate = new RestTemplate();
 
-    //@Test
+    @Test
     void 주문_API_동시요청_RestClient() throws InterruptedException {
         int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
@@ -120,10 +120,10 @@ class OrderApiControllerTest {
         // 추가로 응답 바디 검증 등 필요시 assertions 추가
     }
 
-    //@Test
+    @Test
     void 주문취소_API_동시요청() throws Exception {
 
-        int threadCount = 11;
+        int threadCount = 15;
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 

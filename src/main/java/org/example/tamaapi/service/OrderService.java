@@ -207,7 +207,6 @@ public class OrderService {
             String message = "주문 취소 가능 단계가 아닙니다.";
             throw new IllegalArgumentException(message);
         }
-
         if(!isFreeOrder)
             portOneService.cancelPayment(order.getPaymentId(), reason);
         orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
