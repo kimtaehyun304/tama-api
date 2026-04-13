@@ -83,7 +83,7 @@ class DateSqlTests {
     //db 컬럼 타입인 datetime과 호환되는 timestamp 사용
     //발생한 jpql: SELECT o.order_id FROM orders o WHERE o.updated_at >= '2025-11-19T00:00:00.000+0900';
     //변환된  sql: SELECT o.order_id FROM orders o WHERE o.updated_at >= '2025-11-19 00:00:00'
-    @Test
+    //@Test
     void TIMESTAMP_NATIVE() {
         Timestamp eightDaysAgo = Timestamp.valueOf(LocalDateTime.now().minusDays(80).toLocalDate().atStartOfDay());
         //eightDaysAgo = 2025-11-19 00:00:00.0

@@ -171,7 +171,7 @@ public class OrderQueryRepository {
                 .orderBy(new OrderSpecifier<>(Order.ASC, today))
                 .fetch();
 
-        //부모 카테고리별 매출
+        //부모 카테고리별 매출 ex) 상의
         QCategory parent = new QCategory("parent"); // alias, category.parent를 나타냄
         List<AdminCategorySalesResponse> parentCategorySales = queryFactory
                 .select(new QAdminCategorySalesResponse(parent.name.coalesce(category.name), order.count(), orderItem.orderPrice.subtract(order.usedCouponPrice).subtract(order.usedPoint).sum()))
@@ -182,7 +182,7 @@ public class OrderQueryRepository {
                 .groupBy(parent.id.coalesce(category.id), parent.name.coalesce(category.name))
                 .fetch();
 
-        //자식 카테고리별 매출
+        //자식 카테고리별 매출 ex) 아우터, 자켓
         List<ChildCategorySalesResponse> children = queryFactory
                 .select(new QChildCategorySalesResponse(parent.name, category.name, order.count(), orderItem.orderPrice.subtract(order.usedCouponPrice).subtract(order.usedPoint).sum()))
                 .from(orderItem).join(orderItem.colorItemSizeStock, colorItemSizeStock).join(colorItemSizeStock.colorItem, colorItem).join(colorItem.item, item)

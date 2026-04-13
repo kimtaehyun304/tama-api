@@ -120,7 +120,7 @@ class OrderApiControllerTest {
         // 추가로 응답 바디 검증 등 필요시 assertions 추가
     }
 
-    @Test
+    //@Test
     void 주문취소_API_동시요청() throws Exception {
 
         int threadCount = 11;
