@@ -200,32 +200,38 @@ public class OrderService {
     public void refundOrder(boolean isFreeOrder, Long orderId, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-
         OrderStatus status = order.getStatus();
-        //나머지 케이스는 취소 불가
-        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED)) {
-            String message = "주문 취소 가능 단계가 아닙니다.";
-            throw new IllegalArgumentException(message);
-        }
-        if(!isFreeOrder)
+        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED))
+            throw new IllegalArgumentException("주문 취소 확정 가능 단계가 아닙니다");
+
+        boolean isMockPayment = order.getPaymentId().startsWith("mock");
+
+        if(!isFreeOrder && !isMockPayment)
             portOneService.cancelPayment(order.getPaymentId(), reason);
+
         orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
     }
 
-    public void receiveCancelGuestOrder(Long orderId, String buyerName, String reason) {
+    public void receiveCancelGuestOrder(Long orderId, Long memberId, String buyerName, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
 
-        if (!order.getGuest().getNickname().equals(buyerName))
-            throw new IllegalArgumentException("주문한 고객이 아닙니다");
+        boolean isBuyer = order.getGuest().getNickname().equals(buyerName);
+        String errorMsg = "주문한 고객이 아닙니다";
 
-        OrderStatus status = order.getStatus();
-        //나머지 케이스는 취소 불가
-        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
-            String message = "주문 취소 가능 단계가 아닙니다.";
-            throw new IllegalArgumentException(message);
+        if (!isBuyer) {
+            if (memberId == null)
+                throw new IllegalArgumentException(errorMsg);
+
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
+
+            //관리자가 api 호출하면 jwt 첨부되서
+            if (!member.getAuthority().equals(Authority.ADMIN))
+                throw new IllegalArgumentException(errorMsg);
         }
 
+        validateCancelReceivedPossibleLevel(order.getStatus());
         //주문 취소 '접수' 단계라 pg 취소 필요 없음
         orderTxService.updateOrderStatus(orderId, OrderStatus.CANCEL_RECEIVED);
     }
@@ -236,20 +242,21 @@ public class OrderService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
 
-        if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId)) {
-            String message = "주문한 사용자가 아닙니다.";
-            throw new IllegalArgumentException(message);
-        }
+        if (!member.getAuthority().equals(Authority.ADMIN) && !order.getMember().getId().equals(memberId))
+            throw new IllegalArgumentException("주문한 고객이 아닙니다");
 
-        OrderStatus status = order.getStatus();
-        //나머지 케이스는 취소 불가 (운영자여도 마찬가지)
+        validateCancelReceivedPossibleLevel(order.getStatus());
+
+        //주문 취소 '접수' 단계라 pg 취소 필요 없음
+        orderTxService.updateOrderStatus(orderId, OrderStatus.CANCEL_RECEIVED);
+    }
+
+    private static void validateCancelReceivedPossibleLevel(OrderStatus status) {
+        //나머지 케이스는 취소 불가 (운영자여도 안 됨)
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED)) {
             String message = "주문 취소 가능 단계가 아닙니다.";
             throw new IllegalArgumentException(message);
         }
-
-        //주문 취소 '접수' 단계라 pg 취소 필요 없음
-        orderTxService.updateOrderStatus(orderId, OrderStatus.CANCEL_RECEIVED);
     }
 
     //saveOrder 공통 로직
@@ -468,7 +475,7 @@ public class OrderService {
         Member member = memberRepository.findById(randMemberId).get();
         MemberAddress memberAddress = memberAddressRepository.findByMemberIdAndIsDefault(randMemberId, true).get();
 
-        OrderRequest req = new OrderRequest(UUID.randomUUID().toString(), null, null,
+        OrderRequest req = new OrderRequest("mock"+UUID.randomUUID().toString(), null, null,
                 memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
                 , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
                 List.of(

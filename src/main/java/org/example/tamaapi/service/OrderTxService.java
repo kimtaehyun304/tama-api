@@ -45,16 +45,10 @@ public class OrderTxService {
 
     private final OrderRepository orderRepository;
 
-    @Value("${portOne.secret}")
-    private String PORT_ONE_SECRET;
-
-    private Double POINT_ACCUMULATION_RATE = 0.005;
-
     public void updateOrderStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        order.updateStatus(status);
+        order.changeStatus(status);
     }
-
 
 }

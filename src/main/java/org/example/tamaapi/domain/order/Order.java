@@ -105,9 +105,6 @@ public class Order extends BaseEntity {
         return new Order(paymentId, guest, delivery, shippingFee, orderItems);
     }
 
-    public void updateStatus(OrderStatus status) {
-        this.status = status;
-    }
 
     public void setIdByBatchId(Long id) {
         this.id = id;

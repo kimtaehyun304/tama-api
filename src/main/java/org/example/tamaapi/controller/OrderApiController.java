@@ -182,7 +182,7 @@ public class OrderApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new SimpleResponse("주문 완료"));
     }
 
-    //멤버 주문 취소
+    //멤버 주문 취소 접수
     @PutMapping("/api/orders/member/cancel/received")
     public ResponseEntity<SimpleResponse> cancelReceivedMemberOrder(@Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
         if (memberId == null)
@@ -192,9 +192,9 @@ public class OrderApiController {
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 접수 완료"));
     }
 
-    //게스트 주문 취소
+    //게스트 주문 취소 접수
     @PutMapping("/api/orders/guest/cancel/received")
-    public ResponseEntity<SimpleResponse> cancelReceivedGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public ResponseEntity<SimpleResponse> cancelReceivedGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @AuthenticationPrincipal Long memberId) {
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
         if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new IllegalArgumentException(INVALID_HEADER);
@@ -210,7 +210,7 @@ public class OrderApiController {
         String buyerName = values[0];
         Long orderId = Long.parseLong(values[1]);
 
-        orderService.receiveCancelGuestOrder(orderId, buyerName, "구매자 취소 요청");
+        orderService.receiveCancelGuestOrder(orderId, memberId, buyerName, "구매자 취소 요청");
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 접수 완료"));
     }
 
