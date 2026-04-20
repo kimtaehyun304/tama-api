@@ -57,7 +57,7 @@ public class OrderApiController {
 
     //멤버 주문 조회
     @GetMapping("/api/orders/member")
-    public CustomPage<MemberOrderResponse> orders(@AuthenticationPrincipal Long memberId, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
+    public CustomPage<MemberOrderResponse> ordersList(@AuthenticationPrincipal Long memberId, @Valid @ModelAttribute CustomPageRequest customPageRequest) {
         if (memberId == null)
             throw new IllegalArgumentException("액세스 토큰이 비었습니다.");
         //조회라 굳이 멤버 존재 체크 안필요
@@ -183,18 +183,18 @@ public class OrderApiController {
     }
 
     //멤버 주문 취소 접수
-    @PutMapping("/api/orders/member/cancel/received")
-    public ResponseEntity<SimpleResponse> cancelReceivedMemberOrder(@Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
+    @PutMapping("/api/orders/{orderId}/member/cancel/received")
+    public ResponseEntity<SimpleResponse> cancelReceivedMemberOrder(@PathVariable Long orderId, @Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
         if (memberId == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
-        orderService.receiveCancelMemberOrder(req.getOrderId(), memberId, req.getReason());
+        orderService.receiveCancelMemberOrder(orderId, memberId, req.getReason());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 접수 완료"));
     }
 
     //게스트 주문 취소 접수
     @PutMapping("/api/orders/guest/cancel/received")
-    public ResponseEntity<SimpleResponse> cancelReceivedGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader, @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<SimpleResponse> cancelReceivedGuestOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         // "Basic YWRtaW46cGFzc3dvcmQ=" 형태 → Base64 디코딩
         if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new IllegalArgumentException(INVALID_HEADER);
@@ -210,7 +210,7 @@ public class OrderApiController {
         String buyerName = values[0];
         Long orderId = Long.parseLong(values[1]);
 
-        orderService.receiveCancelGuestOrder(orderId, memberId, buyerName, "구매자 취소 요청");
+        orderService.receiveCancelGuestOrder(orderId, buyerName, "구매자 취소 요청");
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 접수 완료"));
     }
 
@@ -243,18 +243,19 @@ public class OrderApiController {
     @PreAuthentication
     @PreAuthorize("hasRole('ADMIN')")
     //주문 취소 접수된 주문
-    public CustomPage<AdminOrderResponse> getCancelReceivedOrders(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
+    public CustomPage<AdminOrderResponse> cancelReceivedOrdersList(@Valid @ModelAttribute CustomPageRequest customPageRequest) {
         return orderQueryRepository.findAdminCancelReceivedOrdersWithPaging(customPageRequest);
     }
 
-    @PutMapping("/api/orders/cancel")
+    @PutMapping("/api/orders/{orderId}/cancel")
     @PreAuthentication
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SimpleResponse> cancelOrder(@Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<SimpleResponse> cancelOrder(@PathVariable Long orderId, @Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
         if (memberId == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
 
-        orderService.refundOrder(req.getIsFreeOrder(), req.getOrderId(), req.getReason());
+        orderService.refundOrder(req.getIsFreeOrder(), orderId, req.getReason());
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 완료"));
     }
+
 }

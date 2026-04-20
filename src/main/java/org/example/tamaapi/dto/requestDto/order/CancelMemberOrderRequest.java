@@ -15,9 +15,6 @@ import java.util.List;
 public class CancelMemberOrderRequest {
 
     @NotNull
-    private Long orderId;
-
-    @NotNull
     //클라이어언트에서 조작해서 보내도 상관x
     private Boolean isFreeOrder = false;
 
