@@ -53,8 +53,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
     //monitoring
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-registry-prometheus'
+    developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
+    developmentOnly 'io.micrometer:micrometer-registry-prometheus'
 
     //ai
     implementation platform("org.springframework.ai:spring-ai-bom:${springAiVersion}")
