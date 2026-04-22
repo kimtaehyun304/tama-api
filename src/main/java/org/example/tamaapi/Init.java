@@ -70,7 +70,7 @@ public class Init {
     public void init() {
         String ddlAuto = environment.getProperty("spring.jpa.hibernate.ddl-auto");
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
-        initService.initBigData();
+        //initService.initBigData();
 
         /*
         //메서드 한번 거쳐서 호출해야함. initMember()이렇게 하면 npe 남

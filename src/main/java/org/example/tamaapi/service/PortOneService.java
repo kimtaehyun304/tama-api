@@ -65,7 +65,7 @@ public class PortOneService {
     //@Retryable은 retey 실패가 서큣브레이커에 포함 안됨
     //retry 실패시 PG_CANCEL_ERROR상태로 변경하고 스케줄러로 나중에 재시도
     //aop 순서가 정해져있어서 어노테이션 순서 상관없음 (실험 해봄)
-    @Retry(name = "portone", fallbackMethod = "cancelRetryFallback")
+    @Retry(name = "common", fallbackMethod = "cancelRetryFallback")
     @CircuitBreaker(name = "portone", fallbackMethod = "cancelCircuitFallback")
     public void cancelPayment(String paymentId, String reason) {
         //log.info("hello");

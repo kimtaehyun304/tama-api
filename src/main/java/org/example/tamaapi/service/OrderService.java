@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.example.tamaapi.domain.order.*;
 import org.example.tamaapi.domain.user.MemberAddress;
 import org.example.tamaapi.domain.user.coupon.CouponType;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
@@ -11,10 +12,6 @@ import org.example.tamaapi.domain.user.Authority;
 import org.example.tamaapi.domain.user.Guest;
 import org.example.tamaapi.domain.user.Member;
 import org.example.tamaapi.domain.item.ColorItemSizeStock;
-import org.example.tamaapi.domain.order.Delivery;
-import org.example.tamaapi.domain.order.Order;
-import org.example.tamaapi.domain.order.OrderItem;
-import org.example.tamaapi.domain.order.OrderStatus;
 import org.example.tamaapi.dto.PortOneOrder;
 import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
 
@@ -27,6 +24,7 @@ import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberCouponRepository;
 import org.example.tamaapi.repository.MemberRepository;
 import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
+import org.example.tamaapi.repository.order.DeliveryRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,6 +54,7 @@ public class OrderService {
     private final MemberAddressRepository memberAddressRepository;
     private final EntityManager em;
     private final OrderTxService orderTxService;
+    private final DeliveryRepository deliveryRepository;
 
 
     @Value("${portOne.secret}")
@@ -196,6 +195,13 @@ public class OrderService {
         return order.getId();
     }
 
+    @Transactional
+    public void changeDeliveryTracking(Long deliveryId, Courier courier, String trackingNumber) {
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_DELIVERY));
+        delivery.changeTracking(courier, trackingNumber);
+    }
+
     //환불 확정
     public void refundOrder(boolean isFreeOrder, Long orderId, String reason) {
         Order order = orderRepository.findById(orderId)
@@ -206,30 +212,18 @@ public class OrderService {
 
         boolean isMockPayment = order.getPaymentId().startsWith("mock");
 
-        if(!isFreeOrder && !isMockPayment)
+        if (!isFreeOrder && !isMockPayment)
             portOneService.cancelPayment(order.getPaymentId(), reason);
 
         orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
     }
 
-    public void receiveCancelGuestOrder(Long orderId, Long memberId, String buyerName, String reason) {
+    public void receiveCancelGuestOrder(Long orderId, String buyerName, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
 
-        boolean isBuyer = order.getGuest().getNickname().equals(buyerName);
-        String errorMsg = "주문한 고객이 아닙니다";
-
-        if (!isBuyer) {
-            if (memberId == null)
-                throw new IllegalArgumentException(errorMsg);
-
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
-
-            //관리자가 api 호출하면 jwt 첨부되서
-            if (!member.getAuthority().equals(Authority.ADMIN))
-                throw new IllegalArgumentException(errorMsg);
-        }
+        if (!order.getGuest().getNickname().equals(buyerName))
+            throw new IllegalArgumentException("주문한 고객이 아닙니다");
 
         validateCancelReceivedPossibleLevel(order.getStatus());
         //주문 취소 '접수' 단계라 pg 취소 필요 없음
@@ -475,7 +469,7 @@ public class OrderService {
         Member member = memberRepository.findById(randMemberId).get();
         MemberAddress memberAddress = memberAddressRepository.findByMemberIdAndIsDefault(randMemberId, true).get();
 
-        OrderRequest req = new OrderRequest("mock"+UUID.randomUUID().toString(), null, null,
+        OrderRequest req = new OrderRequest("mock" + UUID.randomUUID().toString(), null, null,
                 memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
                 , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
                 List.of(

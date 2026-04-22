@@ -3,10 +3,12 @@ package org.example.tamaapi.domain.order;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.tamaapi.domain.BaseEntity;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicUpdate
 public class Delivery extends BaseEntity {
 
     @Id
@@ -34,6 +36,12 @@ public class Delivery extends BaseEntity {
     @Column(nullable = false)
     private String receiverPhone;
 
+    private String trackingNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "enum()")
+    private Courier courier;
+
     //배송 상태는 주문 상태에서 관리
 
     public Delivery(String zipCode, String street, String detail, String message, String receiverNickname, String receiverPhone) {
@@ -43,6 +51,11 @@ public class Delivery extends BaseEntity {
         this.message = message;
         this.receiverNickname = receiverNickname;
         this.receiverPhone = receiverPhone;
+    }
+
+    public void changeTracking(Courier courier, String trackingNumber){
+        this.courier = courier;
+        this.trackingNumber = trackingNumber;
     }
 
     public void setIdByBatchId(Long id) {

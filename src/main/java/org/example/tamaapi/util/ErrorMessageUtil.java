@@ -7,6 +7,8 @@ public class ErrorMessageUtil {
    public static String NOT_FOUND_EMAIL = "존재하지 않는 이메일입니다";
    public static String NOT_FOUND_ORDER = "존재하지 않는 주문입니다";
 
+   public static String NOT_FOUND_DELIVERY = "존재하지 않는 배송입니다";
+
    public static String NOT_FOUND_REVIEW = "존재하지 않는 리뷰입니다";
 
    public static String NOT_FOUND_ORDER_ITEM = "존재하지 않는 주문상품입니다";
