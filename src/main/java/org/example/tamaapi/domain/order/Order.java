@@ -34,7 +34,7 @@ public class Order extends BaseEntity {
     private Delivery delivery;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "enum()")
     private OrderStatus status;
 
     @Embedded

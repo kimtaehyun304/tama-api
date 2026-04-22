@@ -21,7 +21,7 @@ public class Coupon extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "enum()")
     private CouponType type;
 
     @Column(nullable = false)

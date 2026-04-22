@@ -43,8 +43,8 @@ public class Item extends BaseEntity {
     @Column(nullable = false)
     private Integer nowPrice;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "enum()")
     private Gender gender;
 
     @Column(nullable = false)

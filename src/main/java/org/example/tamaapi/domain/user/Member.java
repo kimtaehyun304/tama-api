@@ -40,18 +40,19 @@ public class Member extends BaseEntity {
     private int point;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum()")
     private Gender gender;
 
     private Integer height;
 
     private Integer weight;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "enum()")
     private Provider provider;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "enum()")
     private Authority authority;
 
     @OneToMany(mappedBy = "member")

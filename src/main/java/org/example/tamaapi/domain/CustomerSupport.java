@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Table
-@Entity
+
+//@Table
+//@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CustomerSupport extends BaseEntity {
