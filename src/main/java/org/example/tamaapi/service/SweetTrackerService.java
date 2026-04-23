@@ -18,6 +18,7 @@ import org.example.tamaapi.repository.order.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -35,15 +36,12 @@ public class SweetTrackerService {
     @Value("${sweetTracker.apiKey}")
     private String apiKey;
 
-
-    @CircuitBreaker(name="sweetTracker")
+    @CircuitBreaker(name = "sweetTracker")
     public DeliveryTrackingResponse findTrackingInfo(String courier, String trackingNumber) {
         String tCode = Courier.valueOf(courier).getCode();
         DeliveryTrackingResponse response = RestClient.create().get()
                 .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .host("info.sweettracker.co.kr")
-                        .path("/api/v1/trackingInfo")
+                        .scheme("https").host("info.sweettracker.co.kr").path("/api/v1/trackingInfo")
                         .queryParam("t_code", tCode)
                         .queryParam("t_invoice", trackingNumber)
                         .queryParam("t_key", apiKey)
@@ -51,13 +49,7 @@ public class SweetTrackerService {
                 )
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    String body = "";
-                    try {
-                        body = new String(res.getBody().readAllBytes());
-                    } catch (Exception e) {
-                        log.error("응답 바디 읽기 실패", e);
-                    }
-
+                    String body = extractResBody(res);
                     String clientMsg = "스윗트래커 택배 조회 API 호출 실패";
                     String serverMsg = String.format("스윗트래커 택배 조회 API 호출 실패, body=%s", body);
                     log.error(serverMsg);
@@ -65,12 +57,21 @@ public class SweetTrackerService {
                 })
                 .body(DeliveryTrackingResponse.class);
 
-        if(ObjectUtils.isEmpty(response.getTrackingDetails()))
+        if (ObjectUtils.isEmpty(response.getTrackingDetails()))
             throw new IllegalArgumentException("배송 정보가 없습니다");
 
-        String kor = Courier.valueOf(courier).getKor();
-        response.setCourierName(kor);
+        response.setCourierName(Courier.valueOf(courier).getKor());
         return response;
+    }
+
+    private static String extractResBody(ClientHttpResponse res) {
+        String body = "";
+        try {
+            body = new String(res.getBody().readAllBytes());
+        } catch (Exception e) {
+            log.error("응답 바디 읽기 실패", e);
+        }
+        return body;
     }
 
 }
