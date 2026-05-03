@@ -210,8 +210,8 @@ public class OrderService {
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED))
             throw new IllegalArgumentException("주문 취소 확정 가능 단계가 아닙니다");
 
-        //결제취소 실패 -> 주문 취소 도달 x
-        //타임아웃이지만 실제론 결제취소 성공 -> 주문 취소 되지 않기에 배송시작하면 골치아파서 주문 취소를 먼저함
+        //결제취소 먼저하고 실패하면 주문 취소 도달하지 않지만
+        //타임아웃으로 인해 나중에 결제 취소되면 배송 시작할 수도 있어서 주문 취소를 먼저함
         orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
 
         boolean isMockPayment = order.getPaymentId().startsWith("mock");
