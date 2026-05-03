@@ -25,10 +25,10 @@ public class ChatBotController {
     private final ItemQueryRepository itemQueryRepository;
     private final VectorService vectorService;
 
-    //gpt를 통한 상품 검색 (문장을 통한 편한 검색 + 유사어 인지 가능한 장점)
+    //챗봇을 통한 상품 검색 (검색 필터 제공하지만 이게 더 편함)
     @PostMapping("/api/chatbot/recommend")
     public RecommendResponse recommendBot(@RequestBody RecommendBotRequest recommendBotRequest) {
-        //사용자가 ~~한 상품을 추천해달라고하면 gpt가 이를 분석해서 where절에 쓸 조건을 json으로 반환
+        //사용자가 ~~한 상품을 추천해달라고하면 gpt가 유사어를 json으로 반환
         RecommendedSqlCondition sqlCondition = chatClient.prompt(fileLoader.loadFilterPrompt())
                 .user(recommendBotRequest.getUserInputPrompt())
                 .call()
