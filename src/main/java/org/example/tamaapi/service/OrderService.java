@@ -210,12 +210,13 @@ public class OrderService {
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED))
             throw new IllegalArgumentException("주문 취소 확정 가능 단계가 아닙니다");
 
-        boolean isMockPayment = order.getPaymentId().startsWith("mock");
+        //결제취소 실패 -> 주문 취소 도달 x
+        //타임아웃이지만 실제론 결제취소 성공 -> 주문 취소 되지 않기에 배송시작하면 골치아파서 주문 취소를 먼저함
+        orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
 
+        boolean isMockPayment = order.getPaymentId().startsWith("mock");
         if (!isFreeOrder && !isMockPayment)
             portOneService.cancelPayment(order.getPaymentId(), reason);
-
-        orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
     }
 
     public void receiveCancelGuestOrder(Long orderId, String buyerName, String reason) {
