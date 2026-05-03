@@ -61,9 +61,7 @@ public class PortOneService {
 
     }
 
-    //서큣폴백 -> 리트라이-> 서큣폴백 -> 리트라이폴백 순서
-    //@Retryable은 retey 실패가 서큣브레이커에 포함 안됨
-    //retry 실패시 PG_CANCEL_ERROR상태로 변경하고 스케줄러로 나중에 재시도
+    //@Retryable은 retey 실패가 서큣브레이커에 포함 안되서 안 씀
     //aop 순서가 정해져있어서 어노테이션 순서 상관없음 (실험 해봄)
     @Retry(name = "common", fallbackMethod = "cancelRetryFallback")
     @CircuitBreaker(name = "portone", fallbackMethod = "cancelCircuitFallback")
@@ -77,10 +75,9 @@ public class PortOneService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     //res 포함하면 복잡해서 포함 안했음. 보안상 민감한 내용 있을수도 있고
-                    String clientMsg = String.format("PG 서버 문제로 인해 결제 취소를 실패했습니다");
-                    String serverMsg = String.format("포트원 결제 취소 API 호출 실패로 인해 결제 취소를 실패했습니다., res:%s", res);
-                    log.error(serverMsg);
-                    throw new IllegalArgumentException(clientMsg);
+                    //String clientMsg = String.format("PG 서버 문제로 인해 결제 취소를 실패했습니다");
+                    //String serverMsg = String.format("포트원 결제 취소 API 호출 실패로 인해 결제 취소를 실패했습니다., res:%s", res);
+                    throw new IllegalArgumentException("PG 서버 문제로 인해 결제 취소를 실패했습니다");
                 })
                 .toBodilessEntity();
         //예외로 인해 결제가 자동 취소되는 경우가 있는데, 이 때 잘 취소됐는지 확인을 위해

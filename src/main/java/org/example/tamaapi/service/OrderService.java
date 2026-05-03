@@ -207,6 +207,10 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
         OrderStatus status = order.getStatus();
+
+        if(status == OrderStatus.PG_CANCEL_ERROR)
+            throw new IllegalArgumentException("PG 서버 장애 복구되면 자동으로 환불됩니다");
+
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED))
             throw new IllegalArgumentException("주문 취소 확정 가능 단계가 아닙니다");
 
