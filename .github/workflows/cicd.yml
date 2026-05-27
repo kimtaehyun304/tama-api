@@ -16,8 +16,8 @@ jobs:
 
       - name: Create application.yml from secrets
         run: |
-          touch ./src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+          mkdir -p src/main/resources
+          printf '%s' "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
 
       - name: Set up Java
         uses: actions/setup-java@v4
