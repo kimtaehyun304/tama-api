@@ -18,7 +18,8 @@ public class HealthCheckController {
     @GetMapping("/errors")
     public ResponseEntity<String> errorTest() {
         //테스트
-        log.error("health is error");
-        return ResponseEntity.badRequest().body("error");
+        throw new RuntimeException("에러");
+        //log.error("health is error");
+        //return ResponseEntity.badRequest().body("error");
     }
 }

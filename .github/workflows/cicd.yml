@@ -18,7 +18,6 @@ jobs:
         run: |
           touch ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
-          cat ./src/main/resources/application.yml
 
       - name: Set up Java
         uses: actions/setup-java@v4

@@ -5,7 +5,7 @@
     <!--        PROPERTIES     -->
     <!-- ===================== -->
     <property name="CONSOLE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%thread]) %highlight([%-3level]) %logger{5} %msg %n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId},%X{spanId}] [%-3level] %logger{5} - %msg %n"/>
 
     <!-- ===================== -->
     <!--        APPENDERS      -->
