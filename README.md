@@ -2,7 +2,7 @@
 
 ### 인프라
 <p align="center">
-<img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
+<img width="1451" height="501" alt="Image" src="https://github.com/user-attachments/assets/eb8e552a-1f85-44c4-86bb-7cf4d971fbcd" />
 </p>
 
 <p>https://dlta.kr</p>
