@@ -7,6 +7,8 @@
 
 <p>https://dlta.kr</p>
 
+<p>CQRS 적용: https://github.com/kimtaehyun304/tama-api-replication<p>
+
 ### 기술
 * 스프링 부트 3.4 (mvc, security, valid, aop, cache, batch)
 * mysql 8, hibernate 6, data jpa, querydsl 5
