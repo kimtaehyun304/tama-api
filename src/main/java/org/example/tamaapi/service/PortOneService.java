@@ -61,9 +61,7 @@ public class PortOneService {
 
     }
 
-    //서큣폴백 -> 리트라이-> 서큣폴백 -> 리트라이폴백 순서
-    //@Retryable은 retey 실패가 서큣브레이커에 포함 안됨
-    //retry 실패시 PG_CANCEL_ERROR상태로 변경하고 스케줄러로 나중에 재시도
+    //@Retryable은 retey 실패가 서큣브레이커에 포함 안되서 안 씀
     //aop 순서가 정해져있어서 어노테이션 순서 상관없음 (실험 해봄)
     @Retry(name = "common", fallbackMethod = "cancelRetryFallback")
     @CircuitBreaker(name = "portone", fallbackMethod = "cancelCircuitFallback")
@@ -77,23 +75,21 @@ public class PortOneService {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     //res 포함하면 복잡해서 포함 안했음. 보안상 민감한 내용 있을수도 있고
-                    String clientMsg = String.format("PG 서버 문제로 인해 결제 취소를 실패했습니다");
-                    String serverMsg = String.format("포트원 결제 취소 API 호출 실패로 인해 결제 취소를 실패했습니다., res:%s", res);
-                    log.error(serverMsg);
-                    throw new IllegalArgumentException(clientMsg);
+                    //String clientMsg = String.format("PG 서버 문제로 인해 결제 취소를 실패했습니다");
+                    //String serverMsg = String.format("포트원 결제 취소 API 호출 실패로 인해 결제 취소를 실패했습니다., res:%s", res);
+                    throw new IllegalArgumentException("PG 서버 문제로 인해 결제 취소를 실패했습니다");
                 })
                 .toBodilessEntity();
         //예외로 인해 결제가 자동 취소되는 경우가 있는데, 이 때 잘 취소됐는지 확인을 위해
         log.debug(String.format("결제가 취소됐습니다. 이유:%s, 결제번호:%s", reason, paymentId));
     }
 
-    //fallback 합쳐도 되는데 서큣브레이커 잘되는지 확인하려고 분리 (근데 분리하는게 정확한 듯)
-    //retry여도 서큿브레이커 자체가 두번 되는거라, 서큣 브레이카 fallback 두번 후, retry fallback이 캐치
+    //fallback 공용으로 쓸수도 있는데 복잡해서 안함
+    //retry 주체가 서킷브레이커라서, retry 실패하면 서킷폴백이 실행됨
     public void cancelCircuitFallback(String paymentId, String reason, Throwable t) throws Throwable {
         //System.out.println("cancelCircuitFallback");
 
-        //서큣 open 상태일때만 주문 상태 변경
-        //단순 네트워크 에러 일 수도 있어서 retry 기회 줘야함
+        //단순 네트워크 에러 일 수도 있어서 retry 기회 줄려고, 서큣 열렸을때만 update
         //주문 저장 전 단계에서 실패한 경우도 있으므로 ifPresent
         //메소드에서 폴백을 직접호출한거라 @Transactional 동작 x → 변경감지 불가
         if (t instanceof CallNotPermittedException) {
@@ -105,26 +101,27 @@ public class PortOneService {
             throw t;
         }
 
-        //예외 던져야 retry 수헹 (@Retry 있을 경우)
-        String errorMsg = "PG 서버 장애로 인한 cancelCircuitFallback 발생";
+        //예외 던져야 @Retry 동작
+        String errorMsg = "PG 서버 장애로 인해 결제 취소를 실패했습니다. retry를 수행합니다";
         throw new RuntimeException(errorMsg);
     }
 
-    //retry 전부 실패하면 1회 실행
-    //ignore-exceptions 은 retry만 안 할뿐 fallback은 실행됨
+    //retry 전부 실패하면 1회만 실행됨
     public void cancelRetryFallback(String paymentId, String reason, Throwable t) throws Throwable {
         //System.out.println("cancelRetryFallback");
+        String errorMsg = "PG 서버 장애로 인해 결제 취소를 실패했습니다. 3시간 이내로 재시도합니다.";
 
-        //주문 저장 전 단계에서 실패한 경우도 있으므로 ifPresent
-        //메소드에서 폴백을 직접호출한거라 @Transactional 동작 x → 변경감지 불가
+        //서큣 열렸으면 cancelCircuitFallback에서 이미 update 했음
+        if (t instanceof CallNotPermittedException)
+            throw new RuntimeException(errorMsg);
+
         orderRepository.findByPaymentId(paymentId)
                 .ifPresent(order -> {
                     if (!order.getStatus().equals(OrderStatus.PG_CANCEL_ERROR))
                         orderTxService.updateOrderStatus(order.getId(), OrderStatus.PG_CANCEL_ERROR);
                 });
 
-        //서큣 브레이커 실패 카운트 적립 + 예외 메시지 보내기
-        String errorMsg = "PG 서버 장애로 인해 결제 취소를 실패했습니다. 3시간 마다 반복 재시도 합니다.";
+        //공통 예외 처리 단계 및 서큣 브레이커 실패 카운트 적립
         throw new RuntimeException(errorMsg);
     }
 

@@ -22,6 +22,7 @@ import org.example.tamaapi.repository.item.query.dto.CategoryBestItemQueryRespon
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.example.tamaapi.service.CacheService;
 import org.example.tamaapi.service.OrderService;
+import org.example.tamaapi.service.PortOneService;
 import org.example.tamaapi.util.ErrorMessageUtil;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -52,6 +53,7 @@ public class Scheduler {
     private final CouponRepository couponRepository;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
+    private final PortOneService portOneService;
 
     @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul")
     private void saveBestItemCache(){
@@ -131,13 +133,17 @@ public class Scheduler {
 
     //3시간 마다 실행
     //@Scheduled(fixedDelay = 1000*60*60*3)
-    public void retryCancelPayment() {
-        //포트원에서 헬스체크 API를 제공하지 않아서 그냥 진행
+    public void retryCancelPayment() throws InterruptedException {
+        //포트원에서 헬스체크 API를 제공하지 않아서 그냥 호출
+        List<Order> orders = orderRepository.findTop1000ByStatus(OrderStatus.PG_CANCEL_ERROR);
+        for (Order order : orders) {
+            //포트원에서 paymentId 기반 다건조회 제공x
+            String status = (String) portOneService.findByPaymentId(order.getPaymentId()).get("status");
+            if(status.equals("paid"))
+                orderService.refundOrder(false, order.getId(), "생략");
+            Thread.sleep(100);
+        }
 
-        //설마 많아서 OOM 발생하진 않겠지?
-        List<Long> orderIds = orderRepository.findAllByStatus(OrderStatus.PG_CANCEL_ERROR)
-                .stream().map(Order::getId).toList();
-        orderService.updateOrderStatusToRefund(orderIds);
     }
 
 }

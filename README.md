@@ -2,16 +2,14 @@
 
 ### 인프라
 <p align="center">
-<img src="https://github.com/user-attachments/assets/cd62fb35-4615-4a69-bf6a-197f93bc2a7e"/>
-</p>
-<p align="center">현재는 비용 때문에 ELB 지움</p>
-
-<p align="center">
-<img src="https://github.com/user-attachments/assets/831eec69-3ccc-462a-97be-e23b4810b380"/>
+<img width="1451" height="501" alt="Image" src="https://github.com/user-attachments/assets/eb8e552a-1f85-44c4-86bb-7cf4d971fbcd" />
 </p>
 
 <p>https://dlta.kr</p>
 
+<p>CQRS 적용: https://github.com/kimtaehyun304/tama-api-replication<p>
+<p>MSA 전환: https://github.com/kimtaehyun304/tama-api-msa<p
+                                                         
 ### 기술
 * 스프링 부트 3.4 (mvc, security, valid, aop, cache, batch)
 * mysql 8, hibernate 6, data jpa, querydsl 5

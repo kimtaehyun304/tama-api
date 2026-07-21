@@ -207,15 +207,20 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
         OrderStatus status = order.getStatus();
+
+        if(status == OrderStatus.PG_CANCEL_ERROR)
+            throw new IllegalArgumentException("PG 서버 장애 복구되면 자동으로 환불됩니다");
+
         if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED))
             throw new IllegalArgumentException("주문 취소 확정 가능 단계가 아닙니다");
 
-        boolean isMockPayment = order.getPaymentId().startsWith("mock");
+        //결제취소 먼저하고 실패하면 주문 취소 도달하지 않지만
+        //타임아웃으로 인해 나중에 결제 취소되면 배송 시작할 수도 있어서 주문 취소를 먼저함
+        orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
 
+        boolean isMockPayment = order.getPaymentId().startsWith("mock");
         if (!isFreeOrder && !isMockPayment)
             portOneService.cancelPayment(order.getPaymentId(), reason);
-
-        orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
     }
 
     public void receiveCancelGuestOrder(Long orderId, String buyerName, String reason) {
