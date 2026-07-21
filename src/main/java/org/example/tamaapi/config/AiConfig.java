@@ -43,6 +43,7 @@ public class AiConfig {
         return new JdbcTemplate(dataSource);
     }
 
+    /*
     @Bean(name = "vectorJdbcTemplate")
     public JdbcTemplate vectorJdbcTemplate() {
         HikariDataSource dataSource = DataSourceBuilder.create()
@@ -63,4 +64,6 @@ public class AiConfig {
                 .vectorTableName(VECTOR_TABLE)
                 .build();
     }
+    
+     */
 }
