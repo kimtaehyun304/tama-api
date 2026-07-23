@@ -16,7 +16,7 @@ if ! command -v certbot >/dev/null 2>&1; then
         --non-interactive
 
     systemctl enable --now certbot-renew.timer
-
+    nginx -s reload
 else
     echo "Certbot is already installed, skipping installation."
 fi
