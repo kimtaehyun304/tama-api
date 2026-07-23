@@ -14,6 +14,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByPaymentId(String paymentId);
 
+    @Query("select o from Order o left join fetch o.memberCoupon where o.id = :orderId")
+    Optional<Order> findWithMemberCouponByOrderId(Long orderId);
 
     @Query("select o from Order o join fetch o.orderItems oi join fetch o.delivery d where o.id = :orderId")
     Optional<Order> findAllWithOrderItemAndDeliveryByOrderId(Long orderId);

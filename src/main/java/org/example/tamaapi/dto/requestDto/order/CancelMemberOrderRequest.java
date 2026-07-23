@@ -14,9 +14,9 @@ import java.util.List;
 //로그 남기는 로직있어서 @ToString 사용
 public class CancelMemberOrderRequest {
 
-    @NotNull
+    //@NotNull
     //클라이어언트에서 조작해서 보내도 상관x
-    private Boolean isFreeOrder = false;
+    //private Boolean isFreeOrder = false;
 
     private String reason = "구매자 취소 요청";
 

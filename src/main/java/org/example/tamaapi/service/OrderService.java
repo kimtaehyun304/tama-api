@@ -202,26 +202,23 @@ public class OrderService {
         delivery.changeTracking(courier, trackingNumber);
     }
 
+
     //환불 확정
-    public void refundOrder(boolean isFreeOrder, Long orderId, String reason) {
-        Order order = orderRepository.findById(orderId)
+    public void refundOrder(Long orderId, String reason) {
+        Order order = orderRepository.findWithMemberCouponByOrderId(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_ORDER));
-        OrderStatus status = order.getStatus();
+        //주문 취소 → 결제 취소 순으로 해야함
+        //결제 취소 먼저하면, PG 서버 장애 시간 동안, 배송을 시작 할 수 있기 때문
+        //이 경우, 배송비+환불 배송비를 회사가 내야하는 이슈 발생
+        orderTxService.refundAndRollbackCouponAndPoint(orderId);
 
-        if(status == OrderStatus.PG_CANCEL_ERROR)
-            throw new IllegalArgumentException("PG 서버 장애 복구되면 자동으로 환불됩니다");
-
-        if (!(status == OrderStatus.ORDER_RECEIVED || status == OrderStatus.DELIVERED || status == OrderStatus.CANCEL_RECEIVED))
-            throw new IllegalArgumentException("주문 취소 확정 가능 단계가 아닙니다");
-
-        //결제취소 먼저하고 실패하면 주문 취소 도달하지 않지만
-        //타임아웃으로 인해 나중에 결제 취소되면 배송 시작할 수도 있어서 주문 취소를 먼저함
-        orderTxService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
-
-        boolean isMockPayment = order.getPaymentId().startsWith("mock");
-        if (!isFreeOrder && !isMockPayment)
+        //아걸 비동기로 빼서 트랜잭션을 분리할까 했는데, 결제 취소 메시지 보내려면 비동기로하면 안됨
+        //무료 주문, 목업 주문 아닌 경우에만 결제 취소
+        String paymentId = order.getPaymentId();
+        if (paymentId != null && !paymentId.startsWith("mock"))
             portOneService.cancelPayment(order.getPaymentId(), reason);
     }
+
 
     public void receiveCancelGuestOrder(Long orderId, String buyerName, String reason) {
         Order order = orderRepository.findById(orderId)

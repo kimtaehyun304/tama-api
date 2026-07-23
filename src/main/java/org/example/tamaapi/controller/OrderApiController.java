@@ -250,11 +250,14 @@ public class OrderApiController {
     @PutMapping("/api/orders/{orderId}/cancel")
     @PreAuthentication
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SimpleResponse> cancelOrder(@PathVariable Long orderId, @Valid @RequestBody CancelMemberOrderRequest req, @AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<SimpleResponse> cancelOrder(@PathVariable Long orderId, @AuthenticationPrincipal Long memberId) {
         if (memberId == null)
             throw new MyBadRequestException("액세스 토큰이 비었습니다.");
+        System.out.println("orderId = "+ orderId);
 
-        orderService.refundOrder(req.getIsFreeOrder(), orderId, req.getReason());
+        //주문자가 입력하도록 개선 필요
+        String reason = "구매자 취소 요청";
+        orderService.refundOrder(orderId,  reason);
         return ResponseEntity.status(HttpStatus.OK).body(new SimpleResponse("주문 취소 완료"));
     }
 

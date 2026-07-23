@@ -140,7 +140,7 @@ public class Scheduler {
             //포트원에서 paymentId 기반 다건조회 제공x
             String status = (String) portOneService.findByPaymentId(order.getPaymentId()).get("status");
             if(status.equals("paid"))
-                orderService.refundOrder(false, order.getId(), "생략");
+                orderService.refundOrder(order.getId(), "생략");
             Thread.sleep(100);
         }
 
