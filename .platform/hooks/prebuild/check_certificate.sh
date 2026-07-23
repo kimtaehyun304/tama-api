@@ -26,6 +26,7 @@ if [ ! -d "/etc/letsencrypt/live" ] || [ ! -d "/etc/letsencrypt/live/${DOMAIN}" 
         --no-eff-email \
         --non-interactive
 
+    systemctl reload nginx
     systemctl enable --now certbot-renew.timer
 else
     echo "[INFO] Certificate already exists."
