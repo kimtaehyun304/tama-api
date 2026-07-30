@@ -6,8 +6,9 @@ if  systemctl is-active --quiet nginx; then
     echo "[INFO] nginx is active. so skip to restart nginx"
 else
     echo "[WARN] nginx is not active. try to start nginx"
-    #restart로는 먼저 떠있는 nginx 못 죽여서 pkill하는건데, pkill하면 beanstalk 부팅 중지되네;
-    pkill -f nginx || true
+    #systemctl이 아닌 무언가에 의해 nginx가 이미 실행되는 경우 때문에 pkill 하는건데
+    #pkill하면 beanstalk 부팅 종료됨
+    ##pkill -f nginx || true
     systemctl start nginx
     echo "[INFO] nginx restart successfully"
 fi
