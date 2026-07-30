@@ -4,7 +4,7 @@
 
 set -e
 
-DOMAIN="dlta.kr"
+DOMAIN="dldm.kr"
 EMAIL="kimapbel@gmail.com"
 
 # 1. Certbot 없으면 설치
