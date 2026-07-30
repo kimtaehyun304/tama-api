@@ -79,6 +79,7 @@ public class Init {
             initService.initBigData();
         }
         */
+
         //캐시 메모리에 올려두는 거라 매번 초기화 해야함
         initService.initBestItemCache();
 
@@ -1250,6 +1251,7 @@ public class Init {
 
                 // 캐시 저장
                 List<CategoryBestItemQueryResponse> bestItems = itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
+                System.out.println("bestItems.size() = " + bestItems.size());
                 cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
             }
         }

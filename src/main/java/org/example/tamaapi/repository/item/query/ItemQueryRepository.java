@@ -153,7 +153,9 @@ public class ItemQueryRepository {
     public List<CategoryBestItemQueryResponse> findCategoryBestItemWithPaging(List<Long> categoryIds, CustomPageRequest customPageRequest) {
 
         LocalDateTime start = LocalDate.now().minusDays(1).atStartOfDay();
+        System.out.println("start = " + start);
         LocalDateTime end = start.plusDays(1);
+        System.out.println("end = " + end);
 
         List<CategoryBestItemQueryResponse> categoryBestItemQueryResponses = queryFactory.select
                         (new QCategoryBestItemQueryResponse(item.id, colorItem.id, item.name, item.originalPrice, item.nowPrice)).from(orderItem)
