@@ -4,7 +4,7 @@
 
 set -e
 
-DOMAIN="dldm.kr"
+DOMAIN="dlta.kr"
 EMAIL="kimapbel@gmail.com"
 
 # 1. Certbot 없으면 설치
@@ -39,12 +39,7 @@ cat <<'EOF' > /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
 #!/bin/bash
 
 # nginx가 실행 중이면 reload
-if ! systemctl reload nginx; then
-    echo "[WARN] Reload failed. Restarting nginx..."
-    pkill -f nginx || true
-    systemctl start nginx
-fi
-EOF
+systemctl reload nginx;
 
 chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
 
