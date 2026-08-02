@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +57,8 @@ public class Scheduler {
     private final PortOneService portOneService;
 
     @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul")
+    //스케줄 시간에 장애날 수도 있어서
+    @EventListener(ApplicationReadyEvent.class)
     private void saveBestItemCache(){
         CustomPageRequest customPageRequest = new CustomPageRequest(1,10);
 
@@ -77,8 +80,17 @@ public class Scheduler {
     }
 
     @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
-    //@EventListener(ApplicationReadyEvent.class)
+    //스케줄 시간에 장애날 수도 있어서
+    @EventListener(ApplicationReadyEvent.class)
     private void saveTestOrder() throws InterruptedException {
+        LocalDate today = LocalDate.now();
+        long count = orderRepository.countByCreatedAtBetween(
+                today.atStartOfDay(),
+                today.plusDays(1).atStartOfDay()
+        );
+        //40개 이상이어도 중간에 중지된 걸 수도 있지만, 40개면 충분하기 때문
+        if(count >= 40) return;
+
         SecureRandom secureRandom = new SecureRandom();
 
         int minOrderCount = 40;
@@ -114,6 +126,7 @@ public class Scheduler {
     }
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+
     //체험용 계정에 쿠폰 발급 (다 썼을 경우)
     public void giveCoupon() {
         Member experienceAccount = memberRepository.findAllByAuthority(Authority.MEMBER).get(1);

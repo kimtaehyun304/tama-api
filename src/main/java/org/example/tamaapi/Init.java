@@ -80,8 +80,7 @@ public class Init {
         }
         */
 
-        //캐시 메모리에 올려두는 거라 매번 초기화 해야함
-        initService.initBestItemCache();
+
 
     }
 
@@ -1236,6 +1235,7 @@ public class Init {
             vectorService.saveFaqVectors(faqs);
         }
 
+        /*
         public void initBestItemCache() {
             CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
 
@@ -1255,7 +1255,7 @@ public class Init {
                 cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
             }
         }
-
+        */
     }
 
 }
