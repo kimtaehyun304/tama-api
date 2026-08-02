@@ -38,6 +38,7 @@ import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -1256,6 +1257,7 @@ public class Init {
             }
         }
 
+        @Async
         public void checkAndGenerateMockOrder(){
             LocalDate today = LocalDate.now();
             long count = orderRepository.countByCreatedAtBetween(
