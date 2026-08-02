@@ -20,6 +20,8 @@ fi
 if [ ! -d "/etc/letsencrypt/live" ] || [ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]; then
     echo "[INFO] Certificate not found. Issuing certificate..."
 
+    mkdir -p "$WEBROOT/.well-known/acme-challenge"
+
     certbot certonly --webroot \
         -w "$WEBROOT" \
         -d "$DOMAIN" \
