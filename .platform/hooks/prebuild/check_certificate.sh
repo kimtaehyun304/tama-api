@@ -6,6 +6,7 @@ set -e
 
 DOMAIN="dldm.kr"
 EMAIL="kimapbel@gmail.com"
+WEBROOT="/var/app/current"
 
 # 1. Certbot 없으면 설치
 if ! command -v certbot >/dev/null 2>&1; then
