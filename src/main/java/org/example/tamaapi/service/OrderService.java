@@ -27,6 +27,7 @@ import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.order.DeliveryRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -475,6 +476,19 @@ public class OrderService {
                 }
             }
         }
+    }
+
+    @Async
+    public void checkAndGenerateMockOrder(){
+        LocalDate today = LocalDate.now();
+        long count = orderRepository.countByCreatedAtBetween(
+                today.atStartOfDay(),
+                today.plusDays(1).atStartOfDay()
+        );
+        //40개 이상이어도 중간에 중지된 걸 수도 있지만, 40개면 충분하기 때문
+        if(count >= 40) return;
+
+        generateMockOrder();
     }
 
 
