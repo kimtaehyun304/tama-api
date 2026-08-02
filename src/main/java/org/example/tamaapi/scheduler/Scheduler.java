@@ -75,7 +75,6 @@ public class Scheduler {
             List<CategoryBestItemQueryResponse> bestItems = itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
             cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
             List<CategoryBestItemQueryResponse> responses = (List<CategoryBestItemQueryResponse>) cacheService.get(MyCacheType.BEST_ITEM, bestItem.name());
-            System.out.println("responses.size() = " + responses.size());
         }
     }
 

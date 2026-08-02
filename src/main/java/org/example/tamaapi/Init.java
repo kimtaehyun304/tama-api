@@ -1252,7 +1252,6 @@ public class Init {
 
                 // 캐시 저장
                 List<CategoryBestItemQueryResponse> bestItems = itemQueryRepository.findCategoryBestItemWithPaging(categoryIds, customPageRequest);
-                System.out.println("bestItems.size() = " + bestItems.size());
                 cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
             }
         }
