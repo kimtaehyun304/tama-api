@@ -51,7 +51,6 @@ public class OrderService {
     private final PortOneService portOneService;
     private final ItemService itemService;
     private final MemberCouponRepository memberCouponRepository;
-    private final MemberAddressRepository memberAddressRepository;
     private final EntityManager em;
     private final OrderTxService orderTxService;
     private final DeliveryRepository deliveryRepository;
@@ -453,51 +452,32 @@ public class OrderService {
     }
 
     //------------------------------------------
-    @Transactional
-    public void saveTestOrder() {
+
+    public void generateMockOrder(){
         SecureRandom secureRandom = new SecureRandom();
 
-        //상품 pk 범위
-        int minItemId = 400017;
-        int maxItemId = 400076;
-        Long randStockId = (long) (secureRandom.nextInt(maxItemId - minItemId + 1) + minItemId);
+        int minOrderCount = 40;
+        int maxOrderCount = 130;
+        int todayRandOrderCount = secureRandom.nextInt(maxOrderCount - minOrderCount + 1) + minOrderCount;
 
-        //1은 운영자 pk
-        int minMemberId = 2;
-        int maxMemberId = 12;
-        Long randMemberId = (long) (secureRandom.nextInt(maxMemberId - minMemberId + 1) + minMemberId);
+        for(int i=0; i<todayRandOrderCount; i++){
+            orderTxService.saveMockOrder();
+            int minNextOrderWaitTime = 5;
+            int maxNextOrderWaitTime = 11;
+            int nextOrderWaitTime = secureRandom.nextInt(maxNextOrderWaitTime - minNextOrderWaitTime + 1) + minNextOrderWaitTime;
 
-        ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(randStockId).get();
-        Member member = memberRepository.findById(randMemberId).get();
-        MemberAddress memberAddress = memberAddressRepository.findByMemberIdAndIsDefault(randMemberId, true).get();
-
-        OrderRequest req = new OrderRequest("mock" + UUID.randomUUID().toString(), null, null,
-                memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
-                , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
-                List.of(
-                        new OrderItemRequest(randStockId, 1)
-                ));
-
-        //배송 엔티티 생성
-        Delivery delivery = new Delivery(req.getZipCode(), req.getStreetAddress(), req.getDetailAddress(), req.getDeliveryMessage()
-                , req.getReceiverNickname(), req.getReceiverPhone());
-
-        List<OrderItem> batchOrderItems = new ArrayList<>();
-        List<OrderItem> orderItems = new ArrayList<>();
-        for (OrderItemRequest orderItemRequest : req.getOrderItems()) {
-            //가격 변동 or 할인 쿠폰 고려
-            Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
-            int orderPrice = nowPrice;
-
-            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice)
-                    .count(orderItemRequest.getOrderCount()).build();
-            batchOrderItems.add(orderItem);
-            orderItems.add(orderItem);
+            //마지막 시도는 굳이 안 기다려도 되서
+            if(i != todayRandOrderCount-1) {
+                try {
+                    Thread.sleep(1000 * 60 * nextOrderWaitTime);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
-
-        Order order = Order.createMemberOrder(req.getPaymentId(), member, delivery, null, 0, 0, 0, orderItems);
-        orderRepository.save(order);
-        jdbcTemplateRepository.saveOrderItems(batchOrderItems);
     }
+
+
+
 
 }

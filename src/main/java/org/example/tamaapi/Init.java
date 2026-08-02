@@ -80,8 +80,8 @@ public class Init {
         }
         */
 
-
-
+        initService.initBestItemCache();
+        initService.checkAndGenerateMockOrder();
     }
 
     @Component
@@ -1235,7 +1235,7 @@ public class Init {
             vectorService.saveFaqVectors(faqs);
         }
 
-        /*
+
         public void initBestItemCache() {
             CustomPageRequest customPageRequest = new CustomPageRequest(1, 10);
 
@@ -1255,7 +1255,19 @@ public class Init {
                 cacheService.save(MyCacheType.BEST_ITEM, bestItem.name(), bestItems);
             }
         }
-        */
+
+        public void checkAndGenerateMockOrder(){
+            LocalDate today = LocalDate.now();
+            long count = orderRepository.countByCreatedAtBetween(
+                    today.atStartOfDay(),
+                    today.plusDays(1).atStartOfDay()
+            );
+            //40개 이상이어도 중간에 중지된 걸 수도 있지만, 40개면 충분하기 때문
+            if(count >= 40) return;
+
+            orderService.generateMockOrder();
+        }
+
     }
 
 }

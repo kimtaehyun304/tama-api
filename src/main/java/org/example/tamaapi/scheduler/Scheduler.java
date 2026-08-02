@@ -57,8 +57,6 @@ public class Scheduler {
     private final PortOneService portOneService;
 
     @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul")
-    //스케줄 시간에 장애날 수도 있어서
-    @EventListener(ApplicationReadyEvent.class)
     private void saveBestItemCache(){
         CustomPageRequest customPageRequest = new CustomPageRequest(1,10);
 
@@ -82,34 +80,8 @@ public class Scheduler {
     }
 
     @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
-    //스케줄 시간에 장애날 수도 있어서
-    @EventListener(ApplicationReadyEvent.class)
-    private void saveTestOrder() throws InterruptedException {
-        LocalDate today = LocalDate.now();
-        long count = orderRepository.countByCreatedAtBetween(
-                today.atStartOfDay(),
-                today.plusDays(1).atStartOfDay()
-        );
-        //40개 이상이어도 중간에 중지된 걸 수도 있지만, 40개면 충분하기 때문
-        if(count >= 40) return;
-
-        SecureRandom secureRandom = new SecureRandom();
-
-        int minOrderCount = 40;
-        int maxOrderCount = 130;
-        int todayRandOrderCount = secureRandom.nextInt(maxOrderCount - minOrderCount + 1) + minOrderCount;
-
-        for(int i=0; i<todayRandOrderCount; i++){
-            orderService.saveTestOrder();
-            int minNextOrderWaitTime = 5;
-            int maxNextOrderWaitTime = 11;
-            int nextOrderWaitTime = secureRandom.nextInt(maxNextOrderWaitTime - minNextOrderWaitTime + 1) + minNextOrderWaitTime;
-
-            //마지막 시도는 굳이 안 기다려도 되서
-            if(i != todayRandOrderCount-1)
-                Thread.sleep(1000 * 60 * nextOrderWaitTime);
-        }
-
+    private void saveMockOrder() throws InterruptedException {
+        orderService.generateMockOrder();
     }
 
     //사용하지 않는 이미지를 주기적으로 제거하려했는데, 이미지 수정할 때 비동기로 지워주면 됨!

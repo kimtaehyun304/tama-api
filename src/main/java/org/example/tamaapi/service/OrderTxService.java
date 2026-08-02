@@ -2,13 +2,26 @@ package org.example.tamaapi.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.tamaapi.domain.item.ColorItemSizeStock;
 import org.example.tamaapi.domain.order.*;
 import org.example.tamaapi.domain.user.Member;
+import org.example.tamaapi.domain.user.MemberAddress;
 import org.example.tamaapi.domain.user.coupon.MemberCoupon;
+import org.example.tamaapi.dto.requestDto.order.OrderItemRequest;
+import org.example.tamaapi.dto.requestDto.order.OrderRequest;
+import org.example.tamaapi.repository.JdbcTemplateRepository;
+import org.example.tamaapi.repository.MemberAddressRepository;
 import org.example.tamaapi.repository.MemberRepository;
+import org.example.tamaapi.repository.item.ColorItemSizeStockRepository;
 import org.example.tamaapi.repository.order.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import static org.example.tamaapi.util.ErrorMessageUtil.*;
 
 @Service
@@ -18,7 +31,10 @@ import static org.example.tamaapi.util.ErrorMessageUtil.*;
 public class OrderTxService {
 
     private final OrderRepository orderRepository;
+    private final ColorItemSizeStockRepository colorItemSizeStockRepository;
     private final MemberRepository memberRepository;
+    private final MemberAddressRepository memberAddressRepository;
+    private final JdbcTemplateRepository jdbcTemplateRepository;
 
     public void updateOrderStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
@@ -54,6 +70,53 @@ public class OrderTxService {
                     .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_MEMBER));
             member.plusPoint(usedPoint);
         }
+    }
+
+    @Transactional
+    public void saveMockOrder() {
+        SecureRandom secureRandom = new SecureRandom();
+
+        //상품 pk 범위
+        int minItemId = 400017;
+        int maxItemId = 400076;
+        Long randStockId = (long) (secureRandom.nextInt(maxItemId - minItemId + 1) + minItemId);
+
+        //1은 운영자 pk
+        int minMemberId = 2;
+        int maxMemberId = 12;
+        Long randMemberId = (long) (secureRandom.nextInt(maxMemberId - minMemberId + 1) + minMemberId);
+
+        ColorItemSizeStock colorItemSizeStock = colorItemSizeStockRepository.findById(randStockId).get();
+        Member member = memberRepository.findById(randMemberId).get();
+        MemberAddress memberAddress = memberAddressRepository.findByMemberIdAndIsDefault(randMemberId, true).get();
+
+        OrderRequest req = new OrderRequest("mock" + UUID.randomUUID().toString(), null, null,
+                memberAddress.getReceiverNickName(), memberAddress.getReceiverPhone(), memberAddress.getZipCode()
+                , memberAddress.getStreet(), memberAddress.getDetail(), "문 앞에 놔주세요", null, 0,
+                List.of(
+                        new OrderItemRequest(randStockId, 1)
+                ));
+
+        //배송 엔티티 생성
+        Delivery delivery = new Delivery(req.getZipCode(), req.getStreetAddress(), req.getDetailAddress(), req.getDeliveryMessage()
+                , req.getReceiverNickname(), req.getReceiverPhone());
+
+        List<OrderItem> batchOrderItems = new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (OrderItemRequest orderItemRequest : req.getOrderItems()) {
+            //가격 변동 or 할인 쿠폰 고려
+            Integer nowPrice = colorItemSizeStock.getColorItem().getItem().getNowPrice();
+            int orderPrice = nowPrice;
+
+            OrderItem orderItem = OrderItem.builder().colorItemSizeStock(colorItemSizeStock).orderPrice(orderPrice)
+                    .count(orderItemRequest.getOrderCount()).build();
+            batchOrderItems.add(orderItem);
+            orderItems.add(orderItem);
+        }
+
+        Order order = Order.createMemberOrder(req.getPaymentId(), member, delivery, null, 0, 0, 0, orderItems);
+        orderRepository.save(order);
+        jdbcTemplateRepository.saveOrderItems(batchOrderItems);
     }
 
 }
